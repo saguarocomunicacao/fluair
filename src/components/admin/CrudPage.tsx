@@ -14,6 +14,10 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { RichText } from "./RichText";
 import { UploadField } from "./UploadField";
 import { Gallery } from "./Gallery";
+import { EmptyState, PageHeader, Panel, StatusBadge } from "./kit";
+import { ChevronLeft, ChevronRight, Image as ImageIcon, Loader2, MoreHorizontal, Pencil, Plus, Search, Trash2 } from "lucide-react";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
 
 type Row = Record<string, unknown>;
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -121,79 +125,162 @@ export function CrudPage({ config }: { config: TableConfig }) {
     if (isNew && config.gallery) { setIsNew(false); setEditing(res.data); } else setEditing(null);
   };
 
+  const [toDelete, setToDelete] = useState<Row | null>(null);
+  const [page, setPage] = useState(0);
+  const PER = 15;
+  const pages = Math.max(1, Math.ceil(filtered.length / PER));
+  const cur = Math.min(page, pages - 1);
+  const visible = filtered.slice(cur * PER, cur * PER + PER);
+  const imgField = config.fields.find((f) => f.type === "image");
+  const boolCols = new Set(config.fields.filter((f) => f.type === "bool").map((f) => f.name));
+
   const remove = async (r: Row): Promise<void> => {
-    if (!confirm("Excluir este registro?")) return;
     const { error } = await db.from(config.table).delete().eq(pk, r[pk]);
+    setToDelete(null);
     if (error) { toast.error(error.message); return; }
     toast.success("Excluído");
     qc.invalidateQueries({ queryKey: ["crud", config.table] });
   };
 
+  const badge = (c: string, v: unknown) => {
+    if (c === "publicado") return <StatusBadge tone={v ? "success" : "neutral"}>{v ? "Publicado" : "Rascunho"}</StatusBadge>;
+    if (c === "ativo") return <StatusBadge tone={v ? "success" : "neutral"}>{v ? "Ativo" : "Inativo"}</StatusBadge>;
+    return <StatusBadge tone={v ? "info" : "neutral"}>{v ? "Sim" : "Não"}</StatusBadge>;
+  };
+
+  const renderField = (f: Field, col: string, req: boolean) => (
+    <div key={col} className={f.type === "bool" ? "flex items-center justify-between rounded-lg border border-border px-4 py-3" : "space-y-2"}>
+      <Label className="text-sm font-medium">{f.label}{req && <span className="text-destructive"> *</span>}</Label>
+      <FieldInput field={f} col={col} form={editing!} set={set} bucket={config.bucket} />
+    </div>
+  );
+
   return (
-    <div className="space-y-4">
-      <div className="flex flex-wrap items-center justify-between gap-3">
-        <h1 className="text-2xl font-bold">{config.label}</h1>
-        <div className="flex gap-2">
-          <Input placeholder="Buscar…" value={q} onChange={(e) => setQ(e.target.value)} className="w-60" />
-          <Button onClick={openNew}>Novo</Button>
-        </div>
-      </div>
-      <div className="rounded-md border border-border bg-card">
-        <Table>
-          <TableHeader>
-            <TableRow>
-              {config.listCols.map((c) => <TableHead key={c}>{c.replace(/_pt$/, "").replace(/_/g, " ")}</TableHead>)}
-              <TableHead className="w-40 text-right">Ações</TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {isLoading && <TableRow><TableCell colSpan={9}>Carregando…</TableCell></TableRow>}
-            {!isLoading && filtered.length === 0 && <TableRow><TableCell colSpan={9} className="text-muted-foreground">Nenhum registro.</TableCell></TableRow>}
-            {filtered.map((r) => (
-              <TableRow key={String(r[pk])}>
-                {config.listCols.map((c) => <TableCell key={c}>{fmt(r[c])}</TableCell>)}
-                <TableCell className="space-x-1 text-right">
-                  <Button size="sm" variant="outline" onClick={() => { setIsNew(false); setEditing(r); }}>Editar</Button>
-                  <Button size="sm" variant="destructive" onClick={() => remove(r)}>Excluir</Button>
-                </TableCell>
-              </TableRow>
-            ))}
-          </TableBody>
-        </Table>
-      </div>
+    <div>
+      <PageHeader
+        title={config.label}
+        crumbs={["Conteúdo", config.label]}
+        description={`${rows.length} ${rows.length === 1 ? "registro" : "registros"}`}
+        actions={
+          <>
+            <div className="relative">
+              <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+              <Input placeholder="Buscar…" value={q} onChange={(e) => { setQ(e.target.value); setPage(0); }} className="h-10 w-64 bg-card pl-9" />
+            </div>
+            <Button onClick={openNew} className="h-10"><Plus className="h-4 w-4" />Novo</Button>
+          </>
+        }
+      />
+      <Panel className="overflow-hidden">
+        {!isLoading && filtered.length === 0 ? (
+          <EmptyState text={q ? "Nada encontrado para essa busca." : `Nenhum item em ${config.label} ainda.`} onAdd={q ? undefined : openNew} />
+        ) : (
+          <div className="max-h-[calc(100vh-280px)] overflow-auto">
+            <Table>
+              <TableHeader className="sticky top-0 z-10 bg-muted/95 backdrop-blur">
+                <TableRow className="hover:bg-transparent">
+                  {config.listCols.map((c) => <TableHead key={c} className="h-11 text-xs font-semibold uppercase tracking-wide text-muted-foreground">{c.replace(/_pt$/, "").replace(/_/g, " ")}</TableHead>)}
+                  <TableHead className="w-16" />
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {isLoading && <TableRow><TableCell colSpan={9} className="py-10 text-center text-muted-foreground">Carregando…</TableCell></TableRow>}
+                {visible.map((r) => (
+                  <TableRow key={String(r[pk])} className="even:bg-muted/30 hover:bg-brand-accent-soft">
+                    {config.listCols.map((c, i) => (
+                      <TableCell key={c} className="py-3">
+                        {boolCols.has(c) || typeof r[c] === "boolean" ? badge(c, r[c]) : i === 0 && imgField ? (
+                          <div className="flex items-center gap-3">
+                            {r[imgField.name] ? <img src={String(r[imgField.name])} alt="" className="h-9 w-9 rounded-lg border border-border object-cover" /> : <div className="grid h-9 w-9 place-items-center rounded-lg bg-muted"><ImageIcon className="h-4 w-4 text-muted-foreground" /></div>}
+                            <span className="font-medium">{fmt(r[c])}</span>
+                          </div>
+                        ) : <span className={i === 0 ? "font-medium" : "text-muted-foreground"}>{fmt(r[c])}</span>}
+                      </TableCell>
+                    ))}
+                    <TableCell className="text-right">
+                      <DropdownMenu>
+                        <DropdownMenuTrigger asChild><Button size="icon" variant="ghost" className="h-8 w-8" aria-label="Ações"><MoreHorizontal className="h-4 w-4" /></Button></DropdownMenuTrigger>
+                        <DropdownMenuContent align="end">
+                          <DropdownMenuItem onClick={() => { setIsNew(false); setEditing(r); }}><Pencil className="h-4 w-4" />Editar</DropdownMenuItem>
+                          <DropdownMenuItem onClick={() => setToDelete(r)} className="text-destructive focus:text-destructive"><Trash2 className="h-4 w-4" />Excluir</DropdownMenuItem>
+                        </DropdownMenuContent>
+                      </DropdownMenu>
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </div>
+        )}
+        {filtered.length > PER && (
+          <div className="flex items-center justify-between border-t border-border px-5 py-3 text-sm text-muted-foreground">
+            <span>{cur * PER + 1}–{Math.min(filtered.length, cur * PER + PER)} de {filtered.length}</span>
+            <div className="flex items-center gap-2">
+              <Button size="sm" variant="outline" disabled={cur === 0} onClick={() => setPage(cur - 1)}><ChevronLeft className="h-4 w-4" /></Button>
+              <span>Página {cur + 1} de {pages}</span>
+              <Button size="sm" variant="outline" disabled={cur >= pages - 1} onClick={() => setPage(cur + 1)}><ChevronRight className="h-4 w-4" /></Button>
+            </div>
+          </div>
+        )}
+      </Panel>
+
+      <AlertDialog open={!!toDelete} onOpenChange={(o) => !o && setToDelete(null)}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Excluir este registro?</AlertDialogTitle>
+            <AlertDialogDescription>Essa ação não pode ser desfeita.</AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancelar</AlertDialogCancel>
+            <AlertDialogAction className="bg-destructive text-destructive-foreground hover:bg-destructive/90" onClick={() => toDelete && remove(toDelete)}>Excluir</AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
 
       <Dialog open={!!editing} onOpenChange={(o) => !o && setEditing(null)}>
-        <DialogContent className="max-h-[90vh] max-w-3xl overflow-y-auto">
-          <DialogHeader><DialogTitle>{isNew ? "Novo" : "Editar"} — {config.label}</DialogTitle></DialogHeader>
+        <DialogContent className="flex max-h-[92vh] max-w-3xl flex-col gap-0 overflow-hidden p-0">
+          <DialogHeader className="border-b border-border px-6 py-4">
+            <DialogTitle className="text-lg font-semibold">{isNew ? "Novo" : "Editar"} · {config.label}</DialogTitle>
+          </DialogHeader>
           {editing && (
-            <div key={String(editing[pk] ?? "new")} className="space-y-4">
-              {shared.map((f) => (
-                <div key={f.name} className="space-y-1">
-                  <Label>{f.label}{f.required && " *"}</Label>
-                  <FieldInput field={f} col={f.name} form={editing} set={set} bucket={config.bucket} />
-                </div>
-              ))}
-              {i18n.length > 0 && (
-                <Tabs defaultValue="pt">
-                  <TabsList><TabsTrigger value="pt">Português</TabsTrigger><TabsTrigger value="es">Español</TabsTrigger></TabsList>
-                  {(["pt", "es"] as const).map((lang) => (
-                    <TabsContent key={lang} value={lang} className="space-y-4">
-                      {i18n.map((f) => (
-                        <div key={f.name} className="space-y-1">
-                          <Label>{f.label}{f.required && lang === "pt" && " *"}</Label>
-                          <FieldInput field={f} col={`${f.name}_${lang}`} form={editing} set={set} bucket={config.bucket} />
+            <>
+              <div key={String(editing[pk] ?? "new")} className="flex-1 space-y-6 overflow-y-auto bg-background px-6 py-6">
+                {i18n.length > 0 && (
+                  <section className="rounded-xl border border-border bg-card p-5">
+                    <Tabs defaultValue="pt">
+                      <div className="mb-5 flex items-center justify-between">
+                        <h3 className="text-sm font-semibold">Conteúdo traduzível</h3>
+                        <TabsList><TabsTrigger value="pt">Português</TabsTrigger><TabsTrigger value="es">Español</TabsTrigger></TabsList>
+                      </div>
+                      {(["pt", "es"] as const).map((lang) => (
+                        <TabsContent key={lang} value={lang} className="mt-0 space-y-5">
+                          {i18n.map((f) => renderField(f, `${f.name}_${lang}`, !!f.required && lang === "pt"))}
+                        </TabsContent>
+                      ))}
+                    </Tabs>
+                  </section>
+                )}
+                {shared.length > 0 && (
+                  <section className="rounded-xl border border-border bg-card p-5">
+                    <h3 className="mb-5 text-sm font-semibold">Informações gerais</h3>
+                    <div className="grid gap-5 sm:grid-cols-2">
+                      {shared.map((f) => (
+                        <div key={f.name} className={["richtext", "textarea", "json", "image", "file"].includes(f.type) ? "sm:col-span-2" : ""}>
+                          {renderField(f, f.name, !!f.required)}
                         </div>
                       ))}
-                    </TabsContent>
-                  ))}
-                </Tabs>
-              )}
-              {config.gallery && !isNew && typeof editing["id"] === "string" && <Gallery produtoId={editing["id"]} />}
-              <div className="flex justify-end gap-2">
-                <Button variant="outline" onClick={() => setEditing(null)}>Cancelar</Button>
-                <Button onClick={save} disabled={saving}>{saving ? "Salvando…" : "Salvar"}</Button>
+                    </div>
+                  </section>
+                )}
+                {config.gallery && !isNew && typeof editing["id"] === "string" && (
+                  <section className="rounded-xl border border-border bg-card p-5"><Gallery produtoId={editing["id"]} /></section>
+                )}
               </div>
-            </div>
+              <div className="flex justify-end gap-2 border-t border-border bg-card px-6 py-4">
+                <Button variant="outline" onClick={() => setEditing(null)}>Cancelar</Button>
+                <Button onClick={save} disabled={saving} className="min-w-28">{saving ? <><Loader2 className="h-4 w-4 animate-spin" />Salvando…</> : "Salvar"}</Button>
+              </div>
+            </>
           )}
         </DialogContent>
       </Dialog>

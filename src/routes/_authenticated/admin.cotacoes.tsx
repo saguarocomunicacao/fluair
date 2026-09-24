@@ -4,8 +4,8 @@ import { useState } from "react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
+import { COTACAO_STATUS, EmptyState, PageHeader, Panel, StatusBadge } from "@/components/admin/kit";
 
 export const Route = createFileRoute("/_authenticated/admin/cotacoes")({
   component: Cotacoes,
@@ -41,32 +41,32 @@ function Cotacoes() {
 
   return (
     <div className="space-y-4">
-      <h1 className="text-2xl font-bold">Cotações</h1>
+      <PageHeader title="Cotações" crumbs={["Comercial", "Cotações"]} description="Pedidos de orçamento recebidos pelo site." />
       <div className="flex flex-wrap gap-2">
         {(["todos", ...STATUS] as const).map((s) => (
           <Button key={s} size="sm" variant={filtro === s ? "default" : "outline"} onClick={() => setFiltro(s)}>
             {s === "todos" ? "Todas" : LABEL[s]} ({s === "todos" ? data.length : data.filter((c) => c.status === s).length})
           </Button>
         ))}
-        <Input placeholder="Buscar nome, e-mail, empresa…" className="w-64" value={busca} onChange={(e) => setBusca(e.target.value)} />
+        <Input placeholder="Buscar nome, e-mail, empresa…" className="ml-auto h-9 w-72 bg-card" value={busca} onChange={(e) => setBusca(e.target.value)} />
       </div>
       <div className="grid gap-4 lg:grid-cols-[1fr_1.2fr]">
-        <div className="divide-y divide-border rounded-md border border-border bg-card">
-          {list.length === 0 && <p className="p-4 text-sm text-muted-foreground">Nenhuma cotação.</p>}
+        <Panel className="divide-y divide-border self-start overflow-hidden">
+          {list.length === 0 && <EmptyState text="Nenhuma cotação por aqui." />}
           {list.map((c) => (
-            <button key={c.id} onClick={() => setSel(c.id)} className={`block w-full p-3 text-left hover:bg-muted ${sel === c.id ? "bg-muted" : ""}`}>
+            <button key={c.id} onClick={() => setSel(c.id)} className={`relative block w-full px-4 py-3.5 text-left transition-colors hover:bg-brand-accent-soft ${sel === c.id ? "bg-brand-accent-soft before:absolute before:inset-y-0 before:left-0 before:w-[3px] before:bg-brand-accent" : ""}`}>
               <div className="flex items-center justify-between">
                 <span className="font-medium">{c.nome}</span>
-                <Badge variant={c.status === "novo" ? "default" : "secondary"}>{LABEL[c.status as Status]}</Badge>
+                <StatusBadge tone={COTACAO_STATUS[c.status]?.tone ?? "neutral"}>{LABEL[c.status as Status]}</StatusBadge>
               </div>
               <div className="text-xs text-muted-foreground">{c.empresa ?? "—"} · {new Date(c.criado_em).toLocaleString("pt-BR")} · {c.cotacao_itens.length} itens</div>
             </button>
           ))}
-        </div>
+        </Panel>
         {atual ? (
-          <div className="space-y-4 rounded-md border border-border bg-card p-4">
+          <Panel className="space-y-5 self-start p-6">
             <div>
-              <h2 className="text-lg font-bold">{atual.nome}</h2>
+              <h2 className="text-lg font-semibold">{atual.nome}</h2>
               <p className="text-sm text-muted-foreground">{atual.empresa} {atual.cnpj && `· CNPJ ${atual.cnpj}`}</p>
             </div>
             <dl className="grid grid-cols-2 gap-2 text-sm">
@@ -84,9 +84,9 @@ function Cotacoes() {
                 <Button key={s} size="sm" variant={atual.status === s ? "default" : "outline"} onClick={() => mudar(atual.id, s)}>{LABEL[s]}</Button>
               ))}
             </div>
-          </div>
+          </Panel>
         ) : (
-          <div className="rounded-md border border-dashed border-border p-8 text-center text-sm text-muted-foreground">Selecione uma cotação</div>
+          <div className="rounded-xl border border-dashed border-border p-8 text-center text-sm text-muted-foreground">Selecione uma cotação</div>
         )}
       </div>
     </div>
