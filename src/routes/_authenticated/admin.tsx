@@ -9,6 +9,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { TABLES, canContent, canSales } from "@/lib/admin-config";
 import { Logo } from "@/components/admin/kit";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { Input } from "@/components/ui/input";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { cn } from "@/lib/utils";
@@ -81,17 +82,27 @@ function AdminLayout() {
   const name = email.split("@")[0]?.replace(/[._-]/g, " ") ?? "";
   const initials = name.split(" ").filter(Boolean).slice(0, 2).map((w) => w[0]?.toUpperCase()).join("") || "?";
 
-  const renderLink = (mini: boolean) => (i: NavItem) => (
-    <Link key={i.href} to={i.href} activeOptions={{ exact: !!i.exact }} title={i.label}
-      className={cn(linkCls, mini && "justify-center px-0")}
-      activeProps={activeCls} onClick={() => setMobileOpen(false)}>
-      <i.icon className="h-4 w-4 shrink-0" />
-      {!mini && <span className="truncate">{i.label}</span>}
-    </Link>
-  );
+  const renderLink = (mini: boolean) => (i: NavItem) => {
+    const link = (
+      <Link to={i.href} activeOptions={{ exact: !!i.exact }}
+        className={cn(linkCls, mini && "justify-center px-0")}
+        activeProps={activeCls} onClick={() => setMobileOpen(false)}>
+        <i.icon className="h-4 w-4 shrink-0" />
+        {!mini && <span className="truncate">{i.label}</span>}
+      </Link>
+    );
+    if (!mini) return <div key={i.href}>{link}</div>;
+    return (
+      <Tooltip key={i.href}>
+        <TooltipTrigger asChild>{link}</TooltipTrigger>
+        <TooltipContent side="right" sideOffset={10}>{i.label}</TooltipContent>
+      </Tooltip>
+    );
+  };
 
   const sidebar = (mini: boolean) => (
-    <aside className={cn("flex h-full flex-col border-r border-sidebar-border bg-sidebar transition-[width] duration-200", mini ? "w-16" : "w-64")}>
+    <TooltipProvider delayDuration={100}>
+      <aside className={cn("flex h-full flex-col border-r border-sidebar-border bg-sidebar transition-[width] duration-200", mini ? "w-16" : "w-64")}>
       <div className={cn("flex h-16 items-center", mini ? "justify-center px-2" : "justify-between px-5")}>
         {mini ? <Logo symbol className="h-8" /> : <Logo className="h-7" />}
         <button className="lg:hidden" onClick={() => setMobileOpen(false)} aria-label="Fechar menu"><X className="h-5 w-5" /></button>
@@ -131,7 +142,8 @@ function AdminLayout() {
           </DropdownMenuContent>
         </DropdownMenu>
       </div>
-    </aside>
+      </aside>
+    </TooltipProvider>
   );
 
   return (
