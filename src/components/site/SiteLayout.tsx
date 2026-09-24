@@ -40,7 +40,7 @@ export function SiteLayout({ chrome, transparentTop = false, children }: { chrom
         const r = p.getBoundingClientRect();
         if (r.bottom < -200 || r.top > vh + 200) continue;
         const c = r.top + r.height / 2 - vh / 2;
-        p.style.transform = `translate3d(0,${(c * (parseFloat(p.dataset.para!) || 0)).toFixed(1)}px,0)`;
+        p.style.transform = `translate3d(0,${(c * (parseFloat(p.dataset["para"]!) || 0)).toFixed(1)}px,0)`;
       }
       ticking = false;
     };
@@ -53,7 +53,7 @@ export function SiteLayout({ chrome, transparentTop = false, children }: { chrom
     const timers: ReturnType<typeof setInterval>[] = [];
     const cio = new IntersectionObserver((es) => es.forEach((en) => {
       if (!en.isIntersecting) return;
-      const t = en.target as HTMLElement; const to = Number(t.dataset.to); let n = 0;
+      const t = en.target as HTMLElement; const to = Number(t.dataset["to"]); let n = 0;
       const step = Math.max(1, Math.ceil(to / 45));
       const id = setInterval(() => { n += step; if (n >= to) { n = to; clearInterval(id); } t.textContent = String(n); }, 22);
       timers.push(id); cio.unobserve(t);
