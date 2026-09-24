@@ -66,11 +66,11 @@ export function MenuTree({ rows, onEdit, onDelete, onNew, onChanged }: {
           {depth > 0 && <ChevronRight className="h-3.5 w-3.5 text-muted-foreground" />}
           <span className="font-medium">{String(r["label_pt"] ?? "")}</span>
           <span className="truncate text-xs text-muted-foreground">{String(r["url"] ?? "")}</span>
-          <span className="ml-auto flex items-center gap-1">
+          <span className="ml-auto flex shrink-0 items-center gap-1.5">
             <StatusBadge tone={r["ativo"] ? "success" : "neutral"}>{r["ativo"] ? "Ativo" : "Inativo"}</StatusBadge>
-            <Button size="icon" variant="ghost" className="h-8 w-8" aria-label="Adicionar submenu" onClick={() => onNew({ local, parent_id: r.id, ordem: kids.length })}><Plus className="h-4 w-4" /></Button>
-            <Button size="icon" variant="ghost" className="h-8 w-8" aria-label="Editar" onClick={() => onEdit(r)}><Pencil className="h-4 w-4" /></Button>
-            <Button size="icon" variant="ghost" className="h-8 w-8 text-destructive" aria-label="Excluir" onClick={() => onDelete(r)}><Trash2 className="h-4 w-4" /></Button>
+            <Button size="icon" variant="ghost" className="h-8 w-8" aria-label="Adicionar submenu" title="Adicionar submenu" onClick={() => onNew({ local, parent_id: r.id, ordem: kids.length })}><Plus className="h-4 w-4" /></Button>
+            <Button size="icon" variant="ghost" className="h-8 w-8" aria-label="Editar" title="Editar" onClick={() => onEdit(r)}><Pencil className="h-4 w-4" /></Button>
+            <Button size="icon" variant="ghost" className="h-8 w-8 text-destructive hover:text-destructive" aria-label="Excluir" title="Excluir" onClick={() => onDelete(r)}><Trash2 className="h-4 w-4" /></Button>
           </span>
         </div>
         {kids.length > 0 && <ul className="mt-2 space-y-2">{kids.map((k) => <Node key={k.id} r={k} depth={depth + 1} />)}</ul>}

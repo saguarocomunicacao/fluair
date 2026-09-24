@@ -17,8 +17,7 @@ import { RichText } from "./RichText";
 import { UploadField } from "./UploadField";
 import { Gallery } from "./Gallery";
 import { EmptyState, PageHeader, Panel, StatusBadge } from "./kit";
-import { GripVertical, ChevronLeft, ChevronRight, Image as ImageIcon, Loader2, MoreHorizontal, Pencil, Plus, Search, Trash2 } from "lucide-react";
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
+import { GripVertical, ChevronLeft, ChevronRight, Image as ImageIcon, Loader2, Pencil, Plus, Search, Trash2 } from "lucide-react";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
 
 type Row = Record<string, unknown>;
@@ -267,7 +266,7 @@ export function CrudPage({ config }: { config: TableConfig }) {
                 <TableRow className="hover:bg-transparent">
                   {config.reorder && <TableHead className="w-8" />}
                   {config.listCols.map((c) => <TableHead key={c} className="h-11 text-xs font-semibold uppercase tracking-wide text-muted-foreground">{COL_LABEL[c] ?? c.replace(/_pt$/, "").replace(/_/g, " ")}</TableHead>)}
-                  <TableHead className="w-16" />
+                  <TableHead className="w-28 text-right text-xs font-semibold uppercase tracking-wide text-muted-foreground">Ações</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -304,14 +303,15 @@ export function CrudPage({ config }: { config: TableConfig }) {
                         ) : <span className={i === 0 ? "font-medium" : "text-muted-foreground"}>{fmt(r[c])}</span>}
                       </TableCell>
                     ))}
-                    <TableCell className="text-right">
-                      <DropdownMenu>
-                        <DropdownMenuTrigger asChild><Button size="icon" variant="ghost" className="h-8 w-8" aria-label="Ações"><MoreHorizontal className="h-4 w-4" /></Button></DropdownMenuTrigger>
-                        <DropdownMenuContent align="end">
-                          <DropdownMenuItem onClick={() => { setIsNew(false); setEditing(r); }}><Pencil className="h-4 w-4" />Editar</DropdownMenuItem>
-                          <DropdownMenuItem onClick={() => setToDelete(r)} className="text-destructive focus:text-destructive"><Trash2 className="h-4 w-4" />Excluir</DropdownMenuItem>
-                        </DropdownMenuContent>
-                      </DropdownMenu>
+                    <TableCell className="w-28">
+                      <div className="flex items-center justify-end gap-1">
+                        <Button size="icon" variant="ghost" className="h-8 w-8" aria-label="Editar" title="Editar" onClick={() => { setIsNew(false); setEditing(r); }}>
+                          <Pencil className="h-4 w-4" />
+                        </Button>
+                        <Button size="icon" variant="ghost" className="h-8 w-8 text-destructive hover:text-destructive" aria-label="Excluir" title="Excluir" onClick={() => setToDelete(r)}>
+                          <Trash2 className="h-4 w-4" />
+                        </Button>
+                      </div>
                     </TableCell>
                   </TableRow>
                   </Fragment>);
