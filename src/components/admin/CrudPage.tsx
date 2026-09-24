@@ -42,7 +42,7 @@ function FieldInput({ field, col, form, set, bucket }: { field: Field; col: stri
   const v = form[col];
   switch (field.type) {
     case "textarea": return <Textarea value={(v as string) ?? ""} onChange={(e) => set(col, e.target.value)} />;
-    case "richtext": return <RichText value={(v as string) ?? ""} onChange={(x) => set(col, x)} bucket={bucket} />;
+    case "richtext": return <RichText value={(v as string) ?? ""} onChange={(x) => set(col, x)} bucket={bucket ?? "banners"} />;
     case "number": return <Input type="number" step="any" value={v == null ? "" : String(v)} onChange={(e) => set(col, e.target.value === "" ? null : Number(e.target.value))} />;
     case "bool": return <Switch checked={!!v} onCheckedChange={(c) => set(col, c)} />;
     case "image": case "file": return <UploadField bucket={bucket ?? "banners"} image={field.type === "image"} value={(v as string) ?? ""} onChange={(x) => set(col, x)} />;
