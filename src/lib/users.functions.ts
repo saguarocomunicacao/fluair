@@ -5,8 +5,13 @@ import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 const roleEnum = z.enum(["admin", "editor_conteudo", "comercial"]);
 
 async function assertAdmin(supabase: any, userId: string) {
-  const { data } = await supabase.rpc("has_role", { _user_id: userId, _role: "admin" });
-  if (!data) throw new Error("Acesso negado");
+  const { data, error } = await supabase
+    .from("user_roles")
+    .select("role")
+    .eq("user_id", userId)
+    .eq("role", "admin")
+    .maybeSingle();
+  if (error || !data) throw new Error("Acesso negado");
 }
 
 export const listUsers = createServerFn({ method: "GET" })
