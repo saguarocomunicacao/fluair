@@ -45,11 +45,12 @@ function Importar() {
     const semCat = new Set<string>();
     const payload = rows.filter((r) => r[map.codigo]?.trim()).map((r) => {
       const esp: Record<string, string> = {};
-      for (const c of map.especificacoes) if (r[c]?.trim()) esp[c] = r[c].trim();
+      for (const c of map.especificacoes) { const v = r[c]?.trim(); if (v) esp[c] = v; }
       const cat = map.categoria ? r[map.categoria]?.trim() ?? "" : "";
       const id = catId(cat);
       if (cat && !id) semCat.add(cat);
-      return { codigo: r[map.codigo].trim(), nome_pt: r[map.nome]?.trim() || r[map.codigo].trim(), categoria_id: id, especificacoes: esp };
+      const cod = (r[map.codigo] ?? "").trim();
+      return { codigo: cod, nome_pt: r[map.nome]?.trim() || cod, categoria_id: id, especificacoes: esp };
     });
     let ok = 0;
     for (let i = 0; i < payload.length; i += 100) {
