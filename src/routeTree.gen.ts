@@ -15,6 +15,7 @@ import { Route as AuthRouteImport } from './routes/auth'
 import { Route as DefinirSenhaRouteImport } from './routes/definir-senha'
 import { Route as AuthenticatedAdminRouteImport } from './routes/_authenticated/admin'
 import { Route as ProdutosIndexRouteImport } from './routes/produtos.index'
+import { Route as ProdutosReferenciaRouteImport } from './routes/produtos.$referencia'
 import { Route as AuthenticatedAdminIndexRouteImport } from './routes/_authenticated/admin.index'
 import { Route as AuthenticatedAdminCotacoesRouteImport } from './routes/_authenticated/admin.cotacoes'
 import { Route as AuthenticatedAdminImportarRouteImport } from './routes/_authenticated/admin.importar'
@@ -48,6 +49,11 @@ const AuthenticatedAdminRoute = AuthenticatedAdminRouteImport.update({
 const ProdutosIndexRoute = ProdutosIndexRouteImport.update({
   id: '/produtos/',
   path: '/produtos/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ProdutosReferenciaRoute = ProdutosReferenciaRouteImport.update({
+  id: '/produtos/$referencia',
+  path: '/produtos/$referencia',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AuthenticatedAdminIndexRoute = AuthenticatedAdminIndexRouteImport.update({
@@ -85,6 +91,7 @@ export interface FileRoutesByFullPath {
   '/auth': typeof AuthRoute
   '/definir-senha': typeof DefinirSenhaRoute
   '/admin': typeof AuthenticatedAdminRouteWithChildren
+  '/produtos/$referencia': typeof ProdutosReferenciaRoute
   '/produtos/': typeof ProdutosIndexRoute
   '/admin/cotacoes': typeof AuthenticatedAdminCotacoesRoute
   '/admin/importar': typeof AuthenticatedAdminImportarRoute
@@ -96,6 +103,7 @@ export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
   '/definir-senha': typeof DefinirSenhaRoute
+  '/produtos/$referencia': typeof ProdutosReferenciaRoute
   '/produtos': typeof ProdutosIndexRoute
   '/admin/cotacoes': typeof AuthenticatedAdminCotacoesRoute
   '/admin/importar': typeof AuthenticatedAdminImportarRoute
@@ -110,6 +118,7 @@ export interface FileRoutesById {
   '/auth': typeof AuthRoute
   '/definir-senha': typeof DefinirSenhaRoute
   '/_authenticated/admin': typeof AuthenticatedAdminRouteWithChildren
+  '/produtos/$referencia': typeof ProdutosReferenciaRoute
   '/produtos/': typeof ProdutosIndexRoute
   '/_authenticated/admin/cotacoes': typeof AuthenticatedAdminCotacoesRoute
   '/_authenticated/admin/importar': typeof AuthenticatedAdminImportarRoute
@@ -124,6 +133,7 @@ export interface FileRouteTypes {
     | '/auth'
     | '/definir-senha'
     | '/admin'
+    | '/produtos/$referencia'
     | '/produtos/'
     | '/admin/cotacoes'
     | '/admin/importar'
@@ -135,6 +145,7 @@ export interface FileRouteTypes {
     | '/'
     | '/auth'
     | '/definir-senha'
+    | '/produtos/$referencia'
     | '/produtos'
     | '/admin/cotacoes'
     | '/admin/importar'
@@ -148,6 +159,7 @@ export interface FileRouteTypes {
     | '/auth'
     | '/definir-senha'
     | '/_authenticated/admin'
+    | '/produtos/$referencia'
     | '/produtos/'
     | '/_authenticated/admin/cotacoes'
     | '/_authenticated/admin/importar'
@@ -161,6 +173,7 @@ export interface RootRouteChildren {
   AuthenticatedRouteRoute: typeof AuthenticatedRouteRouteWithChildren
   AuthRoute: typeof AuthRoute
   DefinirSenhaRoute: typeof DefinirSenhaRoute
+  ProdutosReferenciaRoute: typeof ProdutosReferenciaRoute
   ProdutosIndexRoute: typeof ProdutosIndexRoute
 }
 
@@ -206,6 +219,13 @@ declare module '@tanstack/react-router' {
       path: '/produtos'
       fullPath: '/produtos/'
       preLoaderRoute: typeof ProdutosIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/produtos/$referencia': {
+      id: '/produtos/$referencia'
+      path: '/produtos/$referencia'
+      fullPath: '/produtos/$referencia'
+      preLoaderRoute: typeof ProdutosReferenciaRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/_authenticated/admin/': {
@@ -281,6 +301,7 @@ const rootRouteChildren: RootRouteChildren = {
   AuthenticatedRouteRoute: AuthenticatedRouteRouteWithChildren,
   AuthRoute: AuthRoute,
   DefinirSenhaRoute: DefinirSenhaRoute,
+  ProdutosReferenciaRoute: ProdutosReferenciaRoute,
   ProdutosIndexRoute: ProdutosIndexRoute,
 }
 export const routeTree = rootRouteImport

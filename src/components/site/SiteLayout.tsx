@@ -67,7 +67,7 @@ export function SiteLayout({ chrome, transparentTop = false, children }: { chrom
     const it: CartItem = typeof item === "string" ? { id: item, codigo: "", referencia: null, nome: item, quantidade: 1 } : item;
     const cart = readCart();
     const ex = cart.find((c) => c.id === it.id);
-    if (ex) ex.quantidade += 1; else cart.push({ ...it, quantidade: 1 });
+    const q = Math.max(1, it.quantidade || 1); if (ex) ex.quantidade += q; else cart.push({ ...it, quantidade: q });
     localStorage.setItem("fluair.orc.items", JSON.stringify(cart));
     setOrc(cart.reduce((a, i) => a + i.quantidade, 0));
     setToast(`${it.nome}${it.referencia ? " " + it.referencia : ""} — ${dict[lang].added}`);
