@@ -78,7 +78,7 @@ export const getCatalogo = createServerFn({ method: "GET" })
 export type ProdutoFicha = {
   id: string; codigo: string; referencia: string | null; nome_pt: string; nome_es: string | null;
   descricao_pt: string | null; descricao_es: string | null; informacoes_tecnicas_pt: string | null; informacoes_tecnicas_es: string | null;
-  especificacoes: Record<string, unknown> | null; ncm: string | null; kit_reparo: string | null; categoria_id: string | null;
+  especificacoes: Record<string, string | number | boolean | null> | null; ncm: string | null; kit_reparo: string | null; categoria_id: string | null;
   imagens: { url: string; alt_pt: string | null; alt_es: string | null }[];
 };
 
@@ -105,7 +105,7 @@ export const getProduto = createServerFn({ method: "GET" })
       relacionados = (rel ?? []).map((r) => ({ ...r, imagem: first[r.id] ?? null }));
     }
     const imagens = ((imgs ?? []) as Record<string, unknown>[]).map((i) => ({
-      url: String(i.url), alt_pt: (i.alt_pt as string) ?? null, alt_es: (i.alt_es as string) ?? null,
+      url: String(i["url"]), alt_pt: (i["alt_pt"] as string) ?? null, alt_es: (i["alt_es"] as string) ?? null,
     }));
     return { produto: { ...p, imagens } as ProdutoFicha, relacionados };
   });
