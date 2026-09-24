@@ -26,14 +26,14 @@ function DefinirSenha() {
   const [p1, setP1] = useState("");
   const [p2, setP2] = useState("");
   const [busy, setBusy] = useState(false);
-  const submit = async (e: React.FormEvent) => {
+  const submit = async (e: React.FormEvent): Promise<void> => {
     e.preventDefault();
-    if (p1.length < 8) return toast.error("A senha precisa ter ao menos 8 caracteres");
-    if (p1 !== p2) return toast.error("As senhas não conferem");
+    if (p1.length < 8) { toast.error("A senha precisa ter ao menos 8 caracteres"); return; }
+    if (p1 !== p2) { toast.error("As senhas não conferem"); return; }
     setBusy(true);
     const { error } = await supabase.auth.updateUser({ password: p1 });
     setBusy(false);
-    if (error) return toast.error("Link inválido ou expirado. Peça um novo convite ao administrador.");
+    if (error) { toast.error("Link inválido ou expirado. Peça um novo convite ao administrador."); return; }
     toast.success("Senha definida!");
     navigate({ to: "/admin" });
   };
