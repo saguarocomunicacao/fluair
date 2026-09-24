@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import logoCor from "@/assets/fluair-logo-cor.png.asset.json";
-import { SiteCtx, dict, pick, type Lang } from "./i18n";
+import { SiteCtx, dict, pick, readCart, type CartItem, type Lang } from "./i18n";
 import type { Categoria, Menu } from "@/lib/site.functions";
 
 type Chrome = { menus: Menu[]; config: Record<string, { pt: string; es: string }>; categorias: Categoria[] };
@@ -19,7 +19,7 @@ export function SiteLayout({ chrome, transparentTop = false, children }: { chrom
   useEffect(() => {
     const l = localStorage.getItem("fluair.lang");
     if (l === "es" || l === "pt") setLangState(l);
-    setOrc(Number(localStorage.getItem("fluair.orc") || 0));
+    setOrc(readCart().reduce((a, i) => a + i.quantidade, 0));
   }, []);
   const setLang = (l: Lang) => { setLangState(l); localStorage.setItem("fluair.lang", l); };
   useEffect(() => { document.documentElement.lang = lang === "es" ? "es" : "pt-BR"; }, [lang]);
@@ -62,9 +62,14 @@ export function SiteLayout({ chrome, transparentTop = false, children }: { chrom
     return () => { removeEventListener("scroll", sc); removeEventListener("resize", onScroll); io.disconnect(); cio.disconnect(); timers.forEach(clearInterval); };
   }, [transparentTop]);
 
-  const addOrc = (name: string) => {
-    setOrc((o) => { const n = o + 1; localStorage.setItem("fluair.orc", String(n)); return n; });
-    setToast(`${name} — ${dict[lang].added}`);
+  const addOrc = (item: CartItem | string) => {
+    const it: CartItem = typeof item === "string" ? { id: item, codigo: "", referencia: null, nome: item, quantidade: 1 } : item;
+    const cart = readCart();
+    const ex = cart.find((c) => c.id === it.id);
+    if (ex) ex.quantidade += 1; else cart.push({ ...it, quantidade: 1 });
+    localStorage.setItem("fluair.orc.items", JSON.stringify(cart));
+    setOrc(cart.reduce((a, i) => a + i.quantidade, 0));
+    setToast(`${it.nome}${it.referencia ? " " + it.referencia : ""} — ${dict[lang].added}`);
     clearTimeout(toastT.current);
     toastT.current = setTimeout(() => setToast(null), 2600);
   };

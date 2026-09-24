@@ -89,7 +89,7 @@ export const dict = {
   },
 } as const;
 
-type Ctx = { lang: Lang; setLang: (l: Lang) => void; t: (typeof dict)["pt"] | (typeof dict)["es"]; addOrc: (name: string) => void; wa: string };
+type Ctx = { lang: Lang; setLang: (l: Lang) => void; t: (typeof dict)["pt"] | (typeof dict)["es"]; addOrc: (item: CartItem | string) => void; wa: string };
 export const SiteCtx = createContext<Ctx>(null as unknown as Ctx);
 export const useSite = () => useContext(SiteCtx);
 
@@ -98,4 +98,10 @@ export function pick(row: object | null | undefined, field: string, lang: Lang):
   if (!row) return "";
   const r = row as Record<string, unknown>;
   return String((lang === "es" && r[`${field}_es`]) || r[`${field}_pt`] || "");
+}
+
+/** Carrinho de cotação (compartilhado entre páginas do site). */
+export type CartItem = { id: string; codigo: string; referencia: string | null; nome: string; quantidade: number };
+export function readCart(): CartItem[] {
+  try { const v = JSON.parse(localStorage.getItem("fluair.orc.items") || "[]"); return Array.isArray(v) ? v : []; } catch { return []; }
 }
