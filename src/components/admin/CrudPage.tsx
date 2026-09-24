@@ -264,11 +264,11 @@ export function CrudPage({ config }: { config: TableConfig }) {
         ) : (
           <div className="min-h-0 flex-1 overflow-auto">
             <Table>
-              <TableHeader className="sticky top-0 z-10 bg-muted/95 backdrop-blur">
+              <TableHeader>
                 <TableRow className="hover:bg-transparent">
-                  {config.reorder && <TableHead className="w-8" />}
-                  {config.listCols.map((c) => <TableHead key={c} className="h-11 text-xs font-semibold uppercase tracking-wide text-muted-foreground">{COL_LABEL[c] ?? c.replace(/_pt$/, "").replace(/_/g, " ")}</TableHead>)}
-                  <TableHead className="w-28 text-right text-xs font-semibold uppercase tracking-wide text-muted-foreground">Ações</TableHead>
+                  {config.reorder && <TableHead className="sticky top-0 z-10 w-8 bg-muted" />}
+                  {config.listCols.map((c) => <TableHead key={c} className="sticky top-0 z-10 h-11 bg-muted text-xs font-semibold uppercase tracking-wide text-muted-foreground shadow-[inset_0_-1px_0_0_hsl(var(--border))]">{COL_LABEL[c] ?? c.replace(/_pt$/, "").replace(/_/g, " ")}</TableHead>)}
+                  <TableHead className="sticky top-0 z-10 w-28 bg-muted text-right text-xs font-semibold uppercase tracking-wide text-muted-foreground shadow-[inset_0_-1px_0_0_hsl(var(--border))]">Ações</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
