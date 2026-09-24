@@ -97,7 +97,7 @@ export const dict = {
   },
 } as const;
 
-type Ctx = { lang: Lang; setLang: (l: Lang) => void; t: (typeof dict)["pt"] | (typeof dict)["es"]; addOrc: (item: CartItem | string) => void; wa: string };
+type Ctx = { lang: Lang; setLang: (l: Lang) => void; t: (typeof dict)["pt"] | (typeof dict)["es"]; addOrc: (item: CartItem | string) => void; setCart: (items: CartItem[]) => void; wa: string };
 export const SiteCtx = createContext<Ctx>(null as unknown as Ctx);
 export const useSite = () => useContext(SiteCtx);
 

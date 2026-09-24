@@ -13,6 +13,7 @@ import { Route as IndexRouteImport } from './routes/index'
 import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/route'
 import { Route as AuthRouteImport } from './routes/auth'
 import { Route as DefinirSenhaRouteImport } from './routes/definir-senha'
+import { Route as OrcamentoRouteImport } from './routes/orcamento'
 import { Route as AuthenticatedAdminRouteImport } from './routes/_authenticated/admin'
 import { Route as CategoriasSlugRouteImport } from './routes/categorias.$slug'
 import { Route as ProdutosIndexRouteImport } from './routes/produtos.index'
@@ -40,6 +41,11 @@ const AuthRoute = AuthRouteImport.update({
 const DefinirSenhaRoute = DefinirSenhaRouteImport.update({
   id: '/definir-senha',
   path: '/definir-senha',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const OrcamentoRoute = OrcamentoRouteImport.update({
+  id: '/orcamento',
+  path: '/orcamento',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AuthenticatedAdminRoute = AuthenticatedAdminRouteImport.update({
@@ -96,6 +102,7 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
   '/definir-senha': typeof DefinirSenhaRoute
+  '/orcamento': typeof OrcamentoRoute
   '/admin': typeof AuthenticatedAdminRouteWithChildren
   '/categorias/$slug': typeof CategoriasSlugRoute
   '/produtos/$referencia': typeof ProdutosReferenciaRoute
@@ -110,6 +117,7 @@ export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
   '/definir-senha': typeof DefinirSenhaRoute
+  '/orcamento': typeof OrcamentoRoute
   '/categorias/$slug': typeof CategoriasSlugRoute
   '/produtos/$referencia': typeof ProdutosReferenciaRoute
   '/produtos': typeof ProdutosIndexRoute
@@ -125,6 +133,7 @@ export interface FileRoutesById {
   '/_authenticated': typeof AuthenticatedRouteRouteWithChildren
   '/auth': typeof AuthRoute
   '/definir-senha': typeof DefinirSenhaRoute
+  '/orcamento': typeof OrcamentoRoute
   '/_authenticated/admin': typeof AuthenticatedAdminRouteWithChildren
   '/categorias/$slug': typeof CategoriasSlugRoute
   '/produtos/$referencia': typeof ProdutosReferenciaRoute
@@ -141,6 +150,7 @@ export interface FileRouteTypes {
     | '/'
     | '/auth'
     | '/definir-senha'
+    | '/orcamento'
     | '/admin'
     | '/categorias/$slug'
     | '/produtos/$referencia'
@@ -155,6 +165,7 @@ export interface FileRouteTypes {
     | '/'
     | '/auth'
     | '/definir-senha'
+    | '/orcamento'
     | '/categorias/$slug'
     | '/produtos/$referencia'
     | '/produtos'
@@ -169,6 +180,7 @@ export interface FileRouteTypes {
     | '/_authenticated'
     | '/auth'
     | '/definir-senha'
+    | '/orcamento'
     | '/_authenticated/admin'
     | '/categorias/$slug'
     | '/produtos/$referencia'
@@ -185,6 +197,7 @@ export interface RootRouteChildren {
   AuthenticatedRouteRoute: typeof AuthenticatedRouteRouteWithChildren
   AuthRoute: typeof AuthRoute
   DefinirSenhaRoute: typeof DefinirSenhaRoute
+  OrcamentoRoute: typeof OrcamentoRoute
   CategoriasSlugRoute: typeof CategoriasSlugRoute
   ProdutosReferenciaRoute: typeof ProdutosReferenciaRoute
   ProdutosIndexRoute: typeof ProdutosIndexRoute
@@ -218,6 +231,13 @@ declare module '@tanstack/react-router' {
       path: '/definir-senha'
       fullPath: '/definir-senha'
       preLoaderRoute: typeof DefinirSenhaRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/orcamento': {
+      id: '/orcamento'
+      path: '/orcamento'
+      fullPath: '/orcamento'
+      preLoaderRoute: typeof OrcamentoRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/_authenticated/admin': {
@@ -321,6 +341,7 @@ const rootRouteChildren: RootRouteChildren = {
   AuthenticatedRouteRoute: AuthenticatedRouteRouteWithChildren,
   AuthRoute: AuthRoute,
   DefinirSenhaRoute: DefinirSenhaRoute,
+  OrcamentoRoute: OrcamentoRoute,
   CategoriasSlugRoute: CategoriasSlugRoute,
   ProdutosReferenciaRoute: ProdutosReferenciaRoute,
   ProdutosIndexRoute: ProdutosIndexRoute,
