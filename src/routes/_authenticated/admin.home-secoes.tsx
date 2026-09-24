@@ -131,7 +131,7 @@ function SectionEditor({ def, row }: { def: SectionDef; row: Row | undefined }) 
                     </div>
                   )}
                   {def.items!.auto && lang === "pt" && !auto && (
-                    <p className="mb-3 text-xs text-muted-foreground">Marcar \u201cAutomático\u201d conta o valor do banco (produtos ou categorias). Desmarcado, digite um valor livre — ex.: \u201c+25\u201d, \u201cISO\u201d.</p>
+                    <p className="mb-3 text-xs text-muted-foreground">{"Marcar \u201cAutom\u00e1tico\u201d conta o valor do banco (produtos ou categorias). Desmarcado, digite um valor livre \u2014 ex.: \u201c+25\u201d, \u201cISO\u201d."}</p>
                   )}
                   <div className="grid gap-3 md:grid-cols-2">
                     {def.items!.fields.filter((f) => (lang === "pt" || f.lang !== false) && !(f.key === "valor" && auto)).map((f) => (
