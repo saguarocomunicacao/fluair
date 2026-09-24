@@ -70,7 +70,7 @@ function AdminLayout() {
   const initials = name.split(" ").filter(Boolean).slice(0, 2).map((w) => w[0]?.toUpperCase()).join("") || "?";
 
   const renderLink = (i: NavItem) => (
-    <Link key={i.href} to={i.to} params={i.params} activeOptions={{ exact: !!i.exact }} className={linkCls} activeProps={activeCls} onClick={() => setMobileOpen(false)}>
+    <Link key={i.href} to={i.href} activeOptions={{ exact: !!i.exact }} className={linkCls} activeProps={activeCls} onClick={() => setMobileOpen(false)}>
       <i.icon className="h-4 w-4 shrink-0" />
       <span className="truncate">{i.label}</span>
     </Link>
