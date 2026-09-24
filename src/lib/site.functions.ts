@@ -119,3 +119,43 @@ export const getCategoria = createServerFn({ method: "GET" })
     const { count } = await db.from("produtos").select("id", { count: "exact", head: true }).eq("ativo", true).eq("categoria_id", c.id);
     return { categoria: c, total: count ?? 0 };
   });
+
+export const getCartImgs = createServerFn({ method: "POST" })
+  .inputValidator((d: { ids: string[] }) => ({ ids: (Array.isArray(d.ids) ? d.ids : []).filter((x) => /^[0-9a-f-]{36}$/i.test(x)).slice(0, 200) }))
+  .handler(async ({ data }) => {
+    if (!data.ids.length) return {} as Record<string, string>;
+    const { data: ri } = await publicClient().from("produto_imagens").select("produto_id,url,ordem").in("produto_id", data.ids).order("ordem");
+    const first: Record<string, string> = {};
+    (ri ?? []).forEach((i) => { if (!first[i.produto_id]) first[i.produto_id] = i.url; });
+    return first;
+  });
+
+const s = (v: unknown, max: number) => String(v ?? "").trim().slice(0, max);
+export const enviarCotacao = createServerFn({ method: "POST" })
+  .inputValidator((d: {
+    nome: string; email: string; telefone: string; empresa: string; cnpj: string; estado: string; mensagem: string; lgpd: boolean;
+    itens: { produto_id: string; codigo: string; nome: string; quantidade: number }[];
+  }) => {
+    const r = {
+      nome: s(d.nome, 120), email: s(d.email, 160).toLowerCase(), telefone: s(d.telefone, 30), empresa: s(d.empresa, 160),
+      cnpj: s(d.cnpj, 20), estado: s(d.estado, 2).toUpperCase(), mensagem: s(d.mensagem, 2000),
+      itens: (Array.isArray(d.itens) ? d.itens : []).slice(0, 200).map((i) => ({
+        produto_id: /^[0-9a-f-]{36}$/i.test(String(i.produto_id)) ? String(i.produto_id) : null,
+        codigo: s(i.codigo, 40), nome: s(i.nome, 200), quantidade: Math.min(999, Math.max(1, Math.floor(Number(i.quantidade) || 1))),
+      })),
+    };
+    if (!d.lgpd) throw new Error("consent");
+    if (r.nome.length < 2 || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(r.email) || r.telefone.replace(/\D/g, "").length < 10
+      || !r.empresa || r.cnpj.replace(/\D/g, "").length !== 14 || !/^[A-Z]{2}$/.test(r.estado) || !r.itens.length) throw new Error("invalid");
+    return r;
+  })
+  .handler(async ({ data }) => {
+    const db = publicClient();
+    const id = crypto.randomUUID();
+    const { itens, ...lead } = data;
+    const a = await db.from("cotacoes").insert({ id, ...lead, mensagem: lead.mensagem || null, status: "novo" });
+    if (a.error) { console.error("cotacao", a.error); throw new Error("save"); }
+    const b = await db.from("cotacao_itens").insert(itens.map((i) => ({ ...i, cotacao_id: id })));
+    if (b.error) { console.error("itens", b.error); throw new Error("save"); }
+    return { protocolo: id.slice(0, 8).toUpperCase() };
+  });

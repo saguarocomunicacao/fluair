@@ -75,7 +75,11 @@ export function SiteLayout({ chrome, transparentTop = false, children }: { chrom
     toastT.current = setTimeout(() => setToast(null), 2600);
   };
 
-  const ctx = useMemo(() => ({ lang, setLang, t: dict[lang], addOrc, wa }), [lang, wa]); // eslint-disable-line react-hooks/exhaustive-deps
+  const setCart = (items: CartItem[]) => {
+    localStorage.setItem("fluair.orc.items", JSON.stringify(items));
+    setOrc(items.reduce((a, i) => a + i.quantidade, 0));
+  };
+  const ctx = useMemo(() => ({ lang, setLang, t: dict[lang], addOrc, setCart, wa }), [lang, wa]); // eslint-disable-line react-hooks/exhaustive-deps
   const t = dict[lang];
   const header = chrome.menus.filter((m) => m.local === "header" && !m.parent_id);
   const footer = chrome.menus.filter((m) => m.local === "footer" && !m.parent_id);
