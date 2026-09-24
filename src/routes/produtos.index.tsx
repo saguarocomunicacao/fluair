@@ -1,5 +1,5 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
-import { keepPreviousData, queryOptions, useQuery, useSuspenseQuery } from "@tanstack/react-query";
+import { queryOptions, useSuspenseQuery } from "@tanstack/react-query";
 import { zodValidator, fallback } from "@tanstack/zod-adapter";
 import { z } from "zod";
 import { useEffect, useState } from "react";
@@ -11,7 +11,7 @@ import { getCatalogo, getSiteChrome, type ProdutoCard } from "@/lib/site.functio
 const chromeQuery = queryOptions({ queryKey: ["site-chrome"], queryFn: () => getSiteChrome(), staleTime: 60_000 });
 type Filtros = { q: string; cat: string; sort: string; page: number };
 const catalogoQuery = (f: Filtros) =>
-  queryOptions({ queryKey: ["site-catalogo", f], queryFn: () => getCatalogo({ data: f }), staleTime: 30_000, placeholderData: keepPreviousData });
+  queryOptions({ queryKey: ["site-catalogo", f], queryFn: () => getCatalogo({ data: f }), staleTime: 30_000 });
 
 const searchSchema = z.object({
   q: fallback(z.string(), "").default(""),
@@ -48,7 +48,7 @@ function Catalogo() {
   const search = Route.useSearch();
   const navigate = useNavigate({ from: "/produtos/" });
   const { data: chrome } = useSuspenseQuery(chromeQuery);
-  const { data } = useQuery(catalogoQuery(search));
+  const { data } = useSuspenseQuery(catalogoQuery({ q: search.q, cat: search.cat, sort: search.sort, page: search.page }));
   const { lang, t } = useSite();
   const cats = chrome.categorias;
   const [q, setQ] = useState(search.q);
