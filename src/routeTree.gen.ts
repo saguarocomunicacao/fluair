@@ -17,6 +17,8 @@ import { Route as DefinirSenhaRouteImport } from './routes/definir-senha'
 import { Route as DownloadsRouteImport } from './routes/downloads'
 import { Route as OndeEncontrarRouteImport } from './routes/onde-encontrar'
 import { Route as OrcamentoRouteImport } from './routes/orcamento'
+import { Route as RedeAutorizadaRouteImport } from './routes/rede-autorizada'
+import { Route as RepresentantesRouteImport } from './routes/representantes'
 import { Route as SuporteRouteImport } from './routes/suporte'
 import { Route as AuthenticatedAdminRouteImport } from './routes/_authenticated/admin'
 import { Route as CategoriasSlugRouteImport } from './routes/categorias.$slug'
@@ -69,6 +71,16 @@ const OndeEncontrarRoute = OndeEncontrarRouteImport.update({
 const OrcamentoRoute = OrcamentoRouteImport.update({
   id: '/orcamento',
   path: '/orcamento',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const RedeAutorizadaRoute = RedeAutorizadaRouteImport.update({
+  id: '/rede-autorizada',
+  path: '/rede-autorizada',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const RepresentantesRoute = RepresentantesRouteImport.update({
+  id: '/representantes',
+  path: '/representantes',
   getParentRoute: () => rootRouteImport,
 } as any)
 const SuporteRoute = SuporteRouteImport.update({
@@ -155,6 +167,8 @@ export interface FileRoutesByFullPath {
   '/downloads': typeof DownloadsRoute
   '/onde-encontrar': typeof OndeEncontrarRoute
   '/orcamento': typeof OrcamentoRoute
+  '/rede-autorizada': typeof RedeAutorizadaRoute
+  '/representantes': typeof RepresentantesRoute
   '/suporte': typeof SuporteRoute
   '/admin': typeof AuthenticatedAdminRouteWithChildren
   '/categorias/$slug': typeof CategoriasSlugRoute
@@ -178,6 +192,8 @@ export interface FileRoutesByTo {
   '/downloads': typeof DownloadsRoute
   '/onde-encontrar': typeof OndeEncontrarRoute
   '/orcamento': typeof OrcamentoRoute
+  '/rede-autorizada': typeof RedeAutorizadaRoute
+  '/representantes': typeof RepresentantesRoute
   '/suporte': typeof SuporteRoute
   '/categorias/$slug': typeof CategoriasSlugRoute
   '/empresa/gestao-da-qualidade': typeof EmpresaGestaoDaQualidadeRoute
@@ -202,6 +218,8 @@ export interface FileRoutesById {
   '/downloads': typeof DownloadsRoute
   '/onde-encontrar': typeof OndeEncontrarRoute
   '/orcamento': typeof OrcamentoRoute
+  '/rede-autorizada': typeof RedeAutorizadaRoute
+  '/representantes': typeof RepresentantesRoute
   '/suporte': typeof SuporteRoute
   '/_authenticated/admin': typeof AuthenticatedAdminRouteWithChildren
   '/categorias/$slug': typeof CategoriasSlugRoute
@@ -227,6 +245,8 @@ export interface FileRouteTypes {
     | '/downloads'
     | '/onde-encontrar'
     | '/orcamento'
+    | '/rede-autorizada'
+    | '/representantes'
     | '/suporte'
     | '/admin'
     | '/categorias/$slug'
@@ -250,6 +270,8 @@ export interface FileRouteTypes {
     | '/downloads'
     | '/onde-encontrar'
     | '/orcamento'
+    | '/rede-autorizada'
+    | '/representantes'
     | '/suporte'
     | '/categorias/$slug'
     | '/empresa/gestao-da-qualidade'
@@ -273,6 +295,8 @@ export interface FileRouteTypes {
     | '/downloads'
     | '/onde-encontrar'
     | '/orcamento'
+    | '/rede-autorizada'
+    | '/representantes'
     | '/suporte'
     | '/_authenticated/admin'
     | '/categorias/$slug'
@@ -298,6 +322,8 @@ export interface RootRouteChildren {
   DownloadsRoute: typeof DownloadsRoute
   OndeEncontrarRoute: typeof OndeEncontrarRoute
   OrcamentoRoute: typeof OrcamentoRoute
+  RedeAutorizadaRoute: typeof RedeAutorizadaRoute
+  RepresentantesRoute: typeof RepresentantesRoute
   SuporteRoute: typeof SuporteRoute
   CategoriasSlugRoute: typeof CategoriasSlugRoute
   EmpresaGestaoDaQualidadeRoute: typeof EmpresaGestaoDaQualidadeRoute
@@ -364,6 +390,20 @@ declare module '@tanstack/react-router' {
       path: '/orcamento'
       fullPath: '/orcamento'
       preLoaderRoute: typeof OrcamentoRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/rede-autorizada': {
+      id: '/rede-autorizada'
+      path: '/rede-autorizada'
+      fullPath: '/rede-autorizada'
+      preLoaderRoute: typeof RedeAutorizadaRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/representantes': {
+      id: '/representantes'
+      path: '/representantes'
+      fullPath: '/representantes'
+      preLoaderRoute: typeof RepresentantesRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/suporte': {
@@ -506,6 +546,8 @@ const rootRouteChildren: RootRouteChildren = {
   DownloadsRoute: DownloadsRoute,
   OndeEncontrarRoute: OndeEncontrarRoute,
   OrcamentoRoute: OrcamentoRoute,
+  RedeAutorizadaRoute: RedeAutorizadaRoute,
+  RepresentantesRoute: RepresentantesRoute,
   SuporteRoute: SuporteRoute,
   CategoriasSlugRoute: CategoriasSlugRoute,
   EmpresaGestaoDaQualidadeRoute: EmpresaGestaoDaQualidadeRoute,
