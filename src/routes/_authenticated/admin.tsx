@@ -142,7 +142,8 @@ function AdminLayout() {
           </DropdownMenuContent>
         </DropdownMenu>
       </div>
-    </aside>
+      </aside>
+    </TooltipProvider>
   );
 
   return (
