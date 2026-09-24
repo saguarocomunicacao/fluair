@@ -72,6 +72,10 @@ const empty: Form = { nome: "", email: "", telefone: "", empresa: "", cnpj: "", 
 
 const Ph = () => <svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.3"><circle cx="12" cy="12" r="8.5" /><circle cx="12" cy="12" r="3" /><path d="M12 3.5v5M12 15.5v5M3.5 12h5M15.5 12h5" /></svg>;
 
+function Fld({ k, label, full, err, children }: { k: keyof Form; label: string; full?: boolean; err?: string; children: React.ReactNode }) {
+  return <div className={`fld ${full ? "full" : ""} ${err ? "err" : ""}`}><label>{label}{k !== "mensagem" && " *"}</label>{children}{err && <div className="em">{err}</div>}</div>;
+}
+
 function Orcamento() {
   const { lang, setCart } = useSite();
   const l = L[lang];
@@ -153,9 +157,6 @@ function Orcamento() {
     );
   }
 
-  const Fld = ({ k, label, full, children }: { k: keyof Form; label: string; full?: boolean; children: React.ReactNode }) => (
-    <div className={`fld ${full ? "full" : ""} ${errs[k] ? "err" : ""}`}><label>{label}{k !== "mensagem" && " *"}</label>{children}{errs[k] && <div className="em">{errs[k]}</div>}</div>
-  );
 
   return (
     <main>{Head}
@@ -194,15 +195,15 @@ function Orcamento() {
           <h3>{l.side}</h3>
           <div className="orc-sum"><span>{l.total}</span><b>{total}</b></div>
           <div className="fgrid">
-            <Fld k="nome" label={l.nome} full><input value={f.nome} maxLength={120} autoComplete="name" onChange={(e) => set("nome", e.target.value)} /></Fld>
-            <Fld k="email" label={l.email} full><input type="email" value={f.email} maxLength={160} autoComplete="email" onChange={(e) => set("email", e.target.value)} /></Fld>
-            <Fld k="telefone" label={l.tel}><input value={f.telefone} inputMode="tel" autoComplete="tel" placeholder="(48) 99999-9999" onChange={(e) => set("telefone", maskTel(e.target.value))} /></Fld>
-            <Fld k="estado" label={l.uf}>
+            <Fld k="nome" err={errs.nome} label={l.nome} full><input value={f.nome} maxLength={120} autoComplete="name" onChange={(e) => set("nome", e.target.value)} /></Fld>
+            <Fld k="email" err={errs.email} label={l.email} full><input type="email" value={f.email} maxLength={160} autoComplete="email" onChange={(e) => set("email", e.target.value)} /></Fld>
+            <Fld k="telefone" err={errs.telefone} label={l.tel}><input value={f.telefone} inputMode="tel" autoComplete="tel" placeholder="(48) 99999-9999" onChange={(e) => set("telefone", maskTel(e.target.value))} /></Fld>
+            <Fld k="estado" err={errs.estado} label={l.uf}>
               <select value={f.estado} onChange={(e) => set("estado", e.target.value)}><option value="">{l.sel}</option>{UFS.map((u) => <option key={u}>{u}</option>)}</select>
             </Fld>
-            <Fld k="empresa" label={l.empresa}><input value={f.empresa} maxLength={160} autoComplete="organization" onChange={(e) => set("empresa", e.target.value)} /></Fld>
-            <Fld k="cnpj" label={l.cnpj}><input value={f.cnpj} inputMode="numeric" placeholder="00.000.000/0000-00" onChange={(e) => set("cnpj", maskCnpj(e.target.value))} /></Fld>
-            <Fld k="mensagem" label={l.msg} full><textarea rows={3} value={f.mensagem} maxLength={2000} onChange={(e) => set("mensagem", e.target.value)} /></Fld>
+            <Fld k="empresa" err={errs.empresa} label={l.empresa}><input value={f.empresa} maxLength={160} autoComplete="organization" onChange={(e) => set("empresa", e.target.value)} /></Fld>
+            <Fld k="cnpj" err={errs.cnpj} label={l.cnpj}><input value={f.cnpj} inputMode="numeric" placeholder="00.000.000/0000-00" onChange={(e) => set("cnpj", maskCnpj(e.target.value))} /></Fld>
+            <Fld k="mensagem" err={errs.mensagem} label={l.msg} full><textarea rows={3} value={f.mensagem} maxLength={2000} onChange={(e) => set("mensagem", e.target.value)} /></Fld>
           </div>
           <label className={`lgpd ${errs.lgpd ? "err" : ""}`}><input type="checkbox" checked={f.lgpd} onChange={(e) => set("lgpd", e.target.checked)} /> <span>{l.lgpd} *</span></label>
           {errs.lgpd && <div className="fld"><div className="em">{errs.lgpd}</div></div>}
