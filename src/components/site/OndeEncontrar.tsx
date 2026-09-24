@@ -83,7 +83,7 @@ export function Onde({ tipo }: { tipo: "rep" | "rede" }) {
       <div className="page-head"><div className="wrap">
         <div className="crumb"><Link to="/">{l.home}</Link> / {tab === "rep" ? l.rep : l.rede}</div>
         <h1>{tab === "rep" ? l.rep : l.rede}</h1><p className="intro">{tab === "rep" ? l.intro_rep : l.intro_rede}</p>
-      </div><div className="dash" /></div>
+      </div><div className={tab === "rep" ? "dash thin" : "dash"} /></div>
       <div className="wrap oe-body">
         {list.length > 0 && (
           <div className="catalog-top">
@@ -103,14 +103,22 @@ export function Onde({ tipo }: { tipo: "rep" | "rede" }) {
         {tab === "rep" ? (
           reps.length === 0 ? <Empty t={l.rep_e_t} /> : (
             <div className="rep-grid">
-              {reps.map((r) => (
-                <div className="rep" key={r.id}>
-                  {r.estado && <span className="uf">{r.estado}</span>}
+              {[...reps].sort((a, b) => (a.estado ?? "zz").localeCompare(b.estado ?? "zz")).map((r) => (
+                <div className="rep-card" key={r.id}>
+                  <div>{r.estado && <span className="rc-uf">{r.estado}</span>}</div>
                   <h3>{r.nome}</h3>
-                  {r.empresa && <div className="emp">{r.empresa}</div>}
-                  {(r.cidade || r.estado) && <div className="loc">{[r.cidade, r.estado].filter(Boolean).join("/")}</div>}
-                  {r.abrangencia && <div className="loc"><strong>{lang === "es" ? "Cobertura" : "Abrangência"}:</strong> {r.abrangencia}</div>}
-                  <Links x={r} />
+                  {r.empresa && <div className="rc-emp">{r.empresa}</div>}
+                  {r.cidade && <div className="rc-loc">{r.cidade}</div>}
+                  {r.abrangencia && <div className="rc-abr"><b>{lang === "es" ? "Cobertura" : "Abrangência"}:</b> {r.abrangencia}</div>}
+                  <div className="rc-actions">
+                    {r.whatsapp && (
+                      <a className="rc-btn rc-wa" href={`${waUrl(r.whatsapp)}?text=${encodeURIComponent(lang === "es" ? "Hola, vengo del sitio de Fluair" : "Olá, vim pelo site da Fluair")}`} target="_blank" rel="noopener">
+                        <WaIco />WhatsApp
+                      </a>
+                    )}
+                    {r.telefone && <a className="rc-btn" href={`tel:${dg(r.telefone)}`} title={r.telefone}><TelIco />{l.tel}</a>}
+                    {r.email && <a className="rc-btn" href={`mailto:${r.email}`}><MailIco />{l.email}</a>}
+                  </div>
                 </div>
               ))}
             </div>
