@@ -8,8 +8,8 @@ import logoBranco from "@/assets/fluair-logo-branco.png.asset.json";
 import simbolo from "@/assets/fluair-simbolo.png.asset.json";
 
 export function Logo({ invert, symbol, className }: { invert?: boolean; symbol?: boolean; className?: string }) {
-  if (symbol) return <img src={simbolo.url} alt="Fluair" className={cn("h-8 w-auto self-start object-contain", className)} />;
-  return <img src={invert ? logoBranco.url : logoCor.url} alt="Fluair" className={cn("h-8 w-auto self-start object-contain", className)} />;
+  if (symbol) return <img src={simbolo.url} alt="Fluair" className={cn("h-8 w-auto self-center object-contain", className)} />;
+  return <img src={invert ? logoBranco.url : logoCor.url} alt="Fluair" className={cn("h-8 w-auto self-center object-contain", className)} />;
 }
 
 type Tone = "success" | "neutral" | "info" | "warning";
