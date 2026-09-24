@@ -9,7 +9,7 @@ export const Route = createFileRoute("/api/public/arquivos/$nome")({
       GET: async ({ params }) => {
         const nome = params.nome;
         if (!/^[\w.\-]{1,200}$/.test(nome)) return new Response("Not found", { status: 404 });
-        const pub = createClient(process.env.SUPABASE_URL!, process.env.SUPABASE_PUBLISHABLE_KEY!, {
+        const pub = createClient(process.env["SUPABASE_URL"]!, process.env["SUPABASE_PUBLISHABLE_KEY"]!, {
           auth: { persistSession: false, autoRefreshToken: false },
         });
         const { data: row } = await pub.from("downloads").select("id")
