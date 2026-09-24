@@ -2,7 +2,9 @@ import { useMemo, useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
-import type { Field, TableConfig } from "@/lib/admin-config";
+import { UFS, slugify, type Field, type TableConfig } from "@/lib/admin-config";
+import { FileMeta, KvEditor, MapPicker } from "./fields";
+import { MenuTree } from "./MenuTree";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -15,7 +17,7 @@ import { RichText } from "./RichText";
 import { UploadField } from "./UploadField";
 import { Gallery } from "./Gallery";
 import { EmptyState, PageHeader, Panel, StatusBadge } from "./kit";
-import { ChevronLeft, ChevronRight, Image as ImageIcon, Loader2, MoreHorizontal, Pencil, Plus, Search, Trash2 } from "lucide-react";
+import { GripVertical, ChevronLeft, ChevronRight, Image as ImageIcon, Loader2, MoreHorizontal, Pencil, Plus, Search, Trash2 } from "lucide-react";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
 
@@ -50,6 +52,14 @@ function FieldInput({ field, col, form, set, bucket }: { field: Field; col: stri
         {field.options!.map((o) => <option key={o}>{o}</option>)}
       </select>
     );
+    case "kv": return <KvEditor value={v} onChange={(x) => set(col, x)} />;
+    case "uf": return (
+      <select className="h-9 w-full rounded-md border border-input bg-background px-2 text-sm" value={(v as string) ?? ""} onChange={(e) => set(col, e.target.value || null)}>
+        <option value="">— selecione —</option>
+        {UFS.map((u) => <option key={u}>{u}</option>)}
+      </select>
+    );
+    case "map": return <MapPicker lat={(form["lat"] as number) ?? null} lng={(form["lng"] as number) ?? null} onChange={(la, ln) => { set("lat", la); set("lng", ln); }} />;
     case "fk": return <FkSelect field={field} value={v as string} onChange={(x) => set(col, x)} />;
     case "datetime": return <Input type="datetime-local" value={v ? String(v).slice(0, 16) : ""} onChange={(e) => set(col, e.target.value ? new Date(e.target.value).toISOString() : null)} />;
     default: return <Input value={(v as string) ?? ""} onChange={(e) => set(col, e.target.value)} />;
@@ -81,31 +91,74 @@ export function CrudPage({ config }: { config: TableConfig }) {
     },
   });
 
+  const [flt, setFlt] = useState<Record<string, string>>({});
+  const fkCol = config.fields.find((f) => f.type === "fk" && config.listCols.includes(f.name));
+  const { data: fkRows = [] } = useQuery({
+    queryKey: ["fk", fkCol?.fk?.table ?? "none"],
+    enabled: !!fkCol,
+    queryFn: async () => (await db.from(fkCol!.fk!.table).select(`id, ${fkCol!.fk!.label}`).order(fkCol!.fk!.label)).data as Row[],
+  });
+  const fkName = (id: unknown) => { const r = fkRows.find((x) => x["id"] === id); return r ? String(r[fkCol!.fk!.label]) : "—"; };
+
   const filtered = useMemo(() => {
     const s = q.trim().toLowerCase();
-    if (!s) return rows;
-    return rows.filter((r) => config.searchCols.some((c) => String(r[c] ?? "").toLowerCase().includes(s)));
-  }, [rows, q, config.searchCols]);
+    let out = rows.filter((r) => Object.entries(flt).every(([c, v]) => !v || (v === "true" ? r[c] === true : v === "false" ? r[c] === false : String(r[c] ?? "") === v)));
+    if (s) out = out.filter((r) => config.searchCols.some((c) => String(r[c] ?? "").toLowerCase().includes(s)));
+    if (config.groupBy) {
+      const g = config.groupBy;
+      out = [...out].sort((a, b) => String(a[g] ?? "").localeCompare(String(b[g] ?? "")) || Number(a["ordem"] ?? 0) - Number(b["ordem"] ?? 0));
+    }
+    return out;
+  }, [rows, q, flt, config.searchCols, config.groupBy]);
+  const canDrag = !!config.reorder && !q && Object.values(flt).every((v) => !v);
+  const [dragId, setDragId] = useState<string | null>(null);
+  const [overId, setOverId] = useState<string | null>(null);
+  const reorder = async (from: string, to: string) => {
+    if (from === to) return;
+    const src = filtered.find((r) => String(r[pk]) === from)!;
+    const dst = filtered.find((r) => String(r[pk]) === to)!;
+    const g = config.groupBy;
+    if (g && (src[g] ?? "") !== (dst[g] ?? "")) { toast.error("Só é possível reordenar dentro do mesmo grupo"); return; }
+    const list = filtered.filter((r) => !g || (r[g] ?? "") === (src[g] ?? "")).filter((r) => r !== src);
+    list.splice(list.indexOf(dst) + (filtered.indexOf(src) < filtered.indexOf(dst) ? 1 : 0), 0, src);
+    const res = await Promise.all(list.map((r, i) => (r["ordem"] === i ? null : db.from(config.table).update({ ordem: i }).eq(pk, r[pk]))).filter(Boolean));
+    const err = res.find((x: { error: { message: string } | null }) => x?.error);
+    if (err) toast.error(err.error.message); else toast.success("Ordem atualizada");
+    qc.invalidateQueries({ queryKey: ["crud", config.table] });
+  };
 
   const shared = config.fields.filter((f) => !f.i18n);
   const i18n = config.fields.filter((f) => f.i18n);
-  const set = (k: string, v: unknown) => setEditing((p) => ({ ...p!, [k]: v }));
+  const [slugTouched, setSlugTouched] = useState(false);
+  const set = (k: string, v: unknown) => {
+    if (k === "slug") setSlugTouched(true);
+    setEditing((p) => {
+      const n = { ...p!, [k]: v };
+      if (config.slugFrom && k === `${config.slugFrom}_pt` && !slugTouched && isNew) n["slug"] = slugify(String(v ?? ""));
+      return n;
+    });
+  };
 
-  const openNew = () => {
+  const openNew = (extra?: Row) => {
     const init: Row = {};
+    setSlugTouched(false);
     config.fields.forEach((f) => { if (f.type === "bool") init[f.name] = true; if (f.name === "destaque") init[f.name] = false; if (f.type === "select") init[f.name] = f.options![0]; });
     if (config.fields.some((f) => f.name === "publicado")) init["publicado"] = false;
+    if (config.fields.some((f) => f.name === "ordem")) init["ordem"] = rows.length;
+    Object.assign(init, extra ?? {});
     setIsNew(true); setEditing(init);
   };
 
   const save = async (): Promise<void> => {
     if (!editing) return;
     for (const f of config.fields) {
+      if (f.name.startsWith("_")) continue;
       const col = f.i18n ? `${f.name}_pt` : f.name;
       if (f.required && (editing[col] == null || editing[col] === "")) { toast.error(`Preencha: ${f.label}`); return; }
     }
     const payload: Row = {};
     for (const f of config.fields) {
+      if (f.name.startsWith("_")) continue;
       const cols = f.i18n ? [`${f.name}_pt`, `${f.name}_es`] : [f.name];
       for (const c of cols) {
         let v = editing[c];
@@ -130,7 +183,7 @@ export function CrudPage({ config }: { config: TableConfig }) {
   const PER = 15;
   const pages = Math.max(1, Math.ceil(filtered.length / PER));
   const cur = Math.min(page, pages - 1);
-  const visible = filtered.slice(cur * PER, cur * PER + PER);
+  const visible = config.reorder ? filtered.slice(0, canDrag ? filtered.length : undefined).slice(cur * PER, cur * PER + PER) : filtered.slice(cur * PER, cur * PER + PER);
   const imgField = config.fields.find((f) => f.type === "image");
   const boolCols = new Set(config.fields.filter((f) => f.type === "bool").map((f) => f.name));
 
