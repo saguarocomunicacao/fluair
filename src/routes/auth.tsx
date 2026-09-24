@@ -52,7 +52,7 @@ function AuthPage() {
 
       <main className="flex items-center justify-center px-4 py-12">
         <form onSubmit={submit} className="w-full max-w-[400px] rounded-xl border border-border bg-card p-8 shadow-lift sm:p-10">
-          <Logo className="mb-8 h-9" />
+          <Logo className="mb-8 h-12" />
           <h1 className="text-2xl font-semibold tracking-tight">Entrar</h1>
           <p className="mt-1 text-sm text-muted-foreground">Acesse com seu e-mail corporativo.</p>
 
