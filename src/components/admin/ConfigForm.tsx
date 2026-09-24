@@ -48,7 +48,7 @@ export function ConfigForm() {
   };
 
   return (
-    <div>
+    <div className="h-full overflow-y-auto">
       <PageHeader title="Configurações" crumbs={["Conteúdo", "Configurações"]} description="Dados de contato e redes sociais exibidos no site." />
       <div className="grid gap-5 lg:grid-cols-2">
         <Panel className="p-5">

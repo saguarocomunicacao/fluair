@@ -46,7 +46,7 @@ function Cotacoes() {
   };
 
   return (
-    <div className="space-y-4">
+    <div className="h-full space-y-4 overflow-y-auto">
       <PageHeader title="Cotações" crumbs={["Comercial", "Cotações"]} description="Pedidos de orçamento recebidos pelo site." />
       <div className="flex flex-wrap gap-2">
         {(["todos", ...STATUS] as const).map((s) => (

@@ -210,7 +210,8 @@ export function CrudPage({ config }: { config: TableConfig }) {
   );
 
   return (
-    <div>
+    <div className="flex h-full min-h-0 flex-col">
+      <div className="shrink-0">
       <PageHeader
         title={config.label}
         crumbs={["Conteúdo", config.label]}
@@ -225,8 +226,9 @@ export function CrudPage({ config }: { config: TableConfig }) {
           </>
         }
       />
+      </div>
       {config.filters && (
-        <div className="mb-4 flex flex-wrap items-center gap-3">
+        <div className="mb-4 flex shrink-0 flex-wrap items-center gap-3">
           {config.filters.map((fl) => (
             <label key={fl.col} className="flex items-center gap-2 text-sm text-muted-foreground">
               {fl.label}
@@ -245,7 +247,7 @@ export function CrudPage({ config }: { config: TableConfig }) {
         <p className="mb-2 text-xs text-muted-foreground">{canDrag ? "Arraste as linhas pelo ícone ⋮⋮ para reordenar." : "Limpe a busca e os filtros para reordenar."}</p>
       )}
       {config.table === "menus" ? (
-        <Panel className="overflow-hidden">
+        <Panel className="min-h-0 flex-1 overflow-auto">
           <MenuTree
             // eslint-disable-next-line @typescript-eslint/no-explicit-any
             rows={filtered as any}
@@ -256,11 +258,11 @@ export function CrudPage({ config }: { config: TableConfig }) {
           />
         </Panel>
       ) : (
-      <Panel className="overflow-hidden">
+      <Panel className="flex min-h-0 flex-1 flex-col overflow-hidden">
         {!isLoading && filtered.length === 0 ? (
           <EmptyState text={q ? "Nada encontrado para essa busca." : `Nenhum item em ${config.label} ainda.`} onAdd={q ? undefined : () => openNew()} />
         ) : (
-          <div className="max-h-[calc(100vh-280px)] overflow-auto">
+          <div className="min-h-0 flex-1 overflow-auto">
             <Table>
               <TableHeader className="sticky top-0 z-10 bg-muted/95 backdrop-blur">
                 <TableRow className="hover:bg-transparent">
@@ -321,7 +323,7 @@ export function CrudPage({ config }: { config: TableConfig }) {
           </div>
         )}
         {filtered.length > PER && (
-          <div className="flex items-center justify-between border-t border-border px-5 py-3 text-sm text-muted-foreground">
+          <div className="flex shrink-0 items-center justify-between border-t border-border px-5 py-3 text-sm text-muted-foreground">
             <span>{cur * PER + 1}–{Math.min(filtered.length, cur * PER + PER)} de {filtered.length}</span>
             <div className="flex items-center gap-2">
               <Button size="sm" variant="outline" disabled={cur === 0} onClick={() => setPage(cur - 1)}><ChevronLeft className="h-4 w-4" /></Button>
