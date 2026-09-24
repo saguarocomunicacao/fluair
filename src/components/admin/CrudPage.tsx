@@ -280,6 +280,7 @@ export function CrudPage({ config }: { config: TableConfig }) {
               <TableHeader>
                 <TableRow className="hover:bg-transparent">
                   {config.reorder && <TableHead className="sticky top-0 z-10 w-8 bg-muted" />}
+                  {config.gallery && <TableHead className="sticky top-0 z-10 w-14 bg-muted text-xs font-semibold uppercase tracking-wide text-muted-foreground shadow-[inset_0_-1px_0_0_hsl(var(--border))]">Foto</TableHead>}
                   {config.listCols.map((c) => <TableHead key={c} className="sticky top-0 z-10 h-11 bg-muted text-xs font-semibold uppercase tracking-wide text-muted-foreground shadow-[inset_0_-1px_0_0_hsl(var(--border))]">{COL_LABEL[c] ?? c.replace(/_pt$/, "").replace(/_/g, " ")}</TableHead>)}
                   <TableHead className="sticky top-0 z-10 w-28 bg-muted text-right text-xs font-semibold uppercase tracking-wide text-muted-foreground shadow-[inset_0_-1px_0_0_hsl(var(--border))]">Ações</TableHead>
                 </TableRow>
@@ -306,6 +307,17 @@ export function CrudPage({ config }: { config: TableConfig }) {
                     onDrop={(e) => { e.preventDefault(); if (dragId) reorder(dragId, id); setOverId(null); }}
                     className={`hover:bg-brand-accent-soft ${dragId === id ? "opacity-40" : ""} ${overId === id && dragId !== id ? "border-t-2 border-t-brand-accent" : ""}`}>
                     {config.reorder && <TableCell className="w-8 pr-0">{canDrag && <GripVertical className="h-4 w-4 cursor-grab text-muted-foreground" />}</TableCell>}
+                    {config.gallery && (
+                      <TableCell className="w-14 py-2">
+                        {thumbs[id] ? (
+                          <button type="button" onClick={() => setLightbox(thumbs[id]!)} className="block cursor-zoom-in rounded-lg border border-border transition hover:ring-2 hover:ring-brand-accent" aria-label="Ampliar imagem" title="Ampliar imagem">
+                            <img src={thumbs[id]} alt="" className="h-11 w-11 rounded-lg object-cover" loading="lazy" />
+                          </button>
+                        ) : (
+                          <div className="grid h-11 w-11 place-items-center rounded-lg bg-muted"><ImageIcon className="h-4 w-4 text-muted-foreground" /></div>
+                        )}
+                      </TableCell>
+                    )}
                     {config.listCols.map((c, i) => (
                       <TableCell key={c} className="py-3">
                         {boolCols.has(c) || typeof r[c] === "boolean" ? badge(c, r[c]) : c === fkCol?.name ? <span className="text-muted-foreground">{fkName(r[c])}</span> : c === "arquivo_url" ? <FileMeta url={(r[c] as string) ?? null} /> : c === imgField?.name ? (
@@ -347,6 +359,12 @@ export function CrudPage({ config }: { config: TableConfig }) {
         )}
       </Panel>
       )}
+
+      <Dialog open={!!lightbox} onOpenChange={(o) => !o && setLightbox(null)}>
+        <DialogContent className="max-w-3xl border-none bg-transparent p-0 shadow-none [&>button]:text-white">
+          {lightbox && <img src={lightbox} alt="Imagem ampliada" className="mx-auto max-h-[85vh] w-auto rounded-xl bg-white object-contain" />}
+        </DialogContent>
+      </Dialog>
 
       <AlertDialog open={!!toDelete} onOpenChange={(o) => !o && setToDelete(null)}>
         <AlertDialogContent>
