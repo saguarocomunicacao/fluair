@@ -108,7 +108,7 @@ export function SiteLayout({ chrome, transparentTop = false, children }: { chrom
           </div>
         </header>
 
-        {children}
+        <div className="route-fade">{children}</div>
 
         <footer>
           <svg className="road-ghost" viewBox="0 0 1440 200" fill="none" preserveAspectRatio="none"><path d="M500 200 L700 20 L740 20 L940 200" stroke="#fff" strokeWidth="2" /><path d="M720 200 L720 24" stroke="#116ad1" strokeWidth="4" strokeDasharray="20 18" /></svg>

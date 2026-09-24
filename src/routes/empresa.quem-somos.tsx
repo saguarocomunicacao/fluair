@@ -1,9 +1,11 @@
+import { sitePending } from "@/components/site/SitePending";
 import { createFileRoute } from "@tanstack/react-router";
 import { chromeQuery, paginaHead, paginaQuery, PaginaInstitucional } from "@/components/site/PaginaInstitucional";
 
 const SLUG = "quem-somos";
 
 export const Route = createFileRoute("/empresa/quem-somos")({
+  pendingComponent: sitePending("page"),
   loader: async ({ context }) => {
     const [, d] = await Promise.all([
       context.queryClient.ensureQueryData(chromeQuery),

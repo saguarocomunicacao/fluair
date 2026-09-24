@@ -1,3 +1,4 @@
+import { BusyButton, sitePending } from "@/components/site/SitePending";
 import { createFileRoute } from "@tanstack/react-router";
 import { queryOptions, useSuspenseQuery } from "@tanstack/react-query";
 import { useEffect, useState } from "react";
@@ -12,6 +13,7 @@ export const chromeQuery = queryOptions({ queryKey: ["site-chrome"], queryFn: ()
 const homeQuery = queryOptions({ queryKey: ["site-home"], queryFn: () => getHome(), staleTime: 60_000 });
 
 export const Route = createFileRoute("/")({
+  pendingComponent: sitePending("home"),
   head: () => ({
     meta: [
       { title: "Fluair — Válvulas e freios ABS para implementos rodoviários" },
@@ -210,7 +212,7 @@ function PCard({ p, cat }: { p: ProdutoCard; cat: string }) {
         <span className="spec">Cód. {p.codigo}</span>
         <div className="foot">
           <a className="btn btn-ghost btn-sm" href={href}>{t.ver_ficha}</a>
-          <button className="btn btn-navy btn-sm" onClick={() => addOrc({ id: p.id, codigo: p.codigo, referencia: p.referencia, nome: name, quantidade: 1 })}>{t.add_orc}</button>
+          <BusyButton className="btn btn-navy btn-sm" onClick={() => addOrc({ id: p.id, codigo: p.codigo, referencia: p.referencia, nome: name, quantidade: 1 })}>{t.add_orc}</BusyButton>
         </div>
       </div>
     </div>

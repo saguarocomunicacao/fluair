@@ -1,3 +1,4 @@
+import { Spin, sitePending } from "@/components/site/SitePending";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { queryOptions, useSuspenseQuery } from "@tanstack/react-query";
 import { useEffect, useState } from "react";
@@ -10,6 +11,7 @@ const chromeQuery = queryOptions({ queryKey: ["site-chrome"], queryFn: () => get
 const UFS = ["AC","AL","AP","AM","BA","CE","DF","ES","GO","MA","MT","MS","MG","PA","PB","PR","PE","PI","RJ","RN","RS","RO","RR","SC","SP","SE","TO"];
 
 export const Route = createFileRoute("/orcamento")({
+  pendingComponent: sitePending("page"),
   loader: ({ context }) => context.queryClient.ensureQueryData(chromeQuery),
   head: () => ({
     meta: [
@@ -208,7 +210,7 @@ function Orcamento() {
           <label className={`lgpd ${errs.lgpd ? "err" : ""}`}><input type="checkbox" checked={f.lgpd} onChange={(e) => set("lgpd", e.target.checked)} /> <span>{l.lgpd} *</span></label>
           {errs.lgpd && <div className="fld"><div className="em">{errs.lgpd}</div></div>}
           {fail && <div className="orc-alert" role="alert">{l.err}</div>}
-          <button className="btn btn-navy orc-send" disabled={sending}>{sending ? l.sending : l.send}</button>
+          <button className="btn btn-navy orc-send" disabled={sending}>{sending ? <><Spin />{l.sending}</> : l.send}</button>
         </form>
       </div>
 

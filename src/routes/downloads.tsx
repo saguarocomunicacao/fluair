@@ -1,3 +1,4 @@
+import { Spin, sitePending } from "@/components/site/SitePending";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { queryOptions, useSuspenseQuery } from "@tanstack/react-query";
 import { useMemo, useState } from "react";
@@ -10,6 +11,7 @@ const chromeQuery = queryOptions({ queryKey: ["site-chrome"], queryFn: () => get
 const dlQuery = queryOptions({ queryKey: ["site-downloads"], queryFn: () => getDownloads(), staleTime: 60_000 });
 
 export const Route = createFileRoute("/downloads")({
+  pendingComponent: sitePending("list"),
   loader: ({ context }) => Promise.all([context.queryClient.ensureQueryData(chromeQuery), context.queryClient.ensureQueryData(dlQuery)]),
   head: () => ({
     meta: [
@@ -35,6 +37,17 @@ const L = {
 const kind = (ext: string) => ext === "pdf" ? "pdf" : ["zip", "rar", "7z"].includes(ext) ? "zip" : ["jpg", "jpeg", "png", "webp", "svg"].includes(ext) ? "img" : ["doc", "docx", "xls", "xlsx", "ppt", "pptx", "dwg", "step", "stp"].includes(ext) ? "doc" : "";
 const size = (n: number | null) => n == null ? "" : n < 1024 * 1024 ? `${Math.max(1, Math.round(n / 1024))} KB` : `${(n / 1024 / 1024).toFixed(1).replace(".", ",")} MB`;
 const norm = (s: string) => s.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
+
+function Baixar({ href, label }: { href: string; label: string }) {
+  const [busy, setBusy] = useState(false);
+  return (
+    <a className="btn btn-navy btn-sm" href={href} target="_blank" rel="noopener" download aria-busy={busy}
+      style={busy ? { opacity: .75, pointerEvents: "none" } : undefined}
+      onClick={() => { setBusy(true); setTimeout(() => setBusy(false), 1500); }}>
+      {busy ? <Spin /> : <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2"><path d="M12 3v12m0 0-5-5m5 5 5-5M4 21h16" /></svg>} {label}
+    </a>
+  );
+}
 
 function Downloads() {
   const { data } = useSuspenseQuery(dlQuery);
@@ -91,11 +104,7 @@ function Downloads() {
                       {desc && <p>{desc}</p>}
                       <div className="dl-meta">{[i.ext.toUpperCase(), size(i.tamanho)].filter(Boolean).join(" · ")}</div>
                     </div>
-                    {i.arquivo_url && (
-                      <a className="btn btn-navy btn-sm" href={i.arquivo_url} target="_blank" rel="noopener" download>
-                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2"><path d="M12 3v12m0 0-5-5m5 5 5-5M4 21h16" /></svg> {l.baixar}
-                      </a>
-                    )}
+                    {i.arquivo_url && <Baixar href={i.arquivo_url} label={l.baixar} />}
                   </div>
                 );
               })}

@@ -1,3 +1,4 @@
+import { sitePending } from "@/components/site/SitePending";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { queryOptions, useSuspenseQuery } from "@tanstack/react-query";
 import { useMemo, useState } from "react";
@@ -10,6 +11,7 @@ const chromeQuery = queryOptions({ queryKey: ["site-chrome"], queryFn: () => get
 const faqQuery = queryOptions({ queryKey: ["site-faq"], queryFn: () => getFaq(), staleTime: 60_000 });
 
 export const Route = createFileRoute("/suporte")({
+  pendingComponent: sitePending("faq"),
   loader: ({ context }) => Promise.all([context.queryClient.ensureQueryData(chromeQuery), context.queryClient.ensureQueryData(faqQuery)]),
   head: () => ({
     meta: [

@@ -1,3 +1,4 @@
+import { BusyButton, sitePending } from "@/components/site/SitePending";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { queryOptions, useSuspenseQuery } from "@tanstack/react-query";
 import { zodValidator, fallback } from "@tanstack/zod-adapter";
@@ -21,6 +22,7 @@ const searchSchema = z.object({
 });
 
 export const Route = createFileRoute("/produtos/")({
+  pendingComponent: sitePending("grid"),
   validateSearch: zodValidator(searchSchema),
   loaderDeps: ({ search }) => ({ q: search.q, cat: search.cat, sort: search.sort, page: search.page }),
   loader: ({ context, deps }) =>
@@ -151,7 +153,7 @@ function Card({ p, cat }: { p: ProdutoCard; cat: string }) {
         <a className="stretch" href={`/produtos/${encodeURIComponent(ref)}`}><h3>{name}</h3></a>
         <span className="spec">Cód. {p.codigo}</span>
         <div className="foot">
-          <button className="btn btn-navy btn-sm" onClick={() => addOrc({ id: p.id, codigo: p.codigo, referencia: p.referencia, nome: name, quantidade: 1 })}>{t.add_orc_long}</button>
+          <BusyButton className="btn btn-navy btn-sm" onClick={() => addOrc({ id: p.id, codigo: p.codigo, referencia: p.referencia, nome: name, quantidade: 1 })}>{t.add_orc_long}</BusyButton>
         </div>
       </div>
     </div>

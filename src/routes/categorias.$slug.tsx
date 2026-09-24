@@ -1,3 +1,4 @@
+import { sitePending } from "@/components/site/SitePending";
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { queryOptions, useSuspenseQuery } from "@tanstack/react-query";
 import { zodValidator, fallback } from "@tanstack/zod-adapter";
@@ -25,6 +26,7 @@ const searchSchema = z.object({
 const strip = (h: string | null | undefined) => (h ?? "").replace(/<[^>]+>/g, " ").replace(/\s+/g, " ").trim();
 
 export const Route = createFileRoute("/categorias/$slug")({
+  pendingComponent: sitePending("grid"),
   validateSearch: zodValidator(searchSchema),
   loaderDeps: ({ search }) => ({ q: search.q, sort: search.sort, page: search.page }),
   loader: async ({ context, params, deps }) => {

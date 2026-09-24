@@ -1,3 +1,4 @@
+import { sitePending } from "@/components/site/SitePending";
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { queryOptions, useSuspenseQuery } from "@tanstack/react-query";
 import { zodValidator, fallback } from "@tanstack/zod-adapter";
@@ -20,6 +21,7 @@ const searchSchema = z.object({
 });
 
 export const Route = createFileRoute("/noticias/")({
+  pendingComponent: sitePending("news"),
   validateSearch: zodValidator(searchSchema),
   loaderDeps: ({ search }) => ({ q: search.q, cat: search.cat, page: search.page }),
   loader: ({ context, deps }) => Promise.all([context.queryClient.ensureQueryData(chromeQuery), context.queryClient.ensureQueryData(listQuery(deps))]),
