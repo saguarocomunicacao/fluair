@@ -1,4 +1,4 @@
-import loaderLogo from "@/assets/fluair-logo-branco-loader.png.asset.json";
+import loaderLogo from "@/assets/fluair-logo-branco.png.asset.json";
 
 export function NavigationLoader() {
   return (
@@ -15,7 +15,7 @@ export function NavigationLoader() {
           <img
             src={loaderLogo.url}
             alt="Fluair"
-            className="h-auto w-28 object-contain"
+            className="h-auto w-24 object-contain"
           />
         </span>
       </div>
