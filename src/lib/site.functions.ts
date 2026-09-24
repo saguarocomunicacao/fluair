@@ -74,3 +74,38 @@ export const getCatalogo = createServerFn({ method: "GET" })
     for (const i of imgs) if (!first[i.produto_id]) first[i.produto_id] = i.url;
     return { total: r.count ?? 0, page, per: PER, produtos: prods.map((p) => ({ ...p, imagem: first[p.id] ?? null })) as ProdutoCard[] };
   });
+
+export type ProdutoFicha = {
+  id: string; codigo: string; referencia: string | null; nome_pt: string; nome_es: string | null;
+  descricao_pt: string | null; descricao_es: string | null; informacoes_tecnicas_pt: string | null; informacoes_tecnicas_es: string | null;
+  especificacoes: Record<string, unknown> | null; ncm: string | null; kit_reparo: string | null; categoria_id: string | null;
+  imagens: { url: string; alt_pt: string | null; alt_es: string | null }[];
+};
+
+export const getProduto = createServerFn({ method: "GET" })
+  .inputValidator((d: { ref: string }) => ({ ref: String(d.ref ?? "").slice(0, 120) }))
+  .handler(async ({ data }) => {
+    const sb = publicClient();
+    const cols = "id,codigo,referencia,nome_pt,nome_es,descricao_pt,descricao_es,informacoes_tecnicas_pt,informacoes_tecnicas_es,especificacoes,ncm,kit_reparo,categoria_id";
+    let { data: rows } = await sb.from("produtos").select(cols).eq("ativo", true).eq("referencia", data.ref).order("ordem").limit(1);
+    if (!rows?.length) ({ data: rows } = await sb.from("produtos").select(cols).eq("ativo", true).eq("codigo", data.ref).limit(1));
+    const p = rows?.[0];
+    if (!p) return { produto: null, relacionados: [] as ProdutoCard[] };
+    const { data: imgs } = await sb.from("produto_imagens").select("*").eq("produto_id", p.id).order("ordem");
+    let relacionados: ProdutoCard[] = [];
+    if (p.categoria_id) {
+      const { data: rel } = await sb.from("produtos").select("id,codigo,referencia,nome_pt,nome_es,categoria_id")
+        .eq("ativo", true).eq("categoria_id", p.categoria_id).neq("id", p.id).order("ordem").limit(4);
+      const ids = (rel ?? []).map((r) => r.id);
+      const first: Record<string, string> = {};
+      if (ids.length) {
+        const { data: ri } = await sb.from("produto_imagens").select("produto_id,url,ordem").in("produto_id", ids).order("ordem");
+        (ri ?? []).forEach((i) => { if (!first[i.produto_id]) first[i.produto_id] = i.url; });
+      }
+      relacionados = (rel ?? []).map((r) => ({ ...r, imagem: first[r.id] ?? null }));
+    }
+    const imagens = ((imgs ?? []) as Record<string, unknown>[]).map((i) => ({
+      url: String(i.url), alt_pt: (i.alt_pt as string) ?? (i.alt as string) ?? null, alt_es: (i.alt_es as string) ?? null,
+    }));
+    return { produto: { ...p, imagens } as ProdutoFicha, relacionados };
+  });
