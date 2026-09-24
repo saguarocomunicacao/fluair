@@ -1,4 +1,4 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { createFileRoute, Link, useNavigate, useSearch } from "@tanstack/react-router";
 import { queryOptions, useSuspenseQuery } from "@tanstack/react-query";
 import { lazy, Suspense, useEffect, useState } from "react";
 import siteCss from "@/components/site/site.css?url";
@@ -12,6 +12,7 @@ const chromeQuery = queryOptions({ queryKey: ["site-chrome"], queryFn: () => get
 const oeQuery = queryOptions({ queryKey: ["site-onde"], queryFn: () => getOndeEncontrar(), staleTime: 60_000 });
 
 export const Route = createFileRoute("/onde-encontrar")({
+  validateSearch: (s: Record<string, unknown>) => ({ aba: s["aba"] === "rede" ? ("rede" as const) : undefined }),
   loader: ({ context }) => Promise.all([context.queryClient.ensureQueryData(chromeQuery), context.queryClient.ensureQueryData(oeQuery)]),
   head: () => ({
     meta: [
@@ -42,7 +43,9 @@ function Onde() {
   const { data } = useSuspenseQuery(oeQuery);
   const { lang } = useSite();
   const l = L[lang];
-  const [tab, setTab] = useState<"rep" | "rede">("rep");
+  const { aba } = useSearch({ from: "/onde-encontrar" });
+  const navigate = useNavigate({ from: "/onde-encontrar" });
+  const tab: "rep" | "rede" = aba === "rede" ? "rede" : "rep";
   const [q, setQ] = useState("");
   const [uf, setUf] = useState("");
   const [sel, setSel] = useState<string | null>(null);
@@ -56,7 +59,10 @@ function Onde() {
   const reps = data.representantes.filter(match);
   const rede = data.rede.filter(match);
   const shown = tab === "rep" ? reps : rede;
-  const go = (t: "rep" | "rede") => { setTab(t); setUf(""); setQ(""); setSel(null); };
+  const go = (t: "rep" | "rede") => {
+    setUf(""); setQ(""); setSel(null);
+    navigate({ search: t === "rede" ? { aba: "rede" as const } : { aba: undefined }, replace: true });
+  };
 
   const Empty = ({ t }: { t: string }) => (
     <div className="empty" style={{ marginTop: 22 }}><h4>{t}</h4><p>{list.length ? l.e_p : l.none_p}</p>
