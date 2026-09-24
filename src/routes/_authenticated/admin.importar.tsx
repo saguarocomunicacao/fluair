@@ -88,7 +88,7 @@ function Importar() {
 
   if (!canContent(roles)) return <p className="text-muted-foreground">Você não tem acesso a esta área.</p>;
   return (
-    <div className="space-y-5">
+    <div className="h-full space-y-5 overflow-y-auto">
       <PageHeader title="Importar produtos" crumbs={["Conteúdo", "Importar CSV"]} description="Envie um CSV com cabeçalho. Produtos com o mesmo código são atualizados; a categoria é associada pelo nome ou slug." />
       <Panel className="p-5"><Input type="file" accept=".csv,text/csv" onChange={(e) => e.target.files?.[0] && onFile(e.target.files[0])} /></Panel>
       {cols.length > 0 && (

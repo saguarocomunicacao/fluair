@@ -58,7 +58,7 @@ function Usuarios() {
   };
 
   return (
-    <div>
+    <div className="h-full overflow-y-auto">
       <PageHeader title="Usuários" crumbs={["Sistema", "Usuários"]} description="Quem acessa o painel e o que cada pessoa pode fazer." />
       <div className="grid gap-5 xl:grid-cols-[380px_1fr]">
         <Panel className="self-start p-5">

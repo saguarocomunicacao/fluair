@@ -39,7 +39,7 @@ function Dashboard() {
   ];
 
   return (
-    <div>
+    <div className="h-full overflow-y-auto">
       <PageHeader title="Bem-vindo ao painel Fluair" description="Visão geral do conteúdo e das cotações." />
       <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
         {cards.map((c) => (

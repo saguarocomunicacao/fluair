@@ -168,7 +168,7 @@ function AdminLayout() {
   );
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="h-screen overflow-hidden bg-background">
       {transitioning && <NavigationLoader />}
       <div className="fixed inset-y-0 left-0 z-30 hidden lg:block">{sidebar(collapsed)}</div>
       {mobileOpen && (
@@ -177,8 +177,8 @@ function AdminLayout() {
           <div className="relative h-full w-64">{sidebar(false)}</div>
         </div>
       )}
-      <div className={cn("transition-[padding] duration-200", collapsed ? "lg:pl-16" : "lg:pl-64")}>
-        <header className="sticky top-0 z-20 flex h-16 items-center gap-4 border-b border-border bg-card/85 px-4 backdrop-blur sm:px-8">
+      <div className={cn("flex h-screen flex-col transition-[padding] duration-200", collapsed ? "lg:pl-16" : "lg:pl-64")}>
+        <header className="z-20 flex h-16 shrink-0 items-center gap-4 border-b border-border bg-card/85 px-4 backdrop-blur sm:px-8">
           <button className="lg:hidden" onClick={() => setMobileOpen(true)} aria-label="Abrir menu"><Menu className="h-5 w-5" /></button>
           <button onClick={toggleCollapsed} aria-label={collapsed ? "Expandir menu" : "Recolher menu"} title={collapsed ? "Expandir menu" : "Recolher menu"}
             className="hidden h-9 w-9 shrink-0 place-items-center rounded-lg text-muted-foreground transition-colors hover:bg-muted hover:text-foreground lg:grid">
@@ -209,7 +209,7 @@ function AdminLayout() {
             )}
           </div>
         </header>
-        <main className={cn("w-full px-4 py-8 sm:px-8")}>
+        <main className="min-h-0 w-full flex-1 overflow-hidden px-4 py-8 sm:px-8">
           {roles.length === 0 ? <p className="text-muted-foreground">Sua conta ainda não tem um papel atribuído. Peça a um administrador.</p> : <Outlet />}
         </main>
       </div>
