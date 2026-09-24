@@ -197,7 +197,7 @@ function AdminLayout() {
           </div>
           <div className="relative ml-auto w-full max-w-xs">
             <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-            <Input value={q} onChange={(e) => setQ(e.target.value)} placeholder="Ir para…" className="h-9 bg-background pl-9" onKeyDown={(e) => { if (e.key === "Enter" && results[0]) { navigate({ to: results[0].href }); setQ(""); } }} />
+            <Input value={q} onChange={(e) => setQ(e.target.value)} placeholder="Ir para…" className="h-9 bg-background pl-9" onKeyDown={(e) => { if (e.key === "Enter" && results[0]) { beginTransition(results[0].href); navigate({ to: results[0].href }); setQ(""); } }} />
             {results.length > 0 && (
               <div className="absolute right-0 top-11 w-full overflow-hidden rounded-lg border border-border bg-popover p-1 shadow-lift">
                 {results.map((r) => (
