@@ -42,7 +42,7 @@ function FieldInput({ field, col, form, set, bucket }: { field: Field; col: stri
   const v = form[col];
   switch (field.type) {
     case "textarea": return <Textarea value={(v as string) ?? ""} onChange={(e) => set(col, e.target.value)} />;
-    case "richtext": return <RichText value={(v as string) ?? ""} onChange={(x) => set(col, x)} />;
+    case "richtext": return <RichText value={(v as string) ?? ""} onChange={(x) => set(col, x)} bucket={bucket} />;
     case "number": return <Input type="number" step="any" value={v == null ? "" : String(v)} onChange={(e) => set(col, e.target.value === "" ? null : Number(e.target.value))} />;
     case "bool": return <Switch checked={!!v} onCheckedChange={(c) => set(col, c)} />;
     case "image": case "file": return <UploadField bucket={bucket ?? "banners"} image={field.type === "image"} value={(v as string) ?? ""} onChange={(x) => set(col, x)} />;
@@ -374,7 +374,7 @@ export function CrudPage({ config }: { config: TableConfig }) {
                     <h3 className="mb-5 text-sm font-semibold">Informações gerais</h3>
                     <div className="grid gap-5 sm:grid-cols-2">
                       {shared.map((f) => (
-                        <div key={f.name} className={["richtext", "textarea", "json", "image", "file"].includes(f.type) ? "sm:col-span-2" : ""}>
+                        <div key={f.name} className={["richtext", "textarea", "json", "image", "file", "kv", "map"].includes(f.type) ? "sm:col-span-2" : ""}>
                           {renderField(f, f.name, !!f.required)}
                         </div>
                       ))}
