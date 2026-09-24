@@ -36,9 +36,9 @@
 .fl-site header.solid{background:rgba(255,255,255,.92);backdrop-filter:blur(12px);box-shadow:0 1px 0 var(--line)}
 .fl-site header.solid .menu a{color:#22344e}
 .fl-site .brand{cursor:pointer;display:flex;align-items:center}
-.fl-site .brand .logo-chip{background:#fff;border-radius:10px;padding:7px 12px;display:flex;box-shadow:0 4px 14px rgba(0,0,0,.18);transition:.3s}
-.fl-site header.solid .brand .logo-chip{box-shadow:none;padding:6px 0}
-.fl-site .brand img{height:30px;display:block}
+.fl-site .brand .logo-chip{position:relative;display:flex;padding:6px 0}
+.fl-site .brand .logo-chip img{transition:opacity .3s}.fl-site .brand .logo-chip .lg-cor{position:absolute;left:0;top:6px;opacity:0}.fl-site header.solid .brand .lg-cor{opacity:1}.fl-site header.solid .brand .lg-branco{opacity:0}
+.fl-site .brand img{height:30px;width:auto;display:block;object-fit:contain}
 .fl-site .menu{display:flex;gap:2px;margin-left:6px}
 .fl-site .menu a{font-family:var(--f);font-weight:600;font-size:14px;color:#dfe8f5;padding:9px 14px;border-radius:999px;transition:.15s}
 .fl-site .menu a:hover{background:rgba(255,255,255,.12)}
@@ -160,8 +160,8 @@
 .fl-site footer{background:var(--ink);color:#8ea3c2;padding:70px 0 28px;position:relative;overflow:hidden}
 .fl-site footer .road-ghost{position:absolute;left:50%;top:-40px;width:120%;height:200px;transform:translateX(-50%);opacity:.14;pointer-events:none}
 .fl-site .fgrid{display:grid;grid-template-columns:1.8fr 1fr 1fr 1.2fr;gap:34px;padding-bottom:40px;border-bottom:1px solid var(--line-d);position:relative}
-.fl-site .fchip{background:#fff;border-radius:12px;padding:10px 14px;display:inline-block;margin-bottom:16px}
-.fl-site .fchip img{height:34px;display:block}
+.fl-site .fchip{display:inline-block;padding:4px 0;margin-bottom:18px}
+.fl-site .fchip img{height:34px;width:auto;display:block;object-fit:contain}
 .fl-site footer h5{font-family:var(--f);font-weight:700;font-size:12px;letter-spacing:.12em;text-transform:uppercase;color:#7089aa;margin-bottom:16px}
 .fl-site footer ul{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:10px;font-size:14px}
 .fl-site footer a:hover{color:#fff}
