@@ -151,7 +151,7 @@ function AdminLayout() {
             )}
           </div>
         </header>
-        <main className={cn("mx-auto max-w-[1400px] px-4 py-8 sm:px-8")}>
+        <main className={cn("w-full px-4 py-8 sm:px-8")}>
           {roles.length === 0 ? <p className="text-muted-foreground">Sua conta ainda não tem um papel atribuído. Peça a um administrador.</p> : <Outlet />}
         </main>
       </div>

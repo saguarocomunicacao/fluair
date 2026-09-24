@@ -28,7 +28,7 @@ function Usuarios() {
   };
 
   return (
-    <div className="max-w-4xl space-y-6">
+    <div className="space-y-6">
       <h1 className="text-2xl font-bold">Usuários</h1>
       <form onSubmit={add} className="grid gap-2 rounded-md border border-border bg-card p-4 sm:grid-cols-5">
         <Input placeholder="Nome" required value={f.nome} onChange={(e) => setF({ ...f, nome: e.target.value })} />
