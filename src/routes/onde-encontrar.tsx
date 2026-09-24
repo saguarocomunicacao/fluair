@@ -36,7 +36,7 @@ const L = {
 
 const dg = (s: string | null) => (s ?? "").replace(/\D/g, "");
 const waUrl = (s: string) => `https://wa.me/${dg(s).startsWith("55") ? dg(s) : "55" + dg(s)}`;
-const norm = (s: string | null) => (s ?? "").normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
+const norm = (s: string | null | undefined) => (s ?? "").normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
 
 function Onde() {
   const { data } = useSuspenseQuery(oeQuery);

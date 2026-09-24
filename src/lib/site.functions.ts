@@ -192,7 +192,7 @@ export const getDownloads = createServerFn({ method: "GET" }).handler(async () =
     .eq("ativo", true).order("categoria").order("ordem");
   const rows = (data ?? []) as Omit<DownloadItem, "ext" | "tamanho">[];
   const itens = await Promise.all(rows.map(async (r) => {
-    const path = (r.arquivo_url ?? "").split("?")[0];
+    const path = (r.arquivo_url ?? "").split("?")[0] ?? "";
     const ext = (path.match(/\.([a-z0-9]{2,5})$/i)?.[1] ?? "").toLowerCase();
     let tamanho: number | null = null;
     if (r.arquivo_url) {
