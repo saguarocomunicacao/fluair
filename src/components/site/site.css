@@ -83,13 +83,15 @@
 .fl-site .sec-head.center{margin:0 auto 56px;text-align:center}
 .fl-site .big-idx{font-family:var(--f-disp);font-weight:400;color:var(--cloud);font-size:clamp(90px,16vw,220px);line-height:.8;position:absolute;pointer-events:none;z-index:0;user-select:none}
 .fl-site .sistema{background:var(--paper)}
-.fl-site .sist-grid{display:grid;grid-template-columns:.9fr 1.1fr;gap:60px;align-items:start}
-.fl-site .sist-left{position:sticky;top:120px}
-.fl-site .sist-left .lead{font-family:var(--f-disp);font-weight:400;text-transform:uppercase;color:var(--navy);font-size:clamp(30px,3.6vw,50px);line-height:1;margin:16px 0 18px;letter-spacing:.005em}
-.fl-site .sist-left p{color:var(--steel);font-size:16px;max-width:36ch}
-.fl-site .sist-left .count-block{margin-top:26px;font-family:var(--f-disp);color:var(--yellow-dk);font-size:70px;line-height:1}
-.fl-site .sist-left .count-block small{display:block;font-family:var(--f);font-weight:600;font-size:14px;color:var(--steel);letter-spacing:.02em;text-transform:none}
-.fl-site .sist-list{display:flex;flex-direction:column;gap:16px}
+.fl-site .sist-wrap{display:flex;flex-direction:column;gap:44px}
+.fl-site .sist-head{display:flex;align-items:flex-end;justify-content:space-between;gap:48px}
+.fl-site .sist-head-txt{max-width:660px}
+.fl-site .sist-head-txt .lead{font-family:var(--f-disp);font-weight:400;text-transform:uppercase;color:var(--navy);font-size:clamp(30px,3.6vw,50px);line-height:1;margin:16px 0 18px;letter-spacing:.005em}
+.fl-site .sist-head-txt p{color:var(--steel);font-size:16px;max-width:56ch}
+.fl-site .sist-head .count-block{margin-top:0;font-family:var(--f-disp);color:var(--yellow-dk);font-size:70px;line-height:1;flex:0 0 auto;text-align:right;padding-bottom:4px}
+.fl-site .sist-head .count-block small{display:block;font-family:var(--f);font-weight:600;font-size:14px;color:var(--steel);letter-spacing:.02em;text-transform:none;max-width:180px}
+.fl-site .sist-cards{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px;align-items:stretch}
+.fl-site .sist-item{display:flex;flex-direction:column}
 .fl-site .sist-item{background:#fff;border:1px solid var(--line);border-radius:16px;padding:24px 26px;display:flex;gap:20px;align-items:flex-start;transition:.25s}
 .fl-site .sist-item:hover{box-shadow:var(--sh);transform:translateX(6px)}
 .fl-site .sist-item .no{font-family:var(--f-disp);font-weight:400;color:var(--yellow-dk);font-size:30px;line-height:1;flex:0 0 auto;width:46px}
