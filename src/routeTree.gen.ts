@@ -17,6 +17,8 @@ import { Route as DefinirSenhaRouteImport } from './routes/definir-senha'
 import { Route as OrcamentoRouteImport } from './routes/orcamento'
 import { Route as AuthenticatedAdminRouteImport } from './routes/_authenticated/admin'
 import { Route as CategoriasSlugRouteImport } from './routes/categorias.$slug'
+import { Route as EmpresaGestaoDaQualidadeRouteImport } from './routes/empresa.gestao-da-qualidade'
+import { Route as EmpresaQuemSomosRouteImport } from './routes/empresa.quem-somos'
 import { Route as ProdutosIndexRouteImport } from './routes/produtos.index'
 import { Route as ProdutosReferenciaRouteImport } from './routes/produtos.$referencia'
 import { Route as AuthenticatedAdminIndexRouteImport } from './routes/_authenticated/admin.index'
@@ -62,6 +64,17 @@ const AuthenticatedAdminRoute = AuthenticatedAdminRouteImport.update({
 const CategoriasSlugRoute = CategoriasSlugRouteImport.update({
   id: '/categorias/$slug',
   path: '/categorias/$slug',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const EmpresaGestaoDaQualidadeRoute =
+  EmpresaGestaoDaQualidadeRouteImport.update({
+    id: '/empresa/gestao-da-qualidade',
+    path: '/empresa/gestao-da-qualidade',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const EmpresaQuemSomosRoute = EmpresaQuemSomosRouteImport.update({
+  id: '/empresa/quem-somos',
+  path: '/empresa/quem-somos',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ProdutosIndexRoute = ProdutosIndexRouteImport.update({
@@ -112,6 +125,8 @@ export interface FileRoutesByFullPath {
   '/orcamento': typeof OrcamentoRoute
   '/admin': typeof AuthenticatedAdminRouteWithChildren
   '/categorias/$slug': typeof CategoriasSlugRoute
+  '/empresa/gestao-da-qualidade': typeof EmpresaGestaoDaQualidadeRoute
+  '/empresa/quem-somos': typeof EmpresaQuemSomosRoute
   '/produtos/$referencia': typeof ProdutosReferenciaRoute
   '/produtos/': typeof ProdutosIndexRoute
   '/admin/cotacoes': typeof AuthenticatedAdminCotacoesRoute
@@ -127,6 +142,8 @@ export interface FileRoutesByTo {
   '/definir-senha': typeof DefinirSenhaRoute
   '/orcamento': typeof OrcamentoRoute
   '/categorias/$slug': typeof CategoriasSlugRoute
+  '/empresa/gestao-da-qualidade': typeof EmpresaGestaoDaQualidadeRoute
+  '/empresa/quem-somos': typeof EmpresaQuemSomosRoute
   '/produtos/$referencia': typeof ProdutosReferenciaRoute
   '/produtos': typeof ProdutosIndexRoute
   '/admin/cotacoes': typeof AuthenticatedAdminCotacoesRoute
@@ -145,6 +162,8 @@ export interface FileRoutesById {
   '/orcamento': typeof OrcamentoRoute
   '/_authenticated/admin': typeof AuthenticatedAdminRouteWithChildren
   '/categorias/$slug': typeof CategoriasSlugRoute
+  '/empresa/gestao-da-qualidade': typeof EmpresaGestaoDaQualidadeRoute
+  '/empresa/quem-somos': typeof EmpresaQuemSomosRoute
   '/produtos/$referencia': typeof ProdutosReferenciaRoute
   '/produtos/': typeof ProdutosIndexRoute
   '/_authenticated/admin/cotacoes': typeof AuthenticatedAdminCotacoesRoute
@@ -163,6 +182,8 @@ export interface FileRouteTypes {
     | '/orcamento'
     | '/admin'
     | '/categorias/$slug'
+    | '/empresa/gestao-da-qualidade'
+    | '/empresa/quem-somos'
     | '/produtos/$referencia'
     | '/produtos/'
     | '/admin/cotacoes'
@@ -178,6 +199,8 @@ export interface FileRouteTypes {
     | '/definir-senha'
     | '/orcamento'
     | '/categorias/$slug'
+    | '/empresa/gestao-da-qualidade'
+    | '/empresa/quem-somos'
     | '/produtos/$referencia'
     | '/produtos'
     | '/admin/cotacoes'
@@ -195,6 +218,8 @@ export interface FileRouteTypes {
     | '/orcamento'
     | '/_authenticated/admin'
     | '/categorias/$slug'
+    | '/empresa/gestao-da-qualidade'
+    | '/empresa/quem-somos'
     | '/produtos/$referencia'
     | '/produtos/'
     | '/_authenticated/admin/cotacoes'
@@ -212,6 +237,8 @@ export interface RootRouteChildren {
   DefinirSenhaRoute: typeof DefinirSenhaRoute
   OrcamentoRoute: typeof OrcamentoRoute
   CategoriasSlugRoute: typeof CategoriasSlugRoute
+  EmpresaGestaoDaQualidadeRoute: typeof EmpresaGestaoDaQualidadeRoute
+  EmpresaQuemSomosRoute: typeof EmpresaQuemSomosRoute
   ProdutosReferenciaRoute: typeof ProdutosReferenciaRoute
   ProdutosIndexRoute: typeof ProdutosIndexRoute
 }
@@ -272,6 +299,20 @@ declare module '@tanstack/react-router' {
       path: '/categorias/$slug'
       fullPath: '/categorias/$slug'
       preLoaderRoute: typeof CategoriasSlugRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/empresa/gestao-da-qualidade': {
+      id: '/empresa/gestao-da-qualidade'
+      path: '/empresa/gestao-da-qualidade'
+      fullPath: '/empresa/gestao-da-qualidade'
+      preLoaderRoute: typeof EmpresaGestaoDaQualidadeRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/empresa/quem-somos': {
+      id: '/empresa/quem-somos'
+      path: '/empresa/quem-somos'
+      fullPath: '/empresa/quem-somos'
+      preLoaderRoute: typeof EmpresaQuemSomosRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/produtos/': {
@@ -364,6 +405,8 @@ const rootRouteChildren: RootRouteChildren = {
   DefinirSenhaRoute: DefinirSenhaRoute,
   OrcamentoRoute: OrcamentoRoute,
   CategoriasSlugRoute: CategoriasSlugRoute,
+  EmpresaGestaoDaQualidadeRoute: EmpresaGestaoDaQualidadeRoute,
+  EmpresaQuemSomosRoute: EmpresaQuemSomosRoute,
   ProdutosReferenciaRoute: ProdutosReferenciaRoute,
   ProdutosIndexRoute: ProdutosIndexRoute,
 }
