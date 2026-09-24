@@ -14,6 +14,8 @@ import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/
 import { Route as AuthRouteImport } from './routes/auth'
 import { Route as ContatoRouteImport } from './routes/contato'
 import { Route as DefinirSenhaRouteImport } from './routes/definir-senha'
+import { Route as DownloadsRouteImport } from './routes/downloads'
+import { Route as OndeEncontrarRouteImport } from './routes/onde-encontrar'
 import { Route as OrcamentoRouteImport } from './routes/orcamento'
 import { Route as AuthenticatedAdminRouteImport } from './routes/_authenticated/admin'
 import { Route as CategoriasSlugRouteImport } from './routes/categorias.$slug'
@@ -49,6 +51,16 @@ const ContatoRoute = ContatoRouteImport.update({
 const DefinirSenhaRoute = DefinirSenhaRouteImport.update({
   id: '/definir-senha',
   path: '/definir-senha',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const DownloadsRoute = DownloadsRouteImport.update({
+  id: '/downloads',
+  path: '/downloads',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const OndeEncontrarRoute = OndeEncontrarRouteImport.update({
+  id: '/onde-encontrar',
+  path: '/onde-encontrar',
   getParentRoute: () => rootRouteImport,
 } as any)
 const OrcamentoRoute = OrcamentoRouteImport.update({
@@ -122,6 +134,8 @@ export interface FileRoutesByFullPath {
   '/auth': typeof AuthRoute
   '/contato': typeof ContatoRoute
   '/definir-senha': typeof DefinirSenhaRoute
+  '/downloads': typeof DownloadsRoute
+  '/onde-encontrar': typeof OndeEncontrarRoute
   '/orcamento': typeof OrcamentoRoute
   '/admin': typeof AuthenticatedAdminRouteWithChildren
   '/categorias/$slug': typeof CategoriasSlugRoute
@@ -140,6 +154,8 @@ export interface FileRoutesByTo {
   '/auth': typeof AuthRoute
   '/contato': typeof ContatoRoute
   '/definir-senha': typeof DefinirSenhaRoute
+  '/downloads': typeof DownloadsRoute
+  '/onde-encontrar': typeof OndeEncontrarRoute
   '/orcamento': typeof OrcamentoRoute
   '/categorias/$slug': typeof CategoriasSlugRoute
   '/empresa/gestao-da-qualidade': typeof EmpresaGestaoDaQualidadeRoute
@@ -159,6 +175,8 @@ export interface FileRoutesById {
   '/auth': typeof AuthRoute
   '/contato': typeof ContatoRoute
   '/definir-senha': typeof DefinirSenhaRoute
+  '/downloads': typeof DownloadsRoute
+  '/onde-encontrar': typeof OndeEncontrarRoute
   '/orcamento': typeof OrcamentoRoute
   '/_authenticated/admin': typeof AuthenticatedAdminRouteWithChildren
   '/categorias/$slug': typeof CategoriasSlugRoute
@@ -179,6 +197,8 @@ export interface FileRouteTypes {
     | '/auth'
     | '/contato'
     | '/definir-senha'
+    | '/downloads'
+    | '/onde-encontrar'
     | '/orcamento'
     | '/admin'
     | '/categorias/$slug'
@@ -197,6 +217,8 @@ export interface FileRouteTypes {
     | '/auth'
     | '/contato'
     | '/definir-senha'
+    | '/downloads'
+    | '/onde-encontrar'
     | '/orcamento'
     | '/categorias/$slug'
     | '/empresa/gestao-da-qualidade'
@@ -215,6 +237,8 @@ export interface FileRouteTypes {
     | '/auth'
     | '/contato'
     | '/definir-senha'
+    | '/downloads'
+    | '/onde-encontrar'
     | '/orcamento'
     | '/_authenticated/admin'
     | '/categorias/$slug'
@@ -235,6 +259,8 @@ export interface RootRouteChildren {
   AuthRoute: typeof AuthRoute
   ContatoRoute: typeof ContatoRoute
   DefinirSenhaRoute: typeof DefinirSenhaRoute
+  DownloadsRoute: typeof DownloadsRoute
+  OndeEncontrarRoute: typeof OndeEncontrarRoute
   OrcamentoRoute: typeof OrcamentoRoute
   CategoriasSlugRoute: typeof CategoriasSlugRoute
   EmpresaGestaoDaQualidadeRoute: typeof EmpresaGestaoDaQualidadeRoute
@@ -278,6 +304,20 @@ declare module '@tanstack/react-router' {
       path: '/definir-senha'
       fullPath: '/definir-senha'
       preLoaderRoute: typeof DefinirSenhaRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/downloads': {
+      id: '/downloads'
+      path: '/downloads'
+      fullPath: '/downloads'
+      preLoaderRoute: typeof DownloadsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/onde-encontrar': {
+      id: '/onde-encontrar'
+      path: '/onde-encontrar'
+      fullPath: '/onde-encontrar'
+      preLoaderRoute: typeof OndeEncontrarRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/orcamento': {
@@ -403,6 +443,8 @@ const rootRouteChildren: RootRouteChildren = {
   AuthRoute: AuthRoute,
   ContatoRoute: ContatoRoute,
   DefinirSenhaRoute: DefinirSenhaRoute,
+  DownloadsRoute: DownloadsRoute,
+  OndeEncontrarRoute: OndeEncontrarRoute,
   OrcamentoRoute: OrcamentoRoute,
   CategoriasSlugRoute: CategoriasSlugRoute,
   EmpresaGestaoDaQualidadeRoute: EmpresaGestaoDaQualidadeRoute,
