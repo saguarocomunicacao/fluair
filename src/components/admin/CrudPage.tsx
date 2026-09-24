@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { Fragment, useMemo, useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
@@ -65,6 +65,8 @@ function FieldInput({ field, col, form, set, bucket }: { field: Field; col: stri
     default: return <Input value={(v as string) ?? ""} onChange={(e) => set(col, e.target.value)} />;
   }
 }
+
+const COL_LABEL: Record<string, string> = { nome_pt: "Nome", titulo_pt: "Título", pergunta_pt: "Pergunta", label_pt: "Rótulo", categoria_id: "Categoria", arquivo_url: "Arquivo", capa_url: "Capa", publicado_em: "Data", atualizado_em: "Atualizado", codigo: "Código", valor_pt: "Valor" };
 
 function fmt(v: unknown) {
   if (typeof v === "boolean") return v ? "Sim" : "Não";
@@ -183,7 +185,7 @@ export function CrudPage({ config }: { config: TableConfig }) {
   const PER = 15;
   const pages = Math.max(1, Math.ceil(filtered.length / PER));
   const cur = Math.min(page, pages - 1);
-  const visible = config.reorder ? filtered.slice(0, canDrag ? filtered.length : undefined).slice(cur * PER, cur * PER + PER) : filtered.slice(cur * PER, cur * PER + PER);
+  const visible = filtered.slice(cur * PER, cur * PER + PER);
   const imgField = config.fields.find((f) => f.type === "image");
   const boolCols = new Set(config.fields.filter((f) => f.type === "bool").map((f) => f.name));
 
@@ -220,29 +222,81 @@ export function CrudPage({ config }: { config: TableConfig }) {
               <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
               <Input placeholder="Buscar…" value={q} onChange={(e) => { setQ(e.target.value); setPage(0); }} className="h-10 w-64 bg-card pl-9" />
             </div>
-            <Button onClick={openNew} className="h-10"><Plus className="h-4 w-4" />Novo</Button>
+            <Button onClick={() => openNew()} className="h-10"><Plus className="h-4 w-4" />Novo</Button>
           </>
         }
       />
+      {config.filters && (
+        <div className="mb-4 flex flex-wrap items-center gap-3">
+          {config.filters.map((fl) => (
+            <label key={fl.col} className="flex items-center gap-2 text-sm text-muted-foreground">
+              {fl.label}
+              <select className="h-9 rounded-md border border-input bg-card px-2 text-sm text-foreground" value={flt[fl.col] ?? ""} onChange={(e) => { setFlt({ ...flt, [fl.col]: e.target.value }); setPage(0); }}>
+                <option value="">Todos</option>
+                {fl.kind === "bool" && <><option value="true">Sim</option><option value="false">Não</option></>}
+                {fl.kind === "uf" && UFS.map((u) => <option key={u}>{u}</option>)}
+                {fl.kind === "fk" && fkRows.map((r) => <option key={String(r["id"])} value={String(r["id"])}>{String(r[fl.fk!.label])}</option>)}
+              </select>
+            </label>
+          ))}
+          {Object.values(flt).some(Boolean) && <Button size="sm" variant="ghost" onClick={() => setFlt({})}>Limpar filtros</Button>}
+        </div>
+      )}
+      {config.reorder && !config.groupBy && config.table !== "menus" && filtered.length > 1 && (
+        <p className="mb-2 text-xs text-muted-foreground">{canDrag ? "Arraste as linhas pelo ícone ⋮⋮ para reordenar." : "Limpe a busca e os filtros para reordenar."}</p>
+      )}
+      {config.table === "menus" ? (
+        <Panel className="overflow-hidden">
+          <MenuTree
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            rows={filtered as any}
+            onEdit={(r) => { setIsNew(false); setEditing(r); }}
+            onDelete={(r) => setToDelete(r)}
+            onNew={(init) => openNew(init)}
+            onChanged={() => qc.invalidateQueries({ queryKey: ["crud", "menus"] })}
+          />
+        </Panel>
+      ) : (
       <Panel className="overflow-hidden">
         {!isLoading && filtered.length === 0 ? (
-          <EmptyState text={q ? "Nada encontrado para essa busca." : `Nenhum item em ${config.label} ainda.`} onAdd={q ? undefined : openNew} />
+          <EmptyState text={q ? "Nada encontrado para essa busca." : `Nenhum item em ${config.label} ainda.`} onAdd={q ? undefined : () => openNew()} />
         ) : (
           <div className="max-h-[calc(100vh-280px)] overflow-auto">
             <Table>
               <TableHeader className="sticky top-0 z-10 bg-muted/95 backdrop-blur">
                 <TableRow className="hover:bg-transparent">
-                  {config.listCols.map((c) => <TableHead key={c} className="h-11 text-xs font-semibold uppercase tracking-wide text-muted-foreground">{c.replace(/_pt$/, "").replace(/_/g, " ")}</TableHead>)}
+                  {config.reorder && <TableHead className="w-8" />}
+                  {config.listCols.map((c) => <TableHead key={c} className="h-11 text-xs font-semibold uppercase tracking-wide text-muted-foreground">{COL_LABEL[c] ?? c.replace(/_pt$/, "").replace(/_/g, " ")}</TableHead>)}
                   <TableHead className="w-16" />
                 </TableRow>
               </TableHeader>
               <TableBody>
                 {isLoading && <TableRow><TableCell colSpan={9} className="py-10 text-center text-muted-foreground">Carregando…</TableCell></TableRow>}
-                {visible.map((r) => (
-                  <TableRow key={String(r[pk])} className="even:bg-muted/30 hover:bg-brand-accent-soft">
+                {visible.map((r, idx) => {
+                  const g = config.groupBy;
+                  const newGroup = g && (idx === 0 || (visible[idx - 1]![g] ?? "") !== (r[g] ?? ""));
+                  const id = String(r[pk]);
+                  return (<Fragment key={id}>
+                  {newGroup && (
+                    <TableRow className="bg-muted/60 hover:bg-muted/60">
+                      <TableCell colSpan={config.listCols.length + 2} className="py-2 text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+                        {config.groupLabels?.[String(r[g!])] ?? (String(r[g!] ?? "") || "Sem categoria")}
+                      </TableCell>
+                    </TableRow>
+                  )}
+                  <TableRow
+                    draggable={canDrag}
+                    onDragStart={() => setDragId(id)}
+                    onDragEnd={() => { setDragId(null); setOverId(null); }}
+                    onDragOver={(e) => { if (canDrag) { e.preventDefault(); setOverId(id); } }}
+                    onDrop={(e) => { e.preventDefault(); if (dragId) reorder(dragId, id); setOverId(null); }}
+                    className={`hover:bg-brand-accent-soft ${dragId === id ? "opacity-40" : ""} ${overId === id && dragId !== id ? "border-t-2 border-t-brand-accent" : ""}`}>
+                    {config.reorder && <TableCell className="w-8 pr-0">{canDrag && <GripVertical className="h-4 w-4 cursor-grab text-muted-foreground" />}</TableCell>}
                     {config.listCols.map((c, i) => (
                       <TableCell key={c} className="py-3">
-                        {boolCols.has(c) || typeof r[c] === "boolean" ? badge(c, r[c]) : i === 0 && imgField ? (
+                        {boolCols.has(c) || typeof r[c] === "boolean" ? badge(c, r[c]) : c === fkCol?.name ? <span className="text-muted-foreground">{fkName(r[c])}</span> : c === "arquivo_url" ? <FileMeta url={(r[c] as string) ?? null} /> : c === imgField?.name ? (
+                          r[c] ? <img src={String(r[c])} alt="" className="h-10 w-16 rounded-md border border-border object-cover" /> : <div className="grid h-10 w-16 place-items-center rounded-md bg-muted"><ImageIcon className="h-4 w-4 text-muted-foreground" /></div>
+                        ) : i === 0 && imgField ? (
                           <div className="flex items-center gap-3">
                             {r[imgField.name] ? <img src={String(r[imgField.name])} alt="" className="h-9 w-9 rounded-lg border border-border object-cover" /> : <div className="grid h-9 w-9 place-items-center rounded-lg bg-muted"><ImageIcon className="h-4 w-4 text-muted-foreground" /></div>}
                             <span className="font-medium">{fmt(r[c])}</span>
@@ -260,7 +314,8 @@ export function CrudPage({ config }: { config: TableConfig }) {
                       </DropdownMenu>
                     </TableCell>
                   </TableRow>
-                ))}
+                  </Fragment>);
+                })}
               </TableBody>
             </Table>
           </div>
@@ -276,6 +331,7 @@ export function CrudPage({ config }: { config: TableConfig }) {
           </div>
         )}
       </Panel>
+      )}
 
       <AlertDialog open={!!toDelete} onOpenChange={(o) => !o && setToDelete(null)}>
         <AlertDialogContent>
