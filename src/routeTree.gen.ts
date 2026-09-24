@@ -17,10 +17,13 @@ import { Route as DefinirSenhaRouteImport } from './routes/definir-senha'
 import { Route as DownloadsRouteImport } from './routes/downloads'
 import { Route as OndeEncontrarRouteImport } from './routes/onde-encontrar'
 import { Route as OrcamentoRouteImport } from './routes/orcamento'
+import { Route as SuporteRouteImport } from './routes/suporte'
 import { Route as AuthenticatedAdminRouteImport } from './routes/_authenticated/admin'
 import { Route as CategoriasSlugRouteImport } from './routes/categorias.$slug'
 import { Route as EmpresaGestaoDaQualidadeRouteImport } from './routes/empresa.gestao-da-qualidade'
 import { Route as EmpresaQuemSomosRouteImport } from './routes/empresa.quem-somos'
+import { Route as NoticiasIndexRouteImport } from './routes/noticias.index'
+import { Route as NoticiasSlugRouteImport } from './routes/noticias.$slug'
 import { Route as ProdutosIndexRouteImport } from './routes/produtos.index'
 import { Route as ProdutosReferenciaRouteImport } from './routes/produtos.$referencia'
 import { Route as AuthenticatedAdminIndexRouteImport } from './routes/_authenticated/admin.index'
@@ -68,6 +71,11 @@ const OrcamentoRoute = OrcamentoRouteImport.update({
   path: '/orcamento',
   getParentRoute: () => rootRouteImport,
 } as any)
+const SuporteRoute = SuporteRouteImport.update({
+  id: '/suporte',
+  path: '/suporte',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const AuthenticatedAdminRoute = AuthenticatedAdminRouteImport.update({
   id: '/admin',
   path: '/admin',
@@ -87,6 +95,16 @@ const EmpresaGestaoDaQualidadeRoute =
 const EmpresaQuemSomosRoute = EmpresaQuemSomosRouteImport.update({
   id: '/empresa/quem-somos',
   path: '/empresa/quem-somos',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const NoticiasIndexRoute = NoticiasIndexRouteImport.update({
+  id: '/noticias/',
+  path: '/noticias/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const NoticiasSlugRoute = NoticiasSlugRouteImport.update({
+  id: '/noticias/$slug',
+  path: '/noticias/$slug',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ProdutosIndexRoute = ProdutosIndexRouteImport.update({
@@ -137,11 +155,14 @@ export interface FileRoutesByFullPath {
   '/downloads': typeof DownloadsRoute
   '/onde-encontrar': typeof OndeEncontrarRoute
   '/orcamento': typeof OrcamentoRoute
+  '/suporte': typeof SuporteRoute
   '/admin': typeof AuthenticatedAdminRouteWithChildren
   '/categorias/$slug': typeof CategoriasSlugRoute
   '/empresa/gestao-da-qualidade': typeof EmpresaGestaoDaQualidadeRoute
   '/empresa/quem-somos': typeof EmpresaQuemSomosRoute
+  '/noticias/$slug': typeof NoticiasSlugRoute
   '/produtos/$referencia': typeof ProdutosReferenciaRoute
+  '/noticias/': typeof NoticiasIndexRoute
   '/produtos/': typeof ProdutosIndexRoute
   '/admin/cotacoes': typeof AuthenticatedAdminCotacoesRoute
   '/admin/importar': typeof AuthenticatedAdminImportarRoute
@@ -157,10 +178,13 @@ export interface FileRoutesByTo {
   '/downloads': typeof DownloadsRoute
   '/onde-encontrar': typeof OndeEncontrarRoute
   '/orcamento': typeof OrcamentoRoute
+  '/suporte': typeof SuporteRoute
   '/categorias/$slug': typeof CategoriasSlugRoute
   '/empresa/gestao-da-qualidade': typeof EmpresaGestaoDaQualidadeRoute
   '/empresa/quem-somos': typeof EmpresaQuemSomosRoute
+  '/noticias/$slug': typeof NoticiasSlugRoute
   '/produtos/$referencia': typeof ProdutosReferenciaRoute
+  '/noticias': typeof NoticiasIndexRoute
   '/produtos': typeof ProdutosIndexRoute
   '/admin/cotacoes': typeof AuthenticatedAdminCotacoesRoute
   '/admin/importar': typeof AuthenticatedAdminImportarRoute
@@ -178,11 +202,14 @@ export interface FileRoutesById {
   '/downloads': typeof DownloadsRoute
   '/onde-encontrar': typeof OndeEncontrarRoute
   '/orcamento': typeof OrcamentoRoute
+  '/suporte': typeof SuporteRoute
   '/_authenticated/admin': typeof AuthenticatedAdminRouteWithChildren
   '/categorias/$slug': typeof CategoriasSlugRoute
   '/empresa/gestao-da-qualidade': typeof EmpresaGestaoDaQualidadeRoute
   '/empresa/quem-somos': typeof EmpresaQuemSomosRoute
+  '/noticias/$slug': typeof NoticiasSlugRoute
   '/produtos/$referencia': typeof ProdutosReferenciaRoute
+  '/noticias/': typeof NoticiasIndexRoute
   '/produtos/': typeof ProdutosIndexRoute
   '/_authenticated/admin/cotacoes': typeof AuthenticatedAdminCotacoesRoute
   '/_authenticated/admin/importar': typeof AuthenticatedAdminImportarRoute
@@ -200,11 +227,14 @@ export interface FileRouteTypes {
     | '/downloads'
     | '/onde-encontrar'
     | '/orcamento'
+    | '/suporte'
     | '/admin'
     | '/categorias/$slug'
     | '/empresa/gestao-da-qualidade'
     | '/empresa/quem-somos'
+    | '/noticias/$slug'
     | '/produtos/$referencia'
+    | '/noticias/'
     | '/produtos/'
     | '/admin/cotacoes'
     | '/admin/importar'
@@ -220,10 +250,13 @@ export interface FileRouteTypes {
     | '/downloads'
     | '/onde-encontrar'
     | '/orcamento'
+    | '/suporte'
     | '/categorias/$slug'
     | '/empresa/gestao-da-qualidade'
     | '/empresa/quem-somos'
+    | '/noticias/$slug'
     | '/produtos/$referencia'
+    | '/noticias'
     | '/produtos'
     | '/admin/cotacoes'
     | '/admin/importar'
@@ -240,11 +273,14 @@ export interface FileRouteTypes {
     | '/downloads'
     | '/onde-encontrar'
     | '/orcamento'
+    | '/suporte'
     | '/_authenticated/admin'
     | '/categorias/$slug'
     | '/empresa/gestao-da-qualidade'
     | '/empresa/quem-somos'
+    | '/noticias/$slug'
     | '/produtos/$referencia'
+    | '/noticias/'
     | '/produtos/'
     | '/_authenticated/admin/cotacoes'
     | '/_authenticated/admin/importar'
@@ -262,10 +298,13 @@ export interface RootRouteChildren {
   DownloadsRoute: typeof DownloadsRoute
   OndeEncontrarRoute: typeof OndeEncontrarRoute
   OrcamentoRoute: typeof OrcamentoRoute
+  SuporteRoute: typeof SuporteRoute
   CategoriasSlugRoute: typeof CategoriasSlugRoute
   EmpresaGestaoDaQualidadeRoute: typeof EmpresaGestaoDaQualidadeRoute
   EmpresaQuemSomosRoute: typeof EmpresaQuemSomosRoute
+  NoticiasSlugRoute: typeof NoticiasSlugRoute
   ProdutosReferenciaRoute: typeof ProdutosReferenciaRoute
+  NoticiasIndexRoute: typeof NoticiasIndexRoute
   ProdutosIndexRoute: typeof ProdutosIndexRoute
 }
 
@@ -327,6 +366,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof OrcamentoRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/suporte': {
+      id: '/suporte'
+      path: '/suporte'
+      fullPath: '/suporte'
+      preLoaderRoute: typeof SuporteRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/_authenticated/admin': {
       id: '/_authenticated/admin'
       path: '/admin'
@@ -353,6 +399,20 @@ declare module '@tanstack/react-router' {
       path: '/empresa/quem-somos'
       fullPath: '/empresa/quem-somos'
       preLoaderRoute: typeof EmpresaQuemSomosRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/noticias/': {
+      id: '/noticias/'
+      path: '/noticias'
+      fullPath: '/noticias/'
+      preLoaderRoute: typeof NoticiasIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/noticias/$slug': {
+      id: '/noticias/$slug'
+      path: '/noticias/$slug'
+      fullPath: '/noticias/$slug'
+      preLoaderRoute: typeof NoticiasSlugRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/produtos/': {
@@ -446,10 +506,13 @@ const rootRouteChildren: RootRouteChildren = {
   DownloadsRoute: DownloadsRoute,
   OndeEncontrarRoute: OndeEncontrarRoute,
   OrcamentoRoute: OrcamentoRoute,
+  SuporteRoute: SuporteRoute,
   CategoriasSlugRoute: CategoriasSlugRoute,
   EmpresaGestaoDaQualidadeRoute: EmpresaGestaoDaQualidadeRoute,
   EmpresaQuemSomosRoute: EmpresaQuemSomosRoute,
+  NoticiasSlugRoute: NoticiasSlugRoute,
   ProdutosReferenciaRoute: ProdutosReferenciaRoute,
+  NoticiasIndexRoute: NoticiasIndexRoute,
   ProdutosIndexRoute: ProdutosIndexRoute,
 }
 export const routeTree = rootRouteImport
