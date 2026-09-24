@@ -91,7 +91,6 @@
 .fl-site .sist-head .count-block{margin-top:0;font-family:var(--f-disp);color:var(--yellow-dk);font-size:70px;line-height:1;flex:0 0 auto;text-align:right;padding-bottom:4px}
 .fl-site .sist-head .count-block small{display:block;font-family:var(--f);font-weight:600;font-size:14px;color:var(--steel);letter-spacing:.02em;text-transform:none;max-width:180px}
 .fl-site .sist-cards{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px;align-items:stretch}
-.fl-site .sist-item{display:flex;flex-direction:column}
 .fl-site .sist-item{background:#fff;border:1px solid var(--line);border-radius:16px;padding:24px 26px;display:flex;gap:20px;align-items:flex-start;transition:.25s}
 .fl-site .sist-item:hover{box-shadow:var(--sh);transform:translateX(6px)}
 .fl-site .sist-item .no{font-family:var(--f-disp);font-weight:400;color:var(--yellow-dk);font-size:30px;line-height:1;flex:0 0 auto;width:46px}
