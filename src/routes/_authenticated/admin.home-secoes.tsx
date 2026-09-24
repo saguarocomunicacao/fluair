@@ -1,7 +1,8 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
+import { UploadField } from "@/components/admin/UploadField";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useEffect, useState } from "react";
-import { ArrowDown, ArrowUp, Loader2, Plus, Save, Trash2 } from "lucide-react";
+import { ArrowDown, ArrowUp, ExternalLink, Loader2, Plus, Save, Trash2 } from "lucide-react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
@@ -84,7 +85,9 @@ function SectionEditor({ def, row }: { def: SectionDef; row: Row | undefined }) 
           {fields.map((f) => (
             <div key={f.key} className={f.long ? "md:col-span-2 space-y-1.5" : "space-y-1.5"}>
               <Label>{f.label}</Label>
-              {f.long
+              {f.image
+                ? <UploadField image bucket="banners" value={(data[f.key] as string) ?? ""} onChange={(v) => set({ ...data, [f.key]: v })} />
+                : f.long
                 ? <Textarea rows={3} value={(data[f.key] as string) ?? ""} onChange={(e) => set({ ...data, [f.key]: e.target.value })} />
                 : <Input value={(data[f.key] as string) ?? ""} onChange={(e) => set({ ...data, [f.key]: e.target.value })} />}
               {f.hint && <p className="text-xs text-muted-foreground">{f.hint}</p>}
@@ -155,7 +158,12 @@ function SectionEditor({ def, row }: { def: SectionDef; row: Row | undefined }) 
   return (
     <Panel className="p-5">
       <div className="mb-4 flex flex-wrap items-start justify-between gap-3">
-        <div><h3 className="text-base font-semibold">{def.label}</h3><p className="text-sm text-muted-foreground">{def.description}</p></div>
+        <div><h3 className="text-base font-semibold">{def.label}</h3><p className="text-sm text-muted-foreground">{def.description}</p>
+          {def.id === "hero" && (
+            <Button asChild variant="outline" size="sm" className="mt-2">
+              <Link to="/admin/conteudo/$tabela" params={{ tabela: "banners" }}><ExternalLink className="mr-1 h-4 w-4" />Gerenciar banners</Link>
+            </Button>
+          )}</div>
         <Button onClick={save} disabled={saving}>{saving ? <Loader2 className="mr-1 h-4 w-4 animate-spin" /> : <Save className="mr-1 h-4 w-4" />}Salvar seção</Button>
       </div>
       <Tabs defaultValue="pt">
