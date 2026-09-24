@@ -71,7 +71,7 @@ function Importar() {
   );
 
   return (
-    <div className="max-w-3xl space-y-4">
+    <div className="space-y-4">
       <h1 className="text-2xl font-bold">Importar produtos (CSV)</h1>
       <p className="text-sm text-muted-foreground">Envie um CSV com cabeçalho. Produtos com o mesmo código são atualizados. A categoria é associada pelo nome ou slug.</p>
       <Input type="file" accept=".csv,text/csv" onChange={(e) => e.target.files?.[0] && onFile(e.target.files[0])} />
