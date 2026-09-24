@@ -72,7 +72,7 @@ const empty: Form = { nome: "", email: "", telefone: "", empresa: "", cnpj: "", 
 
 const Ph = () => <svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.3"><circle cx="12" cy="12" r="8.5" /><circle cx="12" cy="12" r="3" /><path d="M12 3.5v5M12 15.5v5M3.5 12h5M15.5 12h5" /></svg>;
 
-function Fld({ k, label, full, err, children }: { k: keyof Form; label: string; full?: boolean; err?: string; children: React.ReactNode }) {
+function Fld({ k, label, full, err, children }: { k: keyof Form; label: string; full?: boolean; err?: string | undefined; children: React.ReactNode }) {
   return <div className={`fld ${full ? "full" : ""} ${err ? "err" : ""}`}><label>{label}{k !== "mensagem" && " *"}</label>{children}{err && <div className="em">{err}</div>}</div>;
 }
 
