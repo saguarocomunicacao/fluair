@@ -6,6 +6,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { uploadFile } from "@/lib/storage";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
 import { cn } from "@/lib/utils";
 
 export function Gallery({ produtoId }: { produtoId: string }) {
@@ -14,6 +15,7 @@ export function Gallery({ produtoId }: { produtoId: string }) {
   const ref = useRef<HTMLInputElement>(null);
   const [busy, setBusy] = useState(false);
   const [drag, setDrag] = useState<string | null>(null);
+  const [toDelete, setToDelete] = useState<string | null>(null);
   const { data = [] } = useQuery({
     queryKey: key,
     queryFn: async () => (await supabase.from("produto_imagens").select("*").eq("produto_id", produtoId).order("ordem")).data ?? [],
@@ -28,6 +30,15 @@ export function Gallery({ produtoId }: { produtoId: string }) {
     const ids = data.map((d) => d.id).filter((x) => x !== from);
     ids.splice(toIdx, 0, from);
     persist(ids).then(() => toast.success(toIdx === 0 ? "Imagem principal definida" : "Ordem atualizada"));
+  };
+
+  const remove = async () => {
+    if (!toDelete) return;
+    const { error } = await supabase.from("produto_imagens").delete().eq("id", toDelete);
+    setToDelete(null);
+    if (error) { toast.error(error.message); return; }
+    toast.success("Imagem removida");
+    refresh();
   };
 
   const upload = async (files: File[]) => {
@@ -71,7 +82,7 @@ export function Gallery({ produtoId }: { produtoId: string }) {
             <Input className="h-8 text-xs" placeholder="Texto alternativo ES" defaultValue={img.alt_es ?? ""} onBlur={async (e) => { await supabase.from("produto_imagens").update({ alt_es: e.target.value }).eq("id", img.id); }} />
             <div className="flex gap-1">
               {idx !== 0 && <Button type="button" size="sm" variant="outline" className="h-7 flex-1 text-xs" onClick={() => moveTo(img.id, 0)}><Star className="h-3 w-3" />Principal</Button>}
-              <Button type="button" size="sm" variant="ghost" className="h-7 text-destructive" aria-label="Remover imagem" onClick={async () => { await supabase.from("produto_imagens").delete().eq("id", img.id); toast.success("Imagem removida"); refresh(); }}><Trash2 className="h-3.5 w-3.5" /></Button>
+              <Button type="button" size="sm" variant="ghost" className="h-7 text-destructive hover:text-destructive" aria-label="Remover imagem" title="Remover imagem" onClick={() => setToDelete(img.id)}><Trash2 className="h-3.5 w-3.5" /></Button>
             </div>
           </div>
         ))}
@@ -87,6 +98,18 @@ export function Gallery({ produtoId }: { produtoId: string }) {
         </button>
       </div>
       <input ref={ref} type="file" hidden accept="image/*" multiple onChange={(e) => { upload(Array.from(e.target.files ?? [])); e.target.value = ""; }} />
+      <AlertDialog open={!!toDelete} onOpenChange={(open) => !open && setToDelete(null)}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Remover esta imagem?</AlertDialogTitle>
+            <AlertDialogDescription>Essa ação não pode ser desfeita.</AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancelar</AlertDialogCancel>
+            <AlertDialogAction className="bg-destructive text-destructive-foreground hover:bg-destructive/90" onClick={remove}>Remover</AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }
