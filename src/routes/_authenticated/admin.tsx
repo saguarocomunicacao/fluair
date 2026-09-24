@@ -1,9 +1,9 @@
 import { createFileRoute, Link, Outlet, useLocation, useNavigate } from "@tanstack/react-router";
 import { useQueryClient } from "@tanstack/react-query";
-import { useMemo, useState, type ComponentType } from "react";
+import { useEffect, useMemo, useState, type ComponentType } from "react";
 import {
   BookOpen, ChevronsUpDown, Download, FileSpreadsheet, FileText, FolderTree, HelpCircle, Home, Image, LayoutDashboard,
-  LogOut, MapPin, Menu, MessageSquareQuote, Newspaper, Package, Search, Settings, Users, UserSquare2, X,
+  LogOut, MapPin, Menu, MessageSquareQuote, Newspaper, Package, PanelLeftClose, PanelLeftOpen, Search, Settings, Users, UserSquare2, X,
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
