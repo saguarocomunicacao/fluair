@@ -30,6 +30,7 @@ import { Route as ProdutosIndexRouteImport } from './routes/produtos.index'
 import { Route as ProdutosReferenciaRouteImport } from './routes/produtos.$referencia'
 import { Route as AuthenticatedAdminIndexRouteImport } from './routes/_authenticated/admin.index'
 import { Route as AuthenticatedAdminCotacoesRouteImport } from './routes/_authenticated/admin.cotacoes'
+import { Route as AuthenticatedAdminHomeSecoesRouteImport } from './routes/_authenticated/admin.home-secoes'
 import { Route as AuthenticatedAdminImportarRouteImport } from './routes/_authenticated/admin.importar'
 import { Route as AuthenticatedAdminUsuariosRouteImport } from './routes/_authenticated/admin.usuarios'
 import { Route as AuthenticatedAdminConteudoTabelaRouteImport } from './routes/_authenticated/admin.conteudo.$tabela'
@@ -140,6 +141,12 @@ const AuthenticatedAdminCotacoesRoute =
     path: '/cotacoes',
     getParentRoute: () => AuthenticatedAdminRoute,
   } as any)
+const AuthenticatedAdminHomeSecoesRoute =
+  AuthenticatedAdminHomeSecoesRouteImport.update({
+    id: '/home-secoes',
+    path: '/home-secoes',
+    getParentRoute: () => AuthenticatedAdminRoute,
+  } as any)
 const AuthenticatedAdminImportarRoute =
   AuthenticatedAdminImportarRouteImport.update({
     id: '/importar',
@@ -179,6 +186,7 @@ export interface FileRoutesByFullPath {
   '/noticias/': typeof NoticiasIndexRoute
   '/produtos/': typeof ProdutosIndexRoute
   '/admin/cotacoes': typeof AuthenticatedAdminCotacoesRoute
+  '/admin/home-secoes': typeof AuthenticatedAdminHomeSecoesRoute
   '/admin/importar': typeof AuthenticatedAdminImportarRoute
   '/admin/usuarios': typeof AuthenticatedAdminUsuariosRoute
   '/admin/': typeof AuthenticatedAdminIndexRoute
@@ -203,6 +211,7 @@ export interface FileRoutesByTo {
   '/noticias': typeof NoticiasIndexRoute
   '/produtos': typeof ProdutosIndexRoute
   '/admin/cotacoes': typeof AuthenticatedAdminCotacoesRoute
+  '/admin/home-secoes': typeof AuthenticatedAdminHomeSecoesRoute
   '/admin/importar': typeof AuthenticatedAdminImportarRoute
   '/admin/usuarios': typeof AuthenticatedAdminUsuariosRoute
   '/admin': typeof AuthenticatedAdminIndexRoute
@@ -230,6 +239,7 @@ export interface FileRoutesById {
   '/noticias/': typeof NoticiasIndexRoute
   '/produtos/': typeof ProdutosIndexRoute
   '/_authenticated/admin/cotacoes': typeof AuthenticatedAdminCotacoesRoute
+  '/_authenticated/admin/home-secoes': typeof AuthenticatedAdminHomeSecoesRoute
   '/_authenticated/admin/importar': typeof AuthenticatedAdminImportarRoute
   '/_authenticated/admin/usuarios': typeof AuthenticatedAdminUsuariosRoute
   '/_authenticated/admin/': typeof AuthenticatedAdminIndexRoute
@@ -257,6 +267,7 @@ export interface FileRouteTypes {
     | '/noticias/'
     | '/produtos/'
     | '/admin/cotacoes'
+    | '/admin/home-secoes'
     | '/admin/importar'
     | '/admin/usuarios'
     | '/admin/'
@@ -281,6 +292,7 @@ export interface FileRouteTypes {
     | '/noticias'
     | '/produtos'
     | '/admin/cotacoes'
+    | '/admin/home-secoes'
     | '/admin/importar'
     | '/admin/usuarios'
     | '/admin'
@@ -307,6 +319,7 @@ export interface FileRouteTypes {
     | '/noticias/'
     | '/produtos/'
     | '/_authenticated/admin/cotacoes'
+    | '/_authenticated/admin/home-secoes'
     | '/_authenticated/admin/importar'
     | '/_authenticated/admin/usuarios'
     | '/_authenticated/admin/'
@@ -483,6 +496,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAdminCotacoesRouteImport
       parentRoute: typeof AuthenticatedAdminRoute
     }
+    '/_authenticated/admin/home-secoes': {
+      id: '/_authenticated/admin/home-secoes'
+      path: '/home-secoes'
+      fullPath: '/admin/home-secoes'
+      preLoaderRoute: typeof AuthenticatedAdminHomeSecoesRouteImport
+      parentRoute: typeof AuthenticatedAdminRoute
+    }
     '/_authenticated/admin/importar': {
       id: '/_authenticated/admin/importar'
       path: '/importar'
@@ -509,6 +529,7 @@ declare module '@tanstack/react-router' {
 
 interface AuthenticatedAdminRouteChildren {
   AuthenticatedAdminCotacoesRoute: typeof AuthenticatedAdminCotacoesRoute
+  AuthenticatedAdminHomeSecoesRoute: typeof AuthenticatedAdminHomeSecoesRoute
   AuthenticatedAdminImportarRoute: typeof AuthenticatedAdminImportarRoute
   AuthenticatedAdminUsuariosRoute: typeof AuthenticatedAdminUsuariosRoute
   AuthenticatedAdminIndexRoute: typeof AuthenticatedAdminIndexRoute
@@ -517,6 +538,7 @@ interface AuthenticatedAdminRouteChildren {
 
 const AuthenticatedAdminRouteChildren: AuthenticatedAdminRouteChildren = {
   AuthenticatedAdminCotacoesRoute: AuthenticatedAdminCotacoesRoute,
+  AuthenticatedAdminHomeSecoesRoute: AuthenticatedAdminHomeSecoesRoute,
   AuthenticatedAdminImportarRoute: AuthenticatedAdminImportarRoute,
   AuthenticatedAdminUsuariosRoute: AuthenticatedAdminUsuariosRoute,
   AuthenticatedAdminIndexRoute: AuthenticatedAdminIndexRoute,
