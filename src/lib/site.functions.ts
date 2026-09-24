@@ -49,3 +49,28 @@ export const getHome = createServerFn({ method: "GET" }).handler(async () => {
     produtos: prods.map((p) => ({ ...p, imagem: first[p.id] ?? null })) as ProdutoCard[],
   };
 });
+
+export const getCatalogo = createServerFn({ method: "GET" })
+  .inputValidator((d: { q?: string; cat?: string; sort?: string; page?: number }) => d)
+  .handler(async ({ data }) => {
+    const db = publicClient();
+    const PER = 24;
+    const page = Math.max(1, Math.floor(data.page || 1));
+    let q = db.from("produtos").select("id,codigo,referencia,nome_pt,nome_es,categoria_id,ordem", { count: "exact" }).eq("ativo", true);
+    if (data.cat) {
+      const c = await db.from("categorias").select("id").eq("slug", data.cat).eq("ativo", true).maybeSingle();
+      q = q.eq("categoria_id", c.data?.id ?? "00000000-0000-0000-0000-000000000000");
+    }
+    const term = (data.q || "").trim().slice(0, 80).replace(/[,()%*\\]/g, " ");
+    if (term) q = q.or(["referencia", "codigo", "nome_pt", "nome_es"].map((c) => `${c}.ilike.%${term}%`).join(","));
+    if (data.sort === "nome") q = q.order("nome_pt");
+    else if (data.sort === "referencia") q = q.order("referencia", { nullsFirst: false });
+    else q = q.order("ordem").order("nome_pt");
+    const r = await q.range((page - 1) * PER, page * PER - 1);
+    const prods = r.data ?? [];
+    const ids = prods.map((p) => p.id);
+    const imgs = ids.length ? (await db.from("produto_imagens").select("produto_id,url,ordem").in("produto_id", ids).order("ordem")).data ?? [] : [];
+    const first: Record<string, string> = {};
+    for (const i of imgs) if (!first[i.produto_id]) first[i.produto_id] = i.url;
+    return { total: r.count ?? 0, page, per: PER, produtos: prods.map((p) => ({ ...p, imagem: first[p.id] ?? null })) as ProdutoCard[] };
+  });

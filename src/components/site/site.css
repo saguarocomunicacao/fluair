@@ -247,3 +247,18 @@
 .fl-site .about .facts svg{color:#7fb0e6}
 .fl-site .kick.light::before{background:rgba(255,255,255,.55)}
 .fl-site .scrolldown .m::after{background:#fff}
+.fl-site .pcard{position:relative}
+.fl-site .pcard .stretch::after{content:"";position:absolute;inset:0;z-index:1}
+.fl-site .pcard .foot .btn{position:relative;z-index:2}
+.fl-site .pcard .ph .ph-empty{position:absolute;inset:0;display:grid;place-items:center;color:rgba(0,40,96,.28)}
+.fl-site .page-head .intro{color:#b7c9e2;font-size:16px;max-width:60ch;margin-top:12px}
+.fl-site .sortsel{border:1px solid var(--line);border-radius:12px;padding:12px 14px;font-family:var(--f);font-size:14px;background:#fff;color:#26364d}
+.fl-site .catalog-top .tools{display:flex;gap:12px;align-items:center;flex-wrap:wrap}
+.fl-site .empty{grid-column:1/-1;padding:54px 24px;text-align:center;color:var(--steel);border:1px dashed var(--line);border-radius:16px;background:var(--paper)}
+.fl-site .empty h4{font-family:var(--f-disp);font-weight:400;text-transform:uppercase;color:var(--navy);font-size:26px;margin-bottom:8px}
+.fl-site .pager{display:flex;gap:8px;justify-content:center;margin-top:36px;flex-wrap:wrap}
+.fl-site .pager button{min-width:42px;height:42px;border-radius:12px;border:1px solid var(--line);background:#fff;font-family:var(--f);font-weight:600;font-size:14px;color:var(--navy);cursor:pointer;padding:0 12px}
+.fl-site .pager button.on{background:var(--navy);color:#fff;border-color:var(--navy)}
+.fl-site .pager button:disabled{opacity:.4;cursor:default}
+.fl-site .filters .mobsel{display:none}
+@media(max-width:1000px){.fl-site .filters .grp.chips{display:none}.fl-site .filters .mobsel{display:block;width:100%}.fl-site .filters{display:block}}

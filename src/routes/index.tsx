@@ -210,7 +210,7 @@ function PCard({ p, cat }: { p: ProdutoCard; cat: string }) {
         <span className="spec">Cód. {p.codigo}</span>
         <div className="foot">
           <a className="btn btn-ghost btn-sm" href={href}>{t.ver_ficha}</a>
-          <button className="btn btn-navy btn-sm" onClick={() => addOrc(`${name} ${p.referencia || p.codigo}`)}>{t.add_orc}</button>
+          <button className="btn btn-navy btn-sm" onClick={() => addOrc({ id: p.id, codigo: p.codigo, referencia: p.referencia, nome: name, quantidade: 1 })}>{t.add_orc}</button>
         </div>
       </div>
     </div>
