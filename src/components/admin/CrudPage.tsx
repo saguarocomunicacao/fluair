@@ -93,6 +93,9 @@ export function CrudPage({ config }: { config: TableConfig }) {
   });
 
   const [flt, setFlt] = useState<Record<string, string>>({});
+  const cols = [...config.listCols.filter((c) => c === "ordem"), ...config.listCols.filter((c) => c !== "ordem")];
+  const firstCol = cols.find((c) => c !== "ordem");
+  const colW = (c: string) => c === "ordem" ? "w-16 whitespace-nowrap text-center" : (c === "ativo" || c === "publicado" || c === "destaque") ? "w-px whitespace-nowrap" : "";
   const fkCol = config.fields.find((f) => f.type === "fk" && config.listCols.includes(f.name));
   const { data: fkRows = [] } = useQuery({
     queryKey: ["fk", fkCol?.fk?.table ?? "none"],
@@ -281,8 +284,8 @@ export function CrudPage({ config }: { config: TableConfig }) {
                 <TableRow className="hover:bg-transparent">
                   {config.reorder && <TableHead className="sticky top-0 z-10 w-8 bg-muted" />}
                   {config.gallery && <TableHead className="sticky top-0 z-10 w-14 bg-muted text-xs font-semibold uppercase tracking-wide text-muted-foreground shadow-[inset_0_-1px_0_0_hsl(var(--border))]">Foto</TableHead>}
-                  {config.listCols.map((c) => <TableHead key={c} className="sticky top-0 z-10 h-11 bg-muted text-xs font-semibold uppercase tracking-wide text-muted-foreground shadow-[inset_0_-1px_0_0_hsl(var(--border))]">{COL_LABEL[c] ?? c.replace(/_pt$/, "").replace(/_/g, " ")}</TableHead>)}
-                  <TableHead className="sticky top-0 z-10 w-28 bg-muted text-right text-xs font-semibold uppercase tracking-wide text-muted-foreground shadow-[inset_0_-1px_0_0_hsl(var(--border))]">Ações</TableHead>
+                  {cols.map((c) => <TableHead key={c} className={`${colW(c)} sticky top-0 z-10 h-11 bg-muted text-xs font-semibold uppercase tracking-wide text-muted-foreground shadow-[inset_0_-1px_0_0_hsl(var(--border))]`}>{COL_LABEL[c] ?? c.replace(/_pt$/, "").replace(/_/g, " ")}</TableHead>)}
+                  <TableHead className="sticky top-0 z-10 w-px whitespace-nowrap bg-muted text-right text-xs font-semibold uppercase tracking-wide text-muted-foreground shadow-[inset_0_-1px_0_0_hsl(var(--border))]">Ações</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -318,8 +321,8 @@ export function CrudPage({ config }: { config: TableConfig }) {
                         )}
                       </TableCell>
                     )}
-                    {config.listCols.map((c, i) => (
-                      <TableCell key={c} className="py-3">
+                    {cols.map((c) => { const i = c === firstCol ? 0 : 1; return (
+                      <TableCell key={c} className={`py-3 ${colW(c)}`}>
                         {boolCols.has(c) || typeof r[c] === "boolean" ? badge(c, r[c]) : c === fkCol?.name ? <span className="text-muted-foreground">{fkName(r[c])}</span> : c === "arquivo_url" ? <FileMeta url={(r[c] as string) ?? null} /> : c === imgField?.name ? (
                           r[c] ? <img src={String(r[c])} alt="" className="h-10 w-16 rounded-md border border-border object-cover" /> : <div className="grid h-10 w-16 place-items-center rounded-md bg-muted"><ImageIcon className="h-4 w-4 text-muted-foreground" /></div>
                         ) : i === 0 && imgField ? (
@@ -329,8 +332,8 @@ export function CrudPage({ config }: { config: TableConfig }) {
                           </div>
                         ) : <span className={i === 0 ? "font-medium" : "text-muted-foreground"}>{fmt(r[c])}</span>}
                       </TableCell>
-                    ))}
-                    <TableCell className="w-28">
+                    ); })}
+                    <TableCell className="w-px whitespace-nowrap">
                       <div className="flex items-center justify-end gap-1">
                         <Button size="icon" variant="ghost" className="h-8 w-8" aria-label="Editar" title="Editar" onClick={() => { setIsNew(false); setEditing(r); }}>
                           <Pencil className="h-4 w-4" />
