@@ -31,7 +31,7 @@ function Page() {
   });
   if (!canContent(roles)) return <p className="text-muted-foreground">Você não tem acesso a esta área.</p>;
   return (
-    <div className="space-y-6">
+    <div className="-mx-1 h-full space-y-6 overflow-y-auto px-1 pb-8">
       <PageHeader title="Home (seções)" crumbs={["Conteúdo", "Home (seções)"]}
         description="Edite os textos de cada bloco da página inicial. Campo vazio usa o texto padrão, para a página nunca ficar em branco." />
       {q.isLoading ? <p className="text-sm text-muted-foreground">Carregando…</p> :
