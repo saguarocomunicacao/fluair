@@ -27,12 +27,12 @@ function FkSelect({ field, value, onChange }: { field: Field; value: string; onC
   return (
     <select className="h-9 w-full rounded-md border border-input bg-background px-2 text-sm" value={value ?? ""} onChange={(e) => onChange(e.target.value || null)}>
       <option value="">— nenhum —</option>
-      {(data ?? []).map((r) => <option key={String(r.id)} value={String(r.id)}>{String(r[field.fk!.label])}</option>)}
+      {(data ?? []).map((r) => <option key={String(r["id"])} value={String(r["id"])}>{String(r[field.fk!.label])}</option>)}
     </select>
   );
 }
 
-function FieldInput({ field, col, form, set, bucket }: { field: Field; col: string; form: Row; set: (k: string, v: unknown) => void; bucket?: string }) {
+function FieldInput({ field, col, form, set, bucket }: { field: Field; col: string; form: Row; set: (k: string, v: unknown) => void; bucket?: string | undefined }) {
   const v = form[col];
   switch (field.type) {
     case "textarea": return <Textarea value={(v as string) ?? ""} onChange={(e) => set(col, e.target.value)} />;
@@ -90,15 +90,15 @@ export function CrudPage({ config }: { config: TableConfig }) {
   const openNew = () => {
     const init: Row = {};
     config.fields.forEach((f) => { if (f.type === "bool") init[f.name] = true; if (f.name === "destaque") init[f.name] = false; if (f.type === "select") init[f.name] = f.options![0]; });
-    if (config.fields.some((f) => f.name === "publicado")) init.publicado = false;
+    if (config.fields.some((f) => f.name === "publicado")) init["publicado"] = false;
     setIsNew(true); setEditing(init);
   };
 
-  const save = async () => {
+  const save = async (): Promise<void> => {
     if (!editing) return;
     for (const f of config.fields) {
       const col = f.i18n ? `${f.name}_pt` : f.name;
-      if (f.required && (editing[col] == null || editing[col] === "")) return toast.error(`Preencha: ${f.label}`);
+      if (f.required && (editing[col] == null || editing[col] === "")) { toast.error(`Preencha: ${f.label}`); return; }
     }
     const payload: Row = {};
     for (const f of config.fields) {
@@ -106,7 +106,7 @@ export function CrudPage({ config }: { config: TableConfig }) {
       for (const c of cols) {
         let v = editing[c];
         if (f.type === "json" && typeof v === "string") {
-          try { v = v.trim() ? JSON.parse(v) : {}; } catch { return toast.error("JSON inválido em " + f.label); }
+          try { v = v.trim() ? JSON.parse(v) : {}; } catch { toast.error("JSON inválido em " + f.label); return; }
         }
         if (v !== undefined) payload[c] = v === "" && f.type !== "text" ? null : v;
       }
@@ -114,17 +114,17 @@ export function CrudPage({ config }: { config: TableConfig }) {
     setSaving(true);
     const res = isNew ? await db.from(config.table).insert(payload).select().single() : await db.from(config.table).update(payload).eq(pk, editing[pk]).select().single();
     setSaving(false);
-    if (res.error) return toast.error(res.error.message);
+    if (res.error) { toast.error(res.error.message); return; }
     toast.success("Salvo");
     qc.invalidateQueries({ queryKey: ["crud", config.table] });
     qc.invalidateQueries({ queryKey: ["fk", config.table] });
     if (isNew && config.gallery) { setIsNew(false); setEditing(res.data); } else setEditing(null);
   };
 
-  const remove = async (r: Row) => {
+  const remove = async (r: Row): Promise<void> => {
     if (!confirm("Excluir este registro?")) return;
     const { error } = await db.from(config.table).delete().eq(pk, r[pk]);
-    if (error) return toast.error(error.message);
+    if (error) { toast.error(error.message); return; }
     toast.success("Excluído");
     qc.invalidateQueries({ queryKey: ["crud", config.table] });
   };
@@ -188,7 +188,7 @@ export function CrudPage({ config }: { config: TableConfig }) {
                   ))}
                 </Tabs>
               )}
-              {config.gallery && !isNew && typeof editing.id === "string" && <Gallery produtoId={editing.id} />}
+              {config.gallery && !isNew && typeof editing["id"] === "string" && <Gallery produtoId={editing["id"]} />}
               <div className="flex justify-end gap-2">
                 <Button variant="outline" onClick={() => setEditing(null)}>Cancelar</Button>
                 <Button onClick={save} disabled={saving}>{saving ? "Salvando…" : "Salvar"}</Button>
