@@ -1,13 +1,13 @@
 /** Definição das seções editáveis da Home (compartilhada entre painel e site). */
 export type Lang = "pt" | "es";
-export type FieldDef = { key: string; label: string; long?: boolean; lang?: false; hint?: string };
+export type FieldDef = { key: string; label: string; long?: boolean; lang?: false; hint?: string; image?: boolean };
 export type ItemDef = { label: string; fields: FieldDef[]; auto?: boolean };
 export type SectionDef = { id: string; label: string; description: string; fields: FieldDef[]; items?: ItemDef };
 export type Item = Record<string, string>;
 export type SectionData = Record<string, string | Item[]>;
 
 export const HOME_SECTIONS: SectionDef[] = [
-  { id: "hero", label: "Topo (hero)", description: "Primeira dobra com as fotos passando. As fotos vêm de Banners (local home_hero).",
+  { id: "hero", label: "Topo (hero)", description: "Primeira dobra com as fotos passando. As fotos vêm de Banners (local home_hero); sem banners, o site usa as fotos de estrada padrão.",
     fields: [
       { key: "eyebrow", label: "Chamada acima do título" },
       { key: "titulo", label: "Título principal (a parte após a vírgula fica em destaque)" },
@@ -40,6 +40,9 @@ export const HOME_SECTIONS: SectionDef[] = [
     fields: [
       { key: "kick", label: "Chamada" }, { key: "titulo", label: "Frase — linha 1" }, { key: "destaque", label: "Frase — linha 2 (destaque)", hint: "Este texto aparece em azul, como parte destacada da frase." },
       { key: "texto", label: "Texto", long: true }, { key: "fato1", label: "Fato 1 (selo)" }, { key: "fato3", label: "Fato 3 (clientes)" },
+      { key: "imagem1", label: "Imagem 1 (frente)", lang: false, image: true, hint: "Foto menor, à frente. Vazio usa a foto padrão." },
+      { key: "imagem2", label: "Imagem 2 (fundo)", lang: false, image: true, hint: "Foto maior, ao fundo. Vazio usa a foto padrão." },
+      { key: "imagem3", label: "Imagem 3 (terceira camada)", lang: false, image: true, hint: "Camada extra, opcional. Vazia, o bloco mostra só as duas fotos." },
       { key: "selo1", label: "Selo — linha 1", lang: false }, { key: "selo2", label: "Selo — linha 2", lang: false },
     ] },
   { id: "porque", label: "Por que Fluair", description: "Manifesto com os motivos numerados.",

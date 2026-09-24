@@ -157,8 +157,9 @@ function HomeContent() {
             </div>
           </div>
           <div className="stack reveal">
-            <div className="layer l1" data-para="0.05" style={{ backgroundImage: `url('${hero1.url}')`, backgroundSize: "cover", backgroundPosition: "center" }}><div className="g" /></div>
-            <div className="layer l2" data-para="-0.06" style={{ backgroundImage: `url('${hero0.url}')`, backgroundSize: "cover", backgroundPosition: "center" }}><div className="g" /></div>
+            <div className="layer l1" data-para="0.05" style={{ backgroundImage: `url('${(ab as Record<string,unknown>)["imagem2"] || hero1.url}')`, backgroundSize: "cover", backgroundPosition: "center" }}><div className="g" /></div>
+            <div className="layer l2" data-para="-0.06" style={{ backgroundImage: `url('${(ab as Record<string,unknown>)["imagem1"] || hero0.url}')`, backgroundSize: "cover", backgroundPosition: "center" }}><div className="g" /></div>
+            {(ab as Record<string, unknown>)["imagem3"] ? <div className="layer l3" data-para="0.08" style={{ backgroundImage: `url('${(ab as Record<string, unknown>)["imagem3"]}')`, backgroundSize: "cover", backgroundPosition: "center" }}><div className="g" /></div> : null}
             <div className="badge" data-para="-0.1"><div className="b1">{ab.selo1}</div><div className="b2">{ab.selo2}</div></div>
           </div>
         </div>
