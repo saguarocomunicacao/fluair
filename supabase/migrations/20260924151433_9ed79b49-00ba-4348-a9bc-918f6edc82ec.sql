@@ -1,0 +1,1 @@
+DELETE FROM public.cotacoes WHERE nome = 'Teste Contato PW' AND email = 'pw@exemplo.com';
