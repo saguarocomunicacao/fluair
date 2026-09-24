@@ -193,11 +193,20 @@ export const getDownloads = createServerFn({ method: "GET" }).handler(async () =
     .select("id,titulo_pt,titulo_es,descricao_pt,descricao_es,arquivo_url,categoria,ordem")
     .eq("ativo", true).order("categoria").order("ordem");
   const rows = (data ?? []) as Omit<DownloadItem, "ext" | "tamanho">[];
+  const locais = rows.some((r) => r.arquivo_url?.startsWith("/api/public/arquivos/"));
+  const sizes = new Map<string, number>();
+  if (locais) {
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const { data: files } = await supabaseAdmin.storage.from("downloads").list("", { limit: 1000 });
+    for (const f of files ?? []) { const n = Number((f.metadata as { size?: number } | null)?.size); if (n > 0) sizes.set(f.name, n); }
+  }
   const itens = await Promise.all(rows.map(async (r) => {
     const path = (r.arquivo_url ?? "").split("?")[0] ?? "";
     const ext = (path.match(/\.([a-z0-9]{2,5})$/i)?.[1] ?? "").toLowerCase();
     let tamanho: number | null = null;
-    if (r.arquivo_url) {
+    if (path.startsWith("/api/public/arquivos/")) {
+      tamanho = sizes.get(path.slice("/api/public/arquivos/".length)) ?? null;
+    } else if (r.arquivo_url) {
       try {
         const res = await fetch(r.arquivo_url, { method: "HEAD", signal: AbortSignal.timeout(3000) });
         const n = Number(res.headers.get("content-length"));
