@@ -1,8 +1,10 @@
-import { useMemo, useState } from "react";
+import { Fragment, useMemo, useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
-import type { Field, TableConfig } from "@/lib/admin-config";
+import { UFS, slugify, type Field, type TableConfig } from "@/lib/admin-config";
+import { FileMeta, KvEditor, MapPicker } from "./fields";
+import { MenuTree } from "./MenuTree";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -15,7 +17,7 @@ import { RichText } from "./RichText";
 import { UploadField } from "./UploadField";
 import { Gallery } from "./Gallery";
 import { EmptyState, PageHeader, Panel, StatusBadge } from "./kit";
-import { ChevronLeft, ChevronRight, Image as ImageIcon, Loader2, MoreHorizontal, Pencil, Plus, Search, Trash2 } from "lucide-react";
+import { GripVertical, ChevronLeft, ChevronRight, Image as ImageIcon, Loader2, MoreHorizontal, Pencil, Plus, Search, Trash2 } from "lucide-react";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
 
@@ -40,7 +42,7 @@ function FieldInput({ field, col, form, set, bucket }: { field: Field; col: stri
   const v = form[col];
   switch (field.type) {
     case "textarea": return <Textarea value={(v as string) ?? ""} onChange={(e) => set(col, e.target.value)} />;
-    case "richtext": return <RichText value={(v as string) ?? ""} onChange={(x) => set(col, x)} />;
+    case "richtext": return <RichText value={(v as string) ?? ""} onChange={(x) => set(col, x)} bucket={bucket ?? "banners"} />;
     case "number": return <Input type="number" step="any" value={v == null ? "" : String(v)} onChange={(e) => set(col, e.target.value === "" ? null : Number(e.target.value))} />;
     case "bool": return <Switch checked={!!v} onCheckedChange={(c) => set(col, c)} />;
     case "image": case "file": return <UploadField bucket={bucket ?? "banners"} image={field.type === "image"} value={(v as string) ?? ""} onChange={(x) => set(col, x)} />;
@@ -50,11 +52,21 @@ function FieldInput({ field, col, form, set, bucket }: { field: Field; col: stri
         {field.options!.map((o) => <option key={o}>{o}</option>)}
       </select>
     );
+    case "kv": return <KvEditor value={v} onChange={(x) => set(col, x)} />;
+    case "uf": return (
+      <select className="h-9 w-full rounded-md border border-input bg-background px-2 text-sm" value={(v as string) ?? ""} onChange={(e) => set(col, e.target.value || null)}>
+        <option value="">— selecione —</option>
+        {UFS.map((u) => <option key={u}>{u}</option>)}
+      </select>
+    );
+    case "map": return <MapPicker lat={(form["lat"] as number) ?? null} lng={(form["lng"] as number) ?? null} onChange={(la, ln) => { set("lat", la); set("lng", ln); }} />;
     case "fk": return <FkSelect field={field} value={v as string} onChange={(x) => set(col, x)} />;
     case "datetime": return <Input type="datetime-local" value={v ? String(v).slice(0, 16) : ""} onChange={(e) => set(col, e.target.value ? new Date(e.target.value).toISOString() : null)} />;
     default: return <Input value={(v as string) ?? ""} onChange={(e) => set(col, e.target.value)} />;
   }
 }
+
+const COL_LABEL: Record<string, string> = { nome_pt: "Nome", titulo_pt: "Título", pergunta_pt: "Pergunta", label_pt: "Rótulo", categoria_id: "Categoria", arquivo_url: "Arquivo", capa_url: "Capa", publicado_em: "Data", atualizado_em: "Atualizado", codigo: "Código", valor_pt: "Valor" };
 
 function fmt(v: unknown) {
   if (typeof v === "boolean") return v ? "Sim" : "Não";
@@ -81,31 +93,74 @@ export function CrudPage({ config }: { config: TableConfig }) {
     },
   });
 
+  const [flt, setFlt] = useState<Record<string, string>>({});
+  const fkCol = config.fields.find((f) => f.type === "fk" && config.listCols.includes(f.name));
+  const { data: fkRows = [] } = useQuery({
+    queryKey: ["fk", fkCol?.fk?.table ?? "none"],
+    enabled: !!fkCol,
+    queryFn: async () => (await db.from(fkCol!.fk!.table).select(`id, ${fkCol!.fk!.label}`).order(fkCol!.fk!.label)).data as Row[],
+  });
+  const fkName = (id: unknown) => { const r = fkRows.find((x) => x["id"] === id); return r ? String(r[fkCol!.fk!.label]) : "—"; };
+
   const filtered = useMemo(() => {
     const s = q.trim().toLowerCase();
-    if (!s) return rows;
-    return rows.filter((r) => config.searchCols.some((c) => String(r[c] ?? "").toLowerCase().includes(s)));
-  }, [rows, q, config.searchCols]);
+    let out = rows.filter((r) => Object.entries(flt).every(([c, v]) => !v || (v === "true" ? r[c] === true : v === "false" ? r[c] === false : String(r[c] ?? "") === v)));
+    if (s) out = out.filter((r) => config.searchCols.some((c) => String(r[c] ?? "").toLowerCase().includes(s)));
+    if (config.groupBy) {
+      const g = config.groupBy;
+      out = [...out].sort((a, b) => String(a[g] ?? "").localeCompare(String(b[g] ?? "")) || Number(a["ordem"] ?? 0) - Number(b["ordem"] ?? 0));
+    }
+    return out;
+  }, [rows, q, flt, config.searchCols, config.groupBy]);
+  const canDrag = !!config.reorder && !q && Object.values(flt).every((v) => !v);
+  const [dragId, setDragId] = useState<string | null>(null);
+  const [overId, setOverId] = useState<string | null>(null);
+  const reorder = async (from: string, to: string) => {
+    if (from === to) return;
+    const src = filtered.find((r) => String(r[pk]) === from)!;
+    const dst = filtered.find((r) => String(r[pk]) === to)!;
+    const g = config.groupBy;
+    if (g && (src[g] ?? "") !== (dst[g] ?? "")) { toast.error("Só é possível reordenar dentro do mesmo grupo"); return; }
+    const list = filtered.filter((r) => !g || (r[g] ?? "") === (src[g] ?? "")).filter((r) => r !== src);
+    list.splice(list.indexOf(dst) + (filtered.indexOf(src) < filtered.indexOf(dst) ? 1 : 0), 0, src);
+    const res = await Promise.all(list.map((r, i) => (r["ordem"] === i ? null : db.from(config.table).update({ ordem: i }).eq(pk, r[pk]))).filter(Boolean));
+    const err = res.find((x: { error: { message: string } | null }) => x?.error);
+    if (err) toast.error(err.error.message); else toast.success("Ordem atualizada");
+    qc.invalidateQueries({ queryKey: ["crud", config.table] });
+  };
 
   const shared = config.fields.filter((f) => !f.i18n);
   const i18n = config.fields.filter((f) => f.i18n);
-  const set = (k: string, v: unknown) => setEditing((p) => ({ ...p!, [k]: v }));
+  const [slugTouched, setSlugTouched] = useState(false);
+  const set = (k: string, v: unknown) => {
+    if (k === "slug") setSlugTouched(true);
+    setEditing((p) => {
+      const n = { ...p!, [k]: v };
+      if (config.slugFrom && k === `${config.slugFrom}_pt` && !slugTouched && isNew) n["slug"] = slugify(String(v ?? ""));
+      return n;
+    });
+  };
 
-  const openNew = () => {
+  const openNew = (extra?: Row) => {
     const init: Row = {};
+    setSlugTouched(false);
     config.fields.forEach((f) => { if (f.type === "bool") init[f.name] = true; if (f.name === "destaque") init[f.name] = false; if (f.type === "select") init[f.name] = f.options![0]; });
     if (config.fields.some((f) => f.name === "publicado")) init["publicado"] = false;
+    if (config.fields.some((f) => f.name === "ordem")) init["ordem"] = rows.length;
+    Object.assign(init, extra ?? {});
     setIsNew(true); setEditing(init);
   };
 
   const save = async (): Promise<void> => {
     if (!editing) return;
     for (const f of config.fields) {
+      if (f.name.startsWith("_")) continue;
       const col = f.i18n ? `${f.name}_pt` : f.name;
       if (f.required && (editing[col] == null || editing[col] === "")) { toast.error(`Preencha: ${f.label}`); return; }
     }
     const payload: Row = {};
     for (const f of config.fields) {
+      if (f.name.startsWith("_")) continue;
       const cols = f.i18n ? [`${f.name}_pt`, `${f.name}_es`] : [f.name];
       for (const c of cols) {
         let v = editing[c];
@@ -167,29 +222,81 @@ export function CrudPage({ config }: { config: TableConfig }) {
               <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
               <Input placeholder="Buscar…" value={q} onChange={(e) => { setQ(e.target.value); setPage(0); }} className="h-10 w-64 bg-card pl-9" />
             </div>
-            <Button onClick={openNew} className="h-10"><Plus className="h-4 w-4" />Novo</Button>
+            <Button onClick={() => openNew()} className="h-10"><Plus className="h-4 w-4" />Novo</Button>
           </>
         }
       />
+      {config.filters && (
+        <div className="mb-4 flex flex-wrap items-center gap-3">
+          {config.filters.map((fl) => (
+            <label key={fl.col} className="flex items-center gap-2 text-sm text-muted-foreground">
+              {fl.label}
+              <select className="h-9 rounded-md border border-input bg-card px-2 text-sm text-foreground" value={flt[fl.col] ?? ""} onChange={(e) => { setFlt({ ...flt, [fl.col]: e.target.value }); setPage(0); }}>
+                <option value="">Todos</option>
+                {fl.kind === "bool" && <><option value="true">Sim</option><option value="false">Não</option></>}
+                {fl.kind === "uf" && UFS.map((u) => <option key={u}>{u}</option>)}
+                {fl.kind === "fk" && fkRows.map((r) => <option key={String(r["id"])} value={String(r["id"])}>{String(r[fl.fk!.label])}</option>)}
+              </select>
+            </label>
+          ))}
+          {Object.values(flt).some(Boolean) && <Button size="sm" variant="ghost" onClick={() => setFlt({})}>Limpar filtros</Button>}
+        </div>
+      )}
+      {config.reorder && !config.groupBy && config.table !== "menus" && filtered.length > 1 && (
+        <p className="mb-2 text-xs text-muted-foreground">{canDrag ? "Arraste as linhas pelo ícone ⋮⋮ para reordenar." : "Limpe a busca e os filtros para reordenar."}</p>
+      )}
+      {config.table === "menus" ? (
+        <Panel className="overflow-hidden">
+          <MenuTree
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            rows={filtered as any}
+            onEdit={(r) => { setIsNew(false); setEditing(r); }}
+            onDelete={(r) => setToDelete(r)}
+            onNew={(init) => openNew(init)}
+            onChanged={() => qc.invalidateQueries({ queryKey: ["crud", "menus"] })}
+          />
+        </Panel>
+      ) : (
       <Panel className="overflow-hidden">
         {!isLoading && filtered.length === 0 ? (
-          <EmptyState text={q ? "Nada encontrado para essa busca." : `Nenhum item em ${config.label} ainda.`} onAdd={q ? undefined : openNew} />
+          <EmptyState text={q ? "Nada encontrado para essa busca." : `Nenhum item em ${config.label} ainda.`} onAdd={q ? undefined : () => openNew()} />
         ) : (
           <div className="max-h-[calc(100vh-280px)] overflow-auto">
             <Table>
               <TableHeader className="sticky top-0 z-10 bg-muted/95 backdrop-blur">
                 <TableRow className="hover:bg-transparent">
-                  {config.listCols.map((c) => <TableHead key={c} className="h-11 text-xs font-semibold uppercase tracking-wide text-muted-foreground">{c.replace(/_pt$/, "").replace(/_/g, " ")}</TableHead>)}
+                  {config.reorder && <TableHead className="w-8" />}
+                  {config.listCols.map((c) => <TableHead key={c} className="h-11 text-xs font-semibold uppercase tracking-wide text-muted-foreground">{COL_LABEL[c] ?? c.replace(/_pt$/, "").replace(/_/g, " ")}</TableHead>)}
                   <TableHead className="w-16" />
                 </TableRow>
               </TableHeader>
               <TableBody>
                 {isLoading && <TableRow><TableCell colSpan={9} className="py-10 text-center text-muted-foreground">Carregando…</TableCell></TableRow>}
-                {visible.map((r) => (
-                  <TableRow key={String(r[pk])} className="even:bg-muted/30 hover:bg-brand-accent-soft">
+                {visible.map((r, idx) => {
+                  const g = config.groupBy;
+                  const newGroup = g && (idx === 0 || (visible[idx - 1]![g] ?? "") !== (r[g] ?? ""));
+                  const id = String(r[pk]);
+                  return (<Fragment key={id}>
+                  {newGroup && (
+                    <TableRow className="bg-muted/60 hover:bg-muted/60">
+                      <TableCell colSpan={config.listCols.length + 2} className="py-2 text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+                        {config.groupLabels?.[String(r[g!])] ?? (String(r[g!] ?? "") || "Sem categoria")}
+                      </TableCell>
+                    </TableRow>
+                  )}
+                  <TableRow
+                    draggable={canDrag}
+                    onDragStart={() => setDragId(id)}
+                    onDragEnd={() => { setDragId(null); setOverId(null); }}
+                    onDragOver={(e) => { if (canDrag) { e.preventDefault(); setOverId(id); } }}
+                    onDrop={(e) => { e.preventDefault(); if (dragId) reorder(dragId, id); setOverId(null); }}
+                    className={`hover:bg-brand-accent-soft ${dragId === id ? "opacity-40" : ""} ${overId === id && dragId !== id ? "border-t-2 border-t-brand-accent" : ""}`}>
+                    {config.reorder && <TableCell className="w-8 pr-0">{canDrag && <GripVertical className="h-4 w-4 cursor-grab text-muted-foreground" />}</TableCell>}
                     {config.listCols.map((c, i) => (
                       <TableCell key={c} className="py-3">
-                        {boolCols.has(c) || typeof r[c] === "boolean" ? badge(c, r[c]) : i === 0 && imgField ? (
+                        {boolCols.has(c) || typeof r[c] === "boolean" ? badge(c, r[c]) : c === fkCol?.name ? <span className="text-muted-foreground">{fkName(r[c])}</span> : c === "arquivo_url" ? <FileMeta url={(r[c] as string) ?? null} /> : c === imgField?.name ? (
+                          r[c] ? <img src={String(r[c])} alt="" className="h-10 w-16 rounded-md border border-border object-cover" /> : <div className="grid h-10 w-16 place-items-center rounded-md bg-muted"><ImageIcon className="h-4 w-4 text-muted-foreground" /></div>
+                        ) : i === 0 && imgField ? (
                           <div className="flex items-center gap-3">
                             {r[imgField.name] ? <img src={String(r[imgField.name])} alt="" className="h-9 w-9 rounded-lg border border-border object-cover" /> : <div className="grid h-9 w-9 place-items-center rounded-lg bg-muted"><ImageIcon className="h-4 w-4 text-muted-foreground" /></div>}
                             <span className="font-medium">{fmt(r[c])}</span>
@@ -207,7 +314,8 @@ export function CrudPage({ config }: { config: TableConfig }) {
                       </DropdownMenu>
                     </TableCell>
                   </TableRow>
-                ))}
+                  </Fragment>);
+                })}
               </TableBody>
             </Table>
           </div>
@@ -223,6 +331,7 @@ export function CrudPage({ config }: { config: TableConfig }) {
           </div>
         )}
       </Panel>
+      )}
 
       <AlertDialog open={!!toDelete} onOpenChange={(o) => !o && setToDelete(null)}>
         <AlertDialogContent>
@@ -265,7 +374,7 @@ export function CrudPage({ config }: { config: TableConfig }) {
                     <h3 className="mb-5 text-sm font-semibold">Informações gerais</h3>
                     <div className="grid gap-5 sm:grid-cols-2">
                       {shared.map((f) => (
-                        <div key={f.name} className={["richtext", "textarea", "json", "image", "file"].includes(f.type) ? "sm:col-span-2" : ""}>
+                        <div key={f.name} className={["richtext", "textarea", "json", "image", "file", "kv", "map"].includes(f.type) ? "sm:col-span-2" : ""}>
                           {renderField(f, f.name, !!f.required)}
                         </div>
                       ))}
