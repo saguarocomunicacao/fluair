@@ -28,6 +28,8 @@ import { Route as NoticiasIndexRouteImport } from './routes/noticias.index'
 import { Route as NoticiasSlugRouteImport } from './routes/noticias.$slug'
 import { Route as ProdutosIndexRouteImport } from './routes/produtos.index'
 import { Route as ProdutosReferenciaRouteImport } from './routes/produtos.$referencia'
+import { Route as TreinamentosIndexRouteImport } from './routes/treinamentos.index'
+import { Route as TreinamentosSlugRouteImport } from './routes/treinamentos.$slug'
 import { Route as AuthenticatedAdminIndexRouteImport } from './routes/_authenticated/admin.index'
 import { Route as AuthenticatedAdminCotacoesRouteImport } from './routes/_authenticated/admin.cotacoes'
 import { Route as AuthenticatedAdminHomeSecoesRouteImport } from './routes/_authenticated/admin.home-secoes'
@@ -131,6 +133,16 @@ const ProdutosReferenciaRoute = ProdutosReferenciaRouteImport.update({
   path: '/produtos/$referencia',
   getParentRoute: () => rootRouteImport,
 } as any)
+const TreinamentosIndexRoute = TreinamentosIndexRouteImport.update({
+  id: '/treinamentos/',
+  path: '/treinamentos/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const TreinamentosSlugRoute = TreinamentosSlugRouteImport.update({
+  id: '/treinamentos/$slug',
+  path: '/treinamentos/$slug',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const AuthenticatedAdminIndexRoute = AuthenticatedAdminIndexRouteImport.update({
   id: '/',
   path: '/',
@@ -189,8 +201,10 @@ export interface FileRoutesByFullPath {
   '/empresa/quem-somos': typeof EmpresaQuemSomosRoute
   '/noticias/$slug': typeof NoticiasSlugRoute
   '/produtos/$referencia': typeof ProdutosReferenciaRoute
+  '/treinamentos/$slug': typeof TreinamentosSlugRoute
   '/noticias/': typeof NoticiasIndexRoute
   '/produtos/': typeof ProdutosIndexRoute
+  '/treinamentos/': typeof TreinamentosIndexRoute
   '/admin/cotacoes': typeof AuthenticatedAdminCotacoesRoute
   '/admin/home-secoes': typeof AuthenticatedAdminHomeSecoesRoute
   '/admin/importar': typeof AuthenticatedAdminImportarRoute
@@ -215,8 +229,10 @@ export interface FileRoutesByTo {
   '/empresa/quem-somos': typeof EmpresaQuemSomosRoute
   '/noticias/$slug': typeof NoticiasSlugRoute
   '/produtos/$referencia': typeof ProdutosReferenciaRoute
+  '/treinamentos/$slug': typeof TreinamentosSlugRoute
   '/noticias': typeof NoticiasIndexRoute
   '/produtos': typeof ProdutosIndexRoute
+  '/treinamentos': typeof TreinamentosIndexRoute
   '/admin/cotacoes': typeof AuthenticatedAdminCotacoesRoute
   '/admin/home-secoes': typeof AuthenticatedAdminHomeSecoesRoute
   '/admin/importar': typeof AuthenticatedAdminImportarRoute
@@ -244,8 +260,10 @@ export interface FileRoutesById {
   '/empresa/quem-somos': typeof EmpresaQuemSomosRoute
   '/noticias/$slug': typeof NoticiasSlugRoute
   '/produtos/$referencia': typeof ProdutosReferenciaRoute
+  '/treinamentos/$slug': typeof TreinamentosSlugRoute
   '/noticias/': typeof NoticiasIndexRoute
   '/produtos/': typeof ProdutosIndexRoute
+  '/treinamentos/': typeof TreinamentosIndexRoute
   '/_authenticated/admin/cotacoes': typeof AuthenticatedAdminCotacoesRoute
   '/_authenticated/admin/home-secoes': typeof AuthenticatedAdminHomeSecoesRoute
   '/_authenticated/admin/importar': typeof AuthenticatedAdminImportarRoute
@@ -273,8 +291,10 @@ export interface FileRouteTypes {
     | '/empresa/quem-somos'
     | '/noticias/$slug'
     | '/produtos/$referencia'
+    | '/treinamentos/$slug'
     | '/noticias/'
     | '/produtos/'
+    | '/treinamentos/'
     | '/admin/cotacoes'
     | '/admin/home-secoes'
     | '/admin/importar'
@@ -299,8 +319,10 @@ export interface FileRouteTypes {
     | '/empresa/quem-somos'
     | '/noticias/$slug'
     | '/produtos/$referencia'
+    | '/treinamentos/$slug'
     | '/noticias'
     | '/produtos'
+    | '/treinamentos'
     | '/admin/cotacoes'
     | '/admin/home-secoes'
     | '/admin/importar'
@@ -327,8 +349,10 @@ export interface FileRouteTypes {
     | '/empresa/quem-somos'
     | '/noticias/$slug'
     | '/produtos/$referencia'
+    | '/treinamentos/$slug'
     | '/noticias/'
     | '/produtos/'
+    | '/treinamentos/'
     | '/_authenticated/admin/cotacoes'
     | '/_authenticated/admin/home-secoes'
     | '/_authenticated/admin/importar'
@@ -355,8 +379,10 @@ export interface RootRouteChildren {
   EmpresaQuemSomosRoute: typeof EmpresaQuemSomosRoute
   NoticiasSlugRoute: typeof NoticiasSlugRoute
   ProdutosReferenciaRoute: typeof ProdutosReferenciaRoute
+  TreinamentosSlugRoute: typeof TreinamentosSlugRoute
   NoticiasIndexRoute: typeof NoticiasIndexRoute
   ProdutosIndexRoute: typeof ProdutosIndexRoute
+  TreinamentosIndexRoute: typeof TreinamentosIndexRoute
   ApiPublicArquivosNomeRoute: typeof ApiPublicArquivosNomeRoute
 }
 
@@ -495,6 +521,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ProdutosReferenciaRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/treinamentos/': {
+      id: '/treinamentos/'
+      path: '/treinamentos'
+      fullPath: '/treinamentos/'
+      preLoaderRoute: typeof TreinamentosIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/treinamentos/$slug': {
+      id: '/treinamentos/$slug'
+      path: '/treinamentos/$slug'
+      fullPath: '/treinamentos/$slug'
+      preLoaderRoute: typeof TreinamentosSlugRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/_authenticated/admin/': {
       id: '/_authenticated/admin/'
       path: '/'
@@ -596,8 +636,10 @@ const rootRouteChildren: RootRouteChildren = {
   EmpresaQuemSomosRoute: EmpresaQuemSomosRoute,
   NoticiasSlugRoute: NoticiasSlugRoute,
   ProdutosReferenciaRoute: ProdutosReferenciaRoute,
+  TreinamentosSlugRoute: TreinamentosSlugRoute,
   NoticiasIndexRoute: NoticiasIndexRoute,
   ProdutosIndexRoute: ProdutosIndexRoute,
+  TreinamentosIndexRoute: TreinamentosIndexRoute,
   ApiPublicArquivosNomeRoute: ApiPublicArquivosNomeRoute,
 }
 export const routeTree = rootRouteImport

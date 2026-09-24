@@ -3,7 +3,7 @@ import { useIsFetching, useQueryClient } from "@tanstack/react-query";
 import { useEffect, useMemo, useRef, useState, type ComponentType } from "react";
 import {
   BookOpen, ChevronsUpDown, Download, FileSpreadsheet, FileText, FolderTree, HelpCircle, Home, Image, LayoutDashboard,
-  LogOut, MapPin, Menu, MessageSquareQuote, Newspaper, Package, PanelLeftClose, PanelLeftOpen, Search, Settings, Users, UserSquare2, X,
+  LogOut, MapPin, Menu, MessageSquareQuote, Newspaper, GraduationCap, Package, PanelLeftClose, PanelLeftOpen, Search, Settings, Users, UserSquare2, X,
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
@@ -22,7 +22,7 @@ export const Route = createFileRoute("/_authenticated/admin")({
 
 type Icon = ComponentType<{ className?: string }>;
 const TABLE_ICONS: Record<string, Icon> = {
-  categorias: FolderTree, produtos: Package, banners: Image, paginas: FileText, menus: Menu, noticias: Newspaper,
+  categorias: FolderTree, produtos: Package, banners: Image, paginas: FileText, menus: Menu, noticias: Newspaper, treinamentos: GraduationCap,
   downloads: Download, representantes: UserSquare2, rede_autorizada: MapPin, faq: HelpCircle, configuracoes: Settings,
 };
 const ROLE_LABEL: Record<string, string> = { admin: "Administrador", editor_conteudo: "Editor de conteúdo", comercial: "Comercial" };

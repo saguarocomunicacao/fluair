@@ -137,6 +137,20 @@ export const TABLES: TableConfig[] = [
     ],
   },
   {
+    table: "treinamentos", label: "Treinamentos", bucket: "noticias", orderBy: "ordem", orderAsc: true, reorder: true, slugFrom: "titulo",
+    listCols: ["imagem_url", "titulo_pt", "duracao_pt", "publicado", "ativo"], searchCols: ["titulo_pt", "slug"],
+    fields: [
+      { name: "titulo", label: "Título", type: "text", i18n: true, required: true },
+      { name: "slug", label: "Slug (gerado do título, editável)", type: "text", required: true },
+      { name: "descricao", label: "Descrição curta", type: "textarea", i18n: true },
+      { name: "conteudo", label: "Conteúdo", type: "richtext", i18n: true },
+      { name: "duracao", label: "Duração", type: "text", i18n: true },
+      { name: "imagem_url", label: "Imagem", type: "image" },
+      { name: "publicado", label: "Publicado", type: "bool" },
+      ordem, ativo,
+    ],
+  },
+  {
     table: "downloads", label: "Downloads", bucket: "downloads", orderBy: "ordem", orderAsc: true, groupBy: "categoria", reorder: true,
     listCols: ["titulo_pt", "arquivo_url", "ordem", "ativo"], searchCols: ["titulo_pt", "categoria"],
     fields: [

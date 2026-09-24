@@ -271,3 +271,18 @@ export const getNoticia = createServerFn({ method: "GET" })
     const { data: rel } = await rq.order("publicado_em", { ascending: false, nullsFirst: false }).limit(3);
     return { noticia: n as Noticia, relacionadas: (rel ?? []) as NoticiaCard[] };
   });
+
+export type TreinamentoCard = { id: string; slug: string; titulo_pt: string; titulo_es: string | null; descricao_pt: string | null; descricao_es: string | null; duracao_pt: string | null; duracao_es: string | null; imagem_url: string | null };
+export type Treinamento = TreinamentoCard & { conteudo_pt: string | null; conteudo_es: string | null };
+const TCOLS = "id,slug,titulo_pt,titulo_es,descricao_pt,descricao_es,duracao_pt,duracao_es,imagem_url";
+export const getTreinamentos = createServerFn({ method: "GET" }).handler(async () => {
+  const { data } = await publicClient().from("treinamentos").select(TCOLS).eq("ativo", true).eq("publicado", true).order("ordem");
+  return { itens: (data ?? []) as TreinamentoCard[] };
+});
+export const getTreinamento = createServerFn({ method: "GET" })
+  .inputValidator((d: { slug: string }) => ({ slug: String(d.slug ?? "").slice(0, 160) }))
+  .handler(async ({ data }) => {
+    const { data: t } = await publicClient().from("treinamentos").select(`${TCOLS},conteudo_pt,conteudo_es`)
+      .eq("slug", data.slug).eq("ativo", true).eq("publicado", true).maybeSingle();
+    return { treinamento: (t ?? null) as Treinamento | null };
+  });
