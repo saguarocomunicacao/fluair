@@ -27,10 +27,11 @@ export const getSiteChrome = createServerFn({ method: "GET" }).handler(async () 
 export const getHome = createServerFn({ method: "GET" }).handler(async () => {
   const db = publicClient();
   const cols = "id,codigo,referencia,nome_pt,nome_es,categoria_id,ordem";
-  const [banners, count, dest] = await Promise.all([
+  const [banners, count, dest, secoes] = await Promise.all([
     db.from("banners").select("*").eq("local", "home_hero").eq("ativo", true).order("ordem"),
     db.from("produtos").select("id", { count: "exact", head: true }).eq("ativo", true),
     db.from("produtos").select(cols).eq("ativo", true).eq("destaque", true).order("ordem").limit(6),
+    db.from("secoes_home").select("secao,conteudo_pt,conteudo_es"),
   ]);
   let prods = dest.data ?? [];
   if (!prods.length) {
@@ -45,6 +46,7 @@ export const getHome = createServerFn({ method: "GET" }).handler(async () => {
   for (const i of imgs) if (!first[i.produto_id]) first[i.produto_id] = i.url;
   return {
     banners: (banners.data ?? []) as Banner[],
+    secoes: (secoes.data ?? []) as { secao: string; conteudo_pt: Record<string, string | Record<string, string>[]> | null; conteudo_es: Record<string, string | Record<string, string>[]> | null }[],
     totalProdutos: count.count ?? 0,
     produtos: prods.map((p) => ({ ...p, imagem: first[p.id] ?? null })) as ProdutoCard[],
   };
