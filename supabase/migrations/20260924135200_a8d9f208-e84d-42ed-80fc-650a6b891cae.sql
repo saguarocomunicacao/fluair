@@ -1,0 +1,1 @@
+ALTER TABLE public.produtos ADD COLUMN IF NOT EXISTS referencia text, ADD COLUMN IF NOT EXISTS kit_reparo text, ADD COLUMN IF NOT EXISTS informacoes_tecnicas_pt text, ADD COLUMN IF NOT EXISTS informacoes_tecnicas_es text;

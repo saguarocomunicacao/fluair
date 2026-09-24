@@ -446,10 +446,14 @@ export type Database = {
           destaque: boolean
           especificacoes: Json
           id: string
+          informacoes_tecnicas_es: string | null
+          informacoes_tecnicas_pt: string | null
+          kit_reparo: string | null
           ncm: string | null
           nome_es: string | null
           nome_pt: string
           ordem: number
+          referencia: string | null
         }
         Insert: {
           ativo?: boolean
@@ -461,10 +465,14 @@ export type Database = {
           destaque?: boolean
           especificacoes?: Json
           id?: string
+          informacoes_tecnicas_es?: string | null
+          informacoes_tecnicas_pt?: string | null
+          kit_reparo?: string | null
           ncm?: string | null
           nome_es?: string | null
           nome_pt: string
           ordem?: number
+          referencia?: string | null
         }
         Update: {
           ativo?: boolean
@@ -476,10 +484,14 @@ export type Database = {
           destaque?: boolean
           especificacoes?: Json
           id?: string
+          informacoes_tecnicas_es?: string | null
+          informacoes_tecnicas_pt?: string | null
+          kit_reparo?: string | null
           ncm?: string | null
           nome_es?: string | null
           nome_pt?: string
           ordem?: number
+          referencia?: string | null
         }
         Relationships: [
           {

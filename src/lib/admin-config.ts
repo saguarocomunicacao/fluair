@@ -64,7 +64,7 @@ export const TABLES: TableConfig[] = [
   },
   {
     table: "produtos", label: "Produtos", bucket: "produtos", orderBy: "ordem", orderAsc: true, gallery: true,
-    listCols: ["codigo", "nome_pt", "categoria_id", "destaque", "ativo"], searchCols: ["codigo", "nome_pt"],
+    listCols: ["codigo", "referencia", "nome_pt", "categoria_id", "destaque", "ativo"], searchCols: ["codigo", "referencia", "nome_pt"],
     filters: [
       { col: "categoria_id", label: "Categoria", kind: "fk", fk: { table: "categorias", label: "nome_pt" } },
       { col: "ativo", label: "Ativo", kind: "bool" },
@@ -72,8 +72,11 @@ export const TABLES: TableConfig[] = [
     ],
     fields: [
       { name: "codigo", label: "Código", type: "text", required: true },
+      { name: "referencia", label: "Referência", type: "text" },
       { name: "nome", label: "Nome", type: "text", i18n: true, required: true },
       { name: "categoria_id", label: "Categoria", type: "fk", fk: { table: "categorias", label: "nome_pt" } },
+      { name: "informacoes_tecnicas", label: "Informações técnicas", type: "richtext", i18n: true },
+      { name: "kit_reparo", label: "Kit reparo", type: "text" },
       { name: "descricao", label: "Descrição", type: "richtext", i18n: true },
       { name: "especificacoes", label: "Especificações", type: "kv" },
       { name: "ncm", label: "NCM", type: "text" },
