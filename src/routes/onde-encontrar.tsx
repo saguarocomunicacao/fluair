@@ -12,7 +12,7 @@ const chromeQuery = queryOptions({ queryKey: ["site-chrome"], queryFn: () => get
 const oeQuery = queryOptions({ queryKey: ["site-onde"], queryFn: () => getOndeEncontrar(), staleTime: 60_000 });
 
 export const Route = createFileRoute("/onde-encontrar")({
-  validateSearch: (s: Record<string, unknown>) => ({ aba: s.aba === "rede" ? ("rede" as const) : undefined }),
+  validateSearch: (s: Record<string, unknown>) => ({ aba: s["aba"] === "rede" ? ("rede" as const) : undefined }),
   loader: ({ context }) => Promise.all([context.queryClient.ensureQueryData(chromeQuery), context.queryClient.ensureQueryData(oeQuery)]),
   head: () => ({
     meta: [
@@ -61,7 +61,7 @@ function Onde() {
   const shown = tab === "rep" ? reps : rede;
   const go = (t: "rep" | "rede") => {
     setUf(""); setQ(""); setSel(null);
-    navigate({ search: t === "rede" ? { aba: "rede" as const } : {}, replace: true });
+    navigate({ search: t === "rede" ? { aba: "rede" as const } : { aba: undefined }, replace: true });
   };
 
   const Empty = ({ t }: { t: string }) => (
