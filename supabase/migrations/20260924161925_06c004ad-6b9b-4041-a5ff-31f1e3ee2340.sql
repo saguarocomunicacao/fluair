@@ -1,0 +1,1 @@
+UPDATE public.menus SET url='/suporte' WHERE id='f6dd2829-77c0-4b34-868c-26a3189d0477';
