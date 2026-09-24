@@ -142,13 +142,12 @@
 .fl-site .stack .badge{position:absolute;left:18px;bottom:18px;z-index:3;background:var(--yellow);color:var(--yellow-ink);border-radius:14px;padding:12px 16px;box-shadow:var(--sh-lg)}
 .fl-site .stack .badge .b1{font-family:var(--f-disp);font-size:26px;line-height:1}
 .fl-site .stack .badge .b2{font-family:var(--f);font-weight:600;font-size:12px}
-.fl-site .manifesto .row{display:grid;grid-template-columns:120px 1fr auto;gap:30px;align-items:center;padding:34px 0;border-top:1px solid var(--line)}
+.fl-site .manifesto .row{display:grid;grid-template-columns:120px 1fr;gap:30px;align-items:center;padding:34px 0;border-top:1px solid var(--line)}
 .fl-site .manifesto .row:last-child{border-bottom:1px solid var(--line)}
 .fl-site .manifesto .no{font-family:var(--f-disp);font-weight:400;color:var(--cloud);font-size:64px;line-height:.8}
 .fl-site .manifesto .row:hover .no{color:var(--yellow)}
 .fl-site .manifesto h3{font-family:var(--f-disp);font-weight:400;text-transform:uppercase;font-size:clamp(22px,2.6vw,34px);color:var(--navy);line-height:1;letter-spacing:.005em}
 .fl-site .manifesto p{color:var(--steel);font-size:15px;margin-top:8px;max-width:60ch}
-.fl-site .manifesto .row .ar{color:var(--steel-2)}
 .fl-site .support-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:18px}
 .fl-site .sup{border:1px solid var(--line);border-radius:16px;padding:26px 22px;transition:.2s;cursor:pointer}
 .fl-site .sup:hover{border-color:var(--navy);box-shadow:var(--sh);transform:translateY(-3px)}
