@@ -46,6 +46,11 @@ const MailIco = () => (
   <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><rect x="2" y="4" width="20" height="16" rx="2" /><path d="m22 7-10 6L2 7" /></svg>
 );
 
+const UF_NAME: Record<string, Record<string, string>> = {
+  pt: { AC: "Acre", AL: "Alagoas", AP: "Amapá", AM: "Amazonas", BA: "Bahia", CE: "Ceará", DF: "Distrito Federal", ES: "Espírito Santo", GO: "Goiás", MA: "Maranhão", MT: "Mato Grosso", MS: "Mato Grosso do Sul", MG: "Minas Gerais", PA: "Pará", PB: "Paraíba", PR: "Paraná", PE: "Pernambuco", PI: "Piauí", RJ: "Rio de Janeiro", RN: "Rio Grande do Norte", RS: "Rio Grande do Sul", RO: "Rondônia", RR: "Roraima", SC: "Santa Catarina", SP: "São Paulo", SE: "Sergipe", TO: "Tocantins" },
+  es: { AC: "Acre", AL: "Alagoas", AP: "Amapá", AM: "Amazonas", BA: "Bahía", CE: "Ceará", DF: "Distrito Federal", ES: "Espírito Santo", GO: "Goiás", MA: "Maranhão", MT: "Mato Grosso", MS: "Mato Grosso do Sul", MG: "Minas Gerais", PA: "Pará", PB: "Paraíba", PR: "Paraná", PE: "Pernambuco", PI: "Piauí", RJ: "Río de Janeiro", RN: "Río Grande del Norte", RS: "Río Grande del Sur", RO: "Rondônia", RR: "Roraima", SC: "Santa Catarina", SP: "São Paulo", SE: "Sergipe", TO: "Tocantins" },
+};
+
 export function Onde({ tipo }: { tipo: "rep" | "rede" }) {
   const { data } = useSuspenseQuery(oeQuery);
   const { lang } = useSite();
@@ -102,24 +107,41 @@ export function Onde({ tipo }: { tipo: "rep" | "rede" }) {
 
         {tab === "rep" ? (
           reps.length === 0 ? <Empty t={l.rep_e_t} /> : (
-            <div className="rep-grid">
-              {[...reps].sort((a, b) => (a.estado ?? "zz").localeCompare(b.estado ?? "zz")).map((r) => (
-                <div className="rep-card" key={r.id}>
-                  <div>{r.estado && <span className="rc-uf">{r.estado}</span>}</div>
-                  <h3>{r.nome}</h3>
-                  {r.empresa && <div className="rc-emp">{r.empresa}</div>}
-                  {r.cidade && <div className="rc-loc">{r.cidade}</div>}
-                  {r.abrangencia && <div className="rc-abr"><b>{lang === "es" ? "Cobertura" : "Abrangência"}:</b> {r.abrangencia}</div>}
-                  <div className="rc-actions">
-                    {r.whatsapp && (
-                      <a className="rc-btn rc-wa" href={`${waUrl(r.whatsapp)}?text=${encodeURIComponent(lang === "es" ? "Hola, vengo del sitio de Fluair" : "Olá, vim pelo site da Fluair")}`} target="_blank" rel="noopener">
-                        <WaIco />WhatsApp
-                      </a>
-                    )}
-                    {r.telefone && <a className="rc-btn" href={`tel:${dg(r.telefone)}`} title={r.telefone}><TelIco />{l.tel}</a>}
-                    {r.email && <a className="rc-btn" href={`mailto:${r.email}`}><MailIco />{l.email}</a>}
-                  </div>
-                </div>
+            <div className="rep-groups">
+              {[...reps].sort((a, b) => (a.estado ?? "zz").localeCompare(b.estado ?? "zz") || a.nome.localeCompare(b.nome))
+                .reduce<[string, typeof reps][]>((acc, r) => {
+                  const k = r.estado || (lang === "es" ? "Sin estado" : "Sem estado");
+                  const last = acc[acc.length - 1];
+                  if (last && last[0] === k) last[1].push(r);
+                  else acc.push([k, [r]]);
+                  return acc;
+                }, []).map(([uf, arr]) => (
+                  <section className="rep-group" key={uf}>
+                    <div className="rc-sec">
+                      <h2><span className="st">{uf}</span>{UF_NAME[lang]?.[uf] && <span className="nm">— {UF_NAME[lang][uf]}</span>}</h2>
+                    </div>
+                    <div className="rep-grid">
+                      {arr.map((r) => (
+                        <div className="rep-card" key={r.id}>
+                          <h3>{r.nome}</h3>
+                          {r.empresa && <div className="rc-emp">{r.empresa}</div>}
+                          {r.cidade && <div className="rc-loc">{r.cidade}</div>}
+                          {r.abrangencia && <div className="rc-abr"><b>{lang === "es" ? "Cobertura" : "Abrangência"}:</b> {r.abrangencia}</div>}
+                          <div className="rc-actions">
+                            {r.whatsapp && (
+                              <a className="rc-btn rc-wa" href={`${waUrl(r.whatsapp)}?text=${encodeURIComponent(lang === "es" ? "Hola, vengo del sitio de Fluair" : "Olá, vim pelo site da Fluair")}`} target="_blank" rel="noopener">
+                                <WaIco />WhatsApp
+                              </a>
+                            )}
+                            <span className="rc-side">
+                              {r.telefone && <a className="rc-ico" href={`tel:${dg(r.telefone)}`} title={`${l.tel}: ${r.telefone}`}><TelIco /></a>}
+                              {r.email && <a className="rc-ico" href={`mailto:${r.email}`} title={l.email}><MailIco /></a>}
+                            </span>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </section>
               ))}
             </div>
           )
