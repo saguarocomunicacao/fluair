@@ -139,7 +139,7 @@
 .fl-site .stack .layer .g{position:absolute;inset:0;background-image:linear-gradient(rgba(255,255,255,.05) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.05) 1px,transparent 1px);background-size:26px 26px;mask-image:radial-gradient(120% 100% at 50% 50%,#000,transparent 75%)}
 .fl-site .stack .layer .lab{position:absolute;left:14px;bottom:14px;font-family:var(--f);font-size:11px;color:#9db2d1;background:rgba(0,10,30,.5);padding:5px 10px;border-radius:7px}
 .fl-site .stack .badge{position:absolute;left:18px;bottom:18px;z-index:3;background:var(--yellow);color:var(--yellow-ink);border-radius:14px;padding:12px 16px;box-shadow:var(--sh-lg)}
-.fl-site .stack .badge .b1{font-family:var(--f-disp);font-size:34px;line-height:1}
+.fl-site .stack .badge .b1{font-family:var(--f-disp);font-size:26px;line-height:1}
 .fl-site .stack .badge .b2{font-family:var(--f);font-weight:600;font-size:12px}
 .fl-site .manifesto .row{display:grid;grid-template-columns:120px 1fr auto;gap:30px;align-items:center;padding:34px 0;border-top:1px solid var(--line)}
 .fl-site .manifesto .row:last-child{border-bottom:1px solid var(--line)}
