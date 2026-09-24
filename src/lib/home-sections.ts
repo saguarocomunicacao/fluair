@@ -1,6 +1,6 @@
 /** Definição das seções editáveis da Home (compartilhada entre painel e site). */
 export type Lang = "pt" | "es";
-export type FieldDef = { key: string; label: string; long?: boolean; lang?: false };
+export type FieldDef = { key: string; label: string; long?: boolean; lang?: false; hint?: string };
 export type ItemDef = { label: string; fields: FieldDef[]; auto?: boolean };
 export type SectionDef = { id: string; label: string; description: string; fields: FieldDef[]; items?: ItemDef };
 export type Item = Record<string, string>;
@@ -28,26 +28,26 @@ export const HOME_SECTIONS: SectionDef[] = [
     items: { label: "Componente", fields: [{ key: "titulo", label: "Título" }, { key: "texto", label: "Texto", long: true }, { key: "tag", label: "Etiqueta" }] } },
   { id: "categorias", label: "Categorias", description: "Chamada da grade de categorias (as categorias vêm do cadastro). Use {n} para o número de categorias por extenso.",
     fields: [
-      { key: "kick", label: "Chamada" }, { key: "titulo", label: "Título" }, { key: "destaque", label: "Título — parte em destaque" },
+      { key: "kick", label: "Chamada" }, { key: "titulo", label: "Título", hint: "Use {n} onde deve entrar o número de categorias por extenso — ex.: \u201c{n} linhas\u201d vira \u201cOito linhas\u201d." }, { key: "destaque", label: "Título — parte em destaque", hint: "Este texto aparece em azul, como parte destacada do título." },
       { key: "texto", label: "Texto", long: true }, { key: "link_label", label: "Texto do link de cada categoria" },
     ] },
   { id: "produtos", label: "Produtos em destaque", description: "Chamada da vitrine de produtos (os produtos vêm do cadastro).",
     fields: [
-      { key: "kick", label: "Chamada" }, { key: "titulo", label: "Título" }, { key: "destaque", label: "Título — parte em destaque" },
+      { key: "kick", label: "Chamada" }, { key: "titulo", label: "Título" }, { key: "destaque", label: "Título — parte em destaque", hint: "Este texto aparece em azul, como parte destacada do título." },
       { key: "texto", label: "Texto", long: true }, { key: "botao_label", label: "Botão — texto" },
     ] },
   { id: "sobre", label: "A Fluair", description: "Bloco azul-escuro sobre a empresa.",
     fields: [
-      { key: "kick", label: "Chamada" }, { key: "titulo", label: "Frase — linha 1" }, { key: "destaque", label: "Frase — linha 2 (destaque)" },
+      { key: "kick", label: "Chamada" }, { key: "titulo", label: "Frase — linha 1" }, { key: "destaque", label: "Frase — linha 2 (destaque)", hint: "Este texto aparece em azul, como parte destacada da frase." },
       { key: "texto", label: "Texto", long: true }, { key: "fato1", label: "Fato 1 (selo)" }, { key: "fato3", label: "Fato 3 (clientes)" },
       { key: "selo1", label: "Selo — linha 1", lang: false }, { key: "selo2", label: "Selo — linha 2", lang: false },
     ] },
   { id: "porque", label: "Por que Fluair", description: "Manifesto com os motivos numerados.",
-    fields: [{ key: "kick", label: "Chamada" }, { key: "titulo", label: "Título" }, { key: "destaque", label: "Título — parte em destaque" }],
+    fields: [{ key: "kick", label: "Chamada" }, { key: "titulo", label: "Título" }, { key: "destaque", label: "Título — parte em destaque", hint: "Este texto aparece em azul, como parte destacada do título." }],
     items: { label: "Motivo", fields: [{ key: "titulo", label: "Título" }, { key: "texto", label: "Texto", long: true }] } },
   { id: "suporte", label: "Suporte", description: "Cartões de atalho para suporte.",
     fields: [
-      { key: "kick", label: "Chamada" }, { key: "titulo", label: "Título" }, { key: "destaque", label: "Título — parte em destaque" },
+      { key: "kick", label: "Chamada" }, { key: "titulo", label: "Título" }, { key: "destaque", label: "Título — parte em destaque", hint: "Este texto aparece em azul, como parte destacada do título." },
       { key: "texto", label: "Texto (opcional)", long: true }, { key: "cta_label", label: "Botão abaixo dos cartões (opcional)" },
       { key: "cta_url", label: "Botão — link", lang: false },
     ],
