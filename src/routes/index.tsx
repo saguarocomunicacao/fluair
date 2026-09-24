@@ -100,14 +100,16 @@ function HomeContent() {
       </div></section>
 
       <section className="section sistema" id="sistema">
-        <div className="wrap sist-grid">
-          <div className="sist-left">
-            <span className="kick">{sy.kick}</span>
-            <div className="lead">{sy.titulo}</div>
-            <p>{sy.texto}</p>
+        <div className="wrap sist-wrap">
+          <div className="sist-head">
+            <div className="sist-head-txt">
+              <span className="kick">{sy.kick}</span>
+              <div className="lead">{sy.titulo}</div>
+              <p>{sy.texto}</p>
+            </div>
             <div className="count-block"><span className="count" data-to={total}>{total}</span><small>{sy.contador_texto}</small></div>
           </div>
-          <div className="sist-list">
+          <div className="sist-cards">
             {sy.itens.map((it, i) => (
               <div className="sist-item" key={i}><div className="no">{String(i + 1).padStart(2, "0")}</div><div><h4>{it["titulo"]}</h4><p>{it["texto"]}</p>{it["tag"] && <span className="tg">{it["tag"]}</span>}</div></div>
             ))}
