@@ -271,7 +271,7 @@
 .fl-site .thumbs button{width:78px;height:78px;border-radius:14px;border:1px solid var(--line);background:#fff;padding:6px;cursor:pointer;transition:.2s}
 .fl-site .thumbs button.on{border-color:var(--navy);box-shadow:0 0 0 2px var(--navy)}
 .fl-site .thumbs img{width:100%;height:100%;object-fit:contain}
-.fl-site .f-cat{font-weight:600;font-size:12.5px;letter-spacing:.22em;text-transform:uppercase;color:var(--accent,#116ad1);text-decoration:none}
+.fl-site .f-cat{font-weight:600;font-size:12.5px;letter-spacing:.22em;text-transform:uppercase;color:#116ad1 !important;opacity:1;text-decoration:none}
 .fl-site .f-ref{font-family:var(--f-disp);color:var(--navy);font-size:clamp(40px,5vw,68px);line-height:.95;margin:14px 0 8px;text-transform:uppercase}
 .fl-site .f-name{font-size:20px;font-weight:600;color:var(--ink);line-height:1.35}
 .fl-site .f-meta{display:flex;flex-wrap:wrap;gap:10px;margin:22px 0}
