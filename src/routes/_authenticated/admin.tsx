@@ -79,7 +79,7 @@ function AdminLayout() {
   const sidebar = (
     <aside className="flex h-full w-64 flex-col border-r border-sidebar-border bg-sidebar">
       <div className="flex h-16 items-center justify-between px-5">
-        <Logo />
+        <Logo className="h-7" />
         <button className="lg:hidden" onClick={() => setMobileOpen(false)} aria-label="Fechar menu"><X className="h-5 w-5" /></button>
       </div>
       <nav className="flex-1 space-y-6 overflow-y-auto px-3 py-4">
