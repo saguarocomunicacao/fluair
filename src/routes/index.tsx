@@ -208,12 +208,15 @@ function HomeContent() {
 
 function PCard({ p, cat }: { p: ProdutoCard; cat: string }) {
   const { lang, t, addOrc } = useSite();
+  const [broken, setBroken] = useState(false);
   const name = pick(p, "nome", lang);
   const href = `/produtos/${encodeURIComponent(p.referencia || p.codigo)}`;
   return (
     <div className="pcard">
       <a className="ph" href={href}><div className="bg" /><div className="g" />
-        {p.imagem && <img src={p.imagem} alt={name} loading="lazy" onError={(e) => e.currentTarget.remove()} />}
+        {p.imagem && !broken ? <img src={p.imagem} alt={name} loading="lazy" onError={() => setBroken(true)} /> : (
+          <div className="ph-empty"><svg width="54" height="54" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.3"><rect x="3.5" y="4.5" width="17" height="15" rx="2" /><circle cx="9" cy="10" r="1.6" /><path d="m20.5 16-5-5-9 8.5" /></svg></div>
+        )}
         {cat && <span className="tg">{cat}</span>}</a>
       <div className="b">
         <span className="code">{p.referencia || p.codigo}</span>
