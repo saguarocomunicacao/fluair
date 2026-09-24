@@ -218,12 +218,12 @@ export const getDownloads = createServerFn({ method: "GET" }).handler(async () =
   return { itens };
 });
 
-export type Representante = { id: string; nome: string; empresa: string | null; estado: string | null; cidade: string | null; telefone: string | null; whatsapp: string | null; email: string | null };
+export type Representante = { id: string; nome: string; empresa: string | null; estado: string | null; cidade: string | null; abrangencia: string | null; telefone: string | null; whatsapp: string | null; email: string | null };
 export type PontoRede = { id: string; nome: string; cidade: string | null; estado: string | null; endereco: string | null; telefone: string | null; whatsapp: string | null; lat: number | null; lng: number | null };
 export const getOndeEncontrar = createServerFn({ method: "GET" }).handler(async () => {
   const c = publicClient();
   const [r, n] = await Promise.all([
-    c.from("representantes").select("id,nome,empresa,estado,cidade,telefone,whatsapp,email").eq("ativo", true).order("estado").order("ordem"),
+    c.from("representantes").select("id,nome,empresa,estado,cidade,abrangencia,telefone,whatsapp,email").eq("ativo", true).order("estado").order("ordem"),
     c.from("rede_autorizada").select("id,nome,cidade,estado,endereco,telefone,whatsapp,lat,lng").eq("ativo", true).order("estado").order("cidade"),
   ]);
   return { representantes: (r.data ?? []) as Representante[], rede: (n.data ?? []) as PontoRede[] };

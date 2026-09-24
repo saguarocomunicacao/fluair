@@ -157,6 +157,7 @@ export const TABLES: TableConfig[] = [
       { name: "empresa", label: "Empresa", type: "text" },
       { name: "estado", label: "Estado (UF)", type: "uf" },
       { name: "cidade", label: "Cidade", type: "text" },
+      { name: "abrangencia", label: "Abrangência (regiões atendidas)", type: "text" },
       { name: "telefone", label: "Telefone", type: "text" },
       { name: "whatsapp", label: "WhatsApp", type: "text" },
       { name: "email", label: "E-mail", type: "text" },
