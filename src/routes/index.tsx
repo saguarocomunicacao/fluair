@@ -6,6 +6,7 @@ import siteCss from "@/components/site/site.css?url";
 import { SiteLayout } from "@/components/site/SiteLayout";
 import { pick, useSite } from "@/components/site/i18n";
 import { getHome, getSiteChrome, type ProdutoCard } from "@/lib/site.functions";
+import { resolveSection } from "@/lib/home-sections";
 import hero0 from "@/assets/fluair-hero-0.jpg.asset.json";
 import hero1 from "@/assets/fluair-hero-1.jpg.asset.json";
 
@@ -45,7 +46,7 @@ const Arrow = () => <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" s
 function HomeContent() {
   const { data: chrome } = useSuspenseQuery(chromeQuery);
   const { data: home } = useSuspenseQuery(homeQuery);
-  const { lang, t, wa } = useSite();
+  const { lang, wa } = useSite();
   const cats = chrome.categorias;
   const catName = (id: string | null) => pick(cats.find((c) => c.id === id), "nome", lang);
 
@@ -58,13 +59,20 @@ function HomeContent() {
     return () => clearInterval(id);
   }, [imgs.length]);
 
-  const tagline = chrome.config["tagline"]?.[lang] || "Não importa o caminho, vá com Fluair!";
+  const S = (id: string) => resolveSection(home.secoes, id, lang);
+  const hero = S("hero"), nums = S("numeros"), sy = S("sistema"), ct = S("categorias"), pr = S("produtos"),
+    ab = S("sobre"), mf = S("porque"), sp = S("suporte"), cta = S("cta");
+  const tagline = hero.titulo || chrome.config["tagline"]?.[lang] || "Não importa o caminho, vá com Fluair!";
   const ci = tagline.indexOf(",");
   const [t1, t2] = ci > 0 ? [tagline.slice(0, ci + 1), tagline.slice(ci + 1).trim()] : [tagline, ""];
   const w = t1.split(" ");
-  const b = home.banners[0];
   const total = home.totalProdutos;
   const tel = chrome.config["whatsapp"]?.[lang] ?? "";
+  const Stat = ({ v }: { v: string }) => {
+    const m = /^(\D*)(\d+)(\D*)$/.exec(v);
+    return m ? <>{m[1]}<span className="count" data-to={m[2]}>{m[2]}</span>{m[3]}</> : <>{v}</>;
+  };
+  const statVal = (it: Record<string, string>) => it["auto"] === "produtos" ? String(total) : it["auto"] === "categorias" ? String(cats.length) : it["valor"] ?? "";
 
   return (
     <main>
@@ -74,35 +82,34 @@ function HomeContent() {
         </div>
         <div className="scrim" />
         <div className="content"><div className="wrap">
-          <span className="kick light" data-para="0.12">{pick(b, "subtitulo", lang) || t.h_kick}</span>
+          <span className="kick light" data-para="0.12">{hero.eyebrow}</span>
           <h1 data-para="0.06">{w.slice(0, 2).join(" ")}<br />{w.slice(2).join(" ")} {t2 && <span className="y">{t2}</span>}</h1>
-          <p className="lede" data-para="0.1">{pick(b, "titulo", lang) || t.h_lede}</p>
+          <p className="lede" data-para="0.1">{hero.subtitulo}</p>
           <div className="cta" data-para="0.14">
-            <a className="btn btn-yellow" href={b?.cta_url || "/produtos"}><span>{pick(b, "cta_label", lang) || t.h_cta1}</span><Arrow /></a>
-            <a className="btn btn-ghost on-dark" href={wa} target="_blank" rel="noreferrer">{t.h_cta2}</a>
+            <a className="btn btn-yellow" href={hero.cta_primario_url || "/produtos"}><span>{hero.cta_primario_label}</span><Arrow /></a>
+            <a className="btn btn-ghost on-dark" href={wa} target="_blank" rel="noreferrer">{hero.cta_secundario_label}</a>
           </div>
         </div></div>
-        <div className="scrolldown"><div className="m" /><span>{t.h_scroll}</span></div>
+        <div className="scrolldown"><div className="m" /><span>{hero.scroll}</span></div>
       </section>
 
       <section className="stats"><div className="wrap">
-        <div className="stat"><div className="n"><span className="count" data-to={total}>{total}</span></div><div className="l">{t.st1}</div></div>
-        <div className="stat"><div className="n">+<span className="count" data-to={25}>25</span></div><div className="l">{t.st2}</div></div>
-        <div className="stat"><div className="n">{cats.length}</div><div className="l">{t.st3}</div></div>
-        <div className="stat"><div className="n">ISO</div><div className="l">{t.st4}</div></div>
+        {nums.itens.map((it, i) => (
+          <div className="stat" key={i}><div className="n"><Stat v={statVal(it)} /></div><div className="l">{it["rotulo"]}</div></div>
+        ))}
       </div></section>
 
       <section className="section sistema" id="sistema">
         <div className="wrap sist-grid">
           <div className="sist-left">
-            <span className="kick">{t.sy_kick}</span>
-            <div className="lead">{t.sy_lead}</div>
-            <p>{t.sy_sub}</p>
-            <div className="count-block"><span className="count" data-to={total}>{total}</span><small>{t.sy_small}</small></div>
+            <span className="kick">{sy.kick}</span>
+            <div className="lead">{sy.titulo}</div>
+            <p>{sy.texto}</p>
+            <div className="count-block"><span className="count" data-to={total}>{total}</span><small>{sy.contador_texto}</small></div>
           </div>
           <div className="sist-list">
-            {t.sistema.map(([ti, d, tg], i) => (
-              <div className="sist-item" key={ti}><div className="no">{String(i + 1).padStart(2, "0")}</div><div><h4>{ti}</h4><p>{d}</p><span className="tg">{tg}</span></div></div>
+            {sy.itens.map((it, i) => (
+              <div className="sist-item" key={i}><div className="no">{String(i + 1).padStart(2, "0")}</div><div><h4>{it["titulo"]}</h4><p>{it["texto"]}</p>{it["tag"] && <span className="tg">{it["tag"]}</span>}</div></div>
             ))}
           </div>
         </div>
@@ -110,16 +117,16 @@ function HomeContent() {
 
       <section className="section cats" id="categorias">
         <div className="wrap">
-          <div className="sec-head reveal"><span className="kick light">{t.cat_kick}</span>
-            <h2 style={{ color: "#fff" }}>{numWord(cats.length, lang)} {t.cat_t1} <span className="y">{t.cat_t2}</span></h2>
-            <p style={{ color: "#a9bcd8" }}>{t.cat_sub}</p></div>
+          <div className="sec-head reveal"><span className="kick light">{ct.kick}</span>
+            <h2 style={{ color: "#fff" }}>{ct.titulo.replace("{n}", numWord(cats.length, lang))} <span className="y">{ct.destaque}</span></h2>
+            <p style={{ color: "#a9bcd8" }}>{ct.texto}</p></div>
           <div className="cats-grid reveal">
             {cats.map((c, i) => (
               <a className="cat" key={c.id} href={`/categorias/${c.slug}`}>
                 <span className="idx">{String(i + 1).padStart(2, "0")}</span>
                 <h4>{pick(c, "nome", lang)}</h4>
                 {pick(c, "descricao", lang) && <p>{pick(c, "descricao", lang)}</p>}
-                <span className="go">{t.cat_go}</span>
+                <span className="go">{ct.link_label}</span>
               </a>
             ))}
           </div>
@@ -128,11 +135,11 @@ function HomeContent() {
 
       <section className="section prods">
         <div className="wrap">
-          <div className="sec-head reveal"><span className="kick">{t.pr_kick}</span>
-            <h2>{t.pr_t1} <span className="y">{t.pr_t2}</span></h2>
-            <p>{t.pr_sub}</p></div>
+          <div className="sec-head reveal"><span className="kick">{pr.kick}</span>
+            <h2>{pr.titulo} <span className="y">{pr.destaque}</span></h2>
+            <p>{pr.texto}</p></div>
           <div className="pgrid">{home.produtos.map((p) => <PCard key={p.id} p={p} cat={catName(p.categoria_id)} />)}</div>
-          <div style={{ textAlign: "center", marginTop: 40 }}><a className="btn btn-navy" href="/produtos">{t.pr_all}</a></div>
+          <div style={{ textAlign: "center", marginTop: 40 }}><a className="btn btn-navy" href="/produtos">{pr.botao_label}</a></div>
         </div>
       </section>
 
@@ -140,30 +147,30 @@ function HomeContent() {
         <div className="big-idx" data-para="0.14" style={{ right: -10, bottom: -30, color: "rgba(255,255,255,.04)" }}>FLUAIR</div>
         <div className="wrap about-grid">
           <div className="reveal">
-            <span className="kick light">{t.ab_kick}</span>
-            <div className="quote" style={{ marginTop: 16 }}><span>{t.ab_q1}</span><br /><span className="y">{t.ab_q2}</span></div>
-            <p className="desc">{t.ab_desc}</p>
+            <span className="kick light">{ab.kick}</span>
+            <div className="quote" style={{ marginTop: 16 }}><span>{ab.titulo}</span><br /><span className="y">{ab.destaque}</span></div>
+            <p className="desc">{ab.texto}</p>
             <div className="facts">
-              <div><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M12 3l7 3v6c0 4-3 7-7 9-4-2-7-5-7-9V6z" /><path d="M9 12l2 2 4-4" /></svg><span>{t.ab_f1}</span></div>
+              <div><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M12 3l7 3v6c0 4-3 7-7 9-4-2-7-5-7-9V6z" /><path d="M9 12l2 2 4-4" /></svg><span>{ab.fato1}</span></div>
               <div><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M12 21s7-6.3 7-11a7 7 0 10-14 0c0 4.7 7 11 7 11z" /><circle cx="12" cy="10" r="2.4" /></svg><span>{chrome.config["endereco"]?.[lang]}</span></div>
-              <div><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M4 16h16M6 16V9l4-1 4 1 4 1v6" /></svg><span>{t.ab_f3}</span></div>
+              <div><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M4 16h16M6 16V9l4-1 4 1 4 1v6" /></svg><span>{ab.fato3}</span></div>
             </div>
           </div>
           <div className="stack reveal">
             <div className="layer l1" data-para="0.05" style={{ backgroundImage: `url('${hero1.url}')`, backgroundSize: "cover", backgroundPosition: "center" }}><div className="g" /></div>
             <div className="layer l2" data-para="-0.06" style={{ backgroundImage: `url('${hero0.url}')`, backgroundSize: "cover", backgroundPosition: "center" }}><div className="g" /></div>
-            <div className="badge" data-para="-0.1"><div className="b1">ISO</div><div className="b2">9001:2015</div></div>
+            <div className="badge" data-para="-0.1"><div className="b1">{ab.selo1}</div><div className="b2">{ab.selo2}</div></div>
           </div>
         </div>
       </section>
 
       <section className="section tight manifesto">
         <div className="wrap">
-          <div className="sec-head reveal"><span className="kick">{t.mf_kick}</span>
-            <h2>{t.mf_t1} <span className="y">{t.mf_t2}</span></h2></div>
+          <div className="sec-head reveal"><span className="kick">{mf.kick}</span>
+            <h2>{mf.titulo} <span className="y">{mf.destaque}</span></h2></div>
           <div>
-            {t.manifesto.map(([ti, d], i) => (
-              <div className="row reveal" key={ti}><div className="no">{String(i + 1).padStart(2, "0")}</div><div><h3>{ti}</h3><p>{d}</p></div>
+            {mf.itens.map((it, i) => (
+              <div className="row reveal" key={i}><div className="no">{String(i + 1).padStart(2, "0")}</div><div><h3>{it["titulo"]}</h3><p>{it["texto"]}</p></div>
                 <div className="ar"><svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6"><path d="M5 12h14M13 6l6 6-6 6" /></svg></div></div>
             ))}
           </div>
@@ -172,23 +179,25 @@ function HomeContent() {
 
       <section className="section tight" id="suporte" style={{ background: "var(--paper)" }}>
         <div className="wrap">
-          <div className="sec-head reveal"><span className="kick">{t.sp_kick}</span>
-            <h2>{t.sp_t1} <span className="y">{t.sp_t2}</span></h2></div>
+          <div className="sec-head reveal"><span className="kick">{sp.kick}</span>
+            <h2>{sp.titulo} <span className="y">{sp.destaque}</span></h2>
+            {sp.texto && <p>{sp.texto}</p>}</div>
           <div className="support-grid reveal">
-            {t.suporte.map(([ti, d, href], i) => (
-              <a className="sup" key={ti} href={href}><div className="ic"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8">{SUP_ICONS[i]}</svg></div><h4>{ti}</h4><p>{d}</p></a>
+            {sp.itens.map((it, i) => (
+              <a className="sup" key={i} href={it["url"] || "/suporte"}><div className="ic"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8">{SUP_ICONS[i % SUP_ICONS.length]}</svg></div><h4>{it["titulo"]}</h4><p>{it["texto"]}</p></a>
             ))}
           </div>
+          {sp.cta_label && <div style={{ textAlign: "center", marginTop: 40 }}><a className="btn btn-navy" href={sp.cta_url || "/suporte"}>{sp.cta_label}</a></div>}
         </div>
       </section>
 
       <section className="cta-road">
         <div className="wrap">
-          <h2>{t.cta_t}</h2>
-          <p>{t.cta_p}</p>
+          <h2>{cta.titulo}</h2>
+          <p>{cta.texto}</p>
           <div className="cta">
-            <a className="btn btn-navy" href="/orcamento">{t.cta_b1}</a>
-            <a className="btn btn-ghost on-dark" href={wa} target="_blank" rel="noreferrer">WhatsApp {tel}</a>
+            <a className="btn btn-navy" href={cta.cta_primario_url || "/orcamento"}>{cta.cta_primario_label}</a>
+            <a className="btn btn-ghost on-dark" href={wa} target="_blank" rel="noreferrer">{cta.cta_secundario_label} {tel}</a>
           </div>
         </div>
         <div className="dash" />

@@ -602,6 +602,30 @@ export type Database = {
         }
         Relationships: []
       }
+      secoes_home: {
+        Row: {
+          atualizado_em: string
+          conteudo_es: Json
+          conteudo_pt: Json
+          ordem: number
+          secao: string
+        }
+        Insert: {
+          atualizado_em?: string
+          conteudo_es?: Json
+          conteudo_pt?: Json
+          ordem?: number
+          secao: string
+        }
+        Update: {
+          atualizado_em?: string
+          conteudo_es?: Json
+          conteudo_pt?: Json
+          ordem?: number
+          secao?: string
+        }
+        Relationships: []
+      }
       user_roles: {
         Row: {
           id: string
