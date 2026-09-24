@@ -629,6 +629,60 @@ export type Database = {
         }
         Relationships: []
       }
+      treinamentos: {
+        Row: {
+          ativo: boolean
+          conteudo_es: string | null
+          conteudo_pt: string | null
+          criado_em: string
+          descricao_es: string | null
+          descricao_pt: string | null
+          duracao_es: string | null
+          duracao_pt: string | null
+          id: string
+          imagem_url: string | null
+          ordem: number
+          publicado: boolean
+          slug: string
+          titulo_es: string | null
+          titulo_pt: string
+        }
+        Insert: {
+          ativo?: boolean
+          conteudo_es?: string | null
+          conteudo_pt?: string | null
+          criado_em?: string
+          descricao_es?: string | null
+          descricao_pt?: string | null
+          duracao_es?: string | null
+          duracao_pt?: string | null
+          id?: string
+          imagem_url?: string | null
+          ordem?: number
+          publicado?: boolean
+          slug: string
+          titulo_es?: string | null
+          titulo_pt: string
+        }
+        Update: {
+          ativo?: boolean
+          conteudo_es?: string | null
+          conteudo_pt?: string | null
+          criado_em?: string
+          descricao_es?: string | null
+          descricao_pt?: string | null
+          duracao_es?: string | null
+          duracao_pt?: string | null
+          id?: string
+          imagem_url?: string | null
+          ordem?: number
+          publicado?: boolean
+          slug?: string
+          titulo_es?: string | null
+          titulo_pt?: string
+        }
+        Relationships: []
+      }
       user_roles: {
         Row: {
           id: string
