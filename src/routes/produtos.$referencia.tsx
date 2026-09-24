@@ -1,4 +1,4 @@
-import { sitePending } from "@/components/site/SitePending";
+import { BusyButton, sitePending } from "@/components/site/SitePending";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { queryOptions, useSuspenseQuery } from "@tanstack/react-query";
 import { useState } from "react";
@@ -145,7 +145,7 @@ function Ficha() {
                 <input value={qty} inputMode="numeric" aria-label={l.qty} onChange={(e) => setQty(Math.min(999, Math.max(1, Number(e.target.value.replace(/\D/g, "")) || 1)))} />
                 <button onClick={() => setQty((q) => Math.min(999, q + 1))} aria-label="+">+</button>
               </div>
-              <button className="btn btn-navy btn-big" onClick={() => addOrc({ id: p.id, codigo: p.codigo, referencia: p.referencia, nome: name, quantidade: qty })}>{l.add}</button>
+              <BusyButton className="btn btn-navy btn-big" onClick={() => addOrc({ id: p.id, codigo: p.codigo, referencia: p.referencia, nome: name, quantidade: qty })}>{l.add}</BusyButton>
             </div>
             <div className="sec-btns">
               <a className="btn btn-ghost btn-sm" href={waHref} target="_blank" rel="noreferrer">{l.wa}</a>

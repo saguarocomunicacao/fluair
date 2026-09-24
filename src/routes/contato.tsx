@@ -1,4 +1,4 @@
-import { sitePending } from "@/components/site/SitePending";
+import { Spin, sitePending } from "@/components/site/SitePending";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { queryOptions, useSuspenseQuery } from "@tanstack/react-query";
 import { useState, type ReactNode } from "react";
@@ -157,7 +157,7 @@ function Contato() {
               <label className={`lgpd ${errs.lgpd ? "err" : ""}`}><input type="checkbox" checked={f.lgpd} onChange={(e) => set("lgpd", e.target.checked)} /> <span>{l.lgpd} *</span></label>
               {errs.lgpd && <div className="fld"><div className="em">{errs.lgpd}</div></div>}
               {fail && <div className="orc-alert" role="alert">{l.err}</div>}
-              <button className="btn btn-navy orc-send" disabled={sending}>{sending ? l.sending : l.send}</button>
+              <button className="btn btn-navy orc-send" disabled={sending}>{sending ? <><Spin />{l.sending}</> : l.send}</button>
             </form>
           )}
         </div>

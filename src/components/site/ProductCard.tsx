@@ -1,3 +1,4 @@
+import { BusyButton } from "@/components/site/SitePending";
 import { useState } from "react";
 import { Link } from "@tanstack/react-router";
 import { pick, useSite } from "@/components/site/i18n";
@@ -21,7 +22,7 @@ export function ProductCard({ p, cat }: { p: P; cat: string }) {
         <Link className="stretch" to="/produtos/$referencia" params={{ referencia: ref }}><h3>{name}</h3></Link>
         <span className="spec">Cód. {p.codigo}</span>
         <div className="foot">
-          <button className="btn btn-navy btn-sm" onClick={() => addOrc({ id: p.id, codigo: p.codigo, referencia: p.referencia, nome: name, quantidade: 1 })}>{t.add_orc_long}</button>
+          <BusyButton className="btn btn-navy btn-sm" onClick={() => addOrc({ id: p.id, codigo: p.codigo, referencia: p.referencia, nome: name, quantidade: 1 })}>{t.add_orc_long}</BusyButton>
         </div>
       </div>
     </div>
