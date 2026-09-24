@@ -65,7 +65,7 @@ export function Panel({ className, children }: { className?: string; children: R
   return <div className={cn("rounded-xl border border-border bg-card shadow-soft", className)}>{children}</div>;
 }
 
-export function EmptyState({ text, onAdd }: { text: string; onAdd?: () => void }) {
+export function EmptyState({ text, onAdd }: { text: string; onAdd?: (() => void) | undefined }) {
   return (
     <div className="flex flex-col items-center justify-center gap-3 px-6 py-16 text-center">
       <div className="grid h-14 w-14 place-items-center rounded-2xl bg-brand-accent-soft text-brand-accent">
