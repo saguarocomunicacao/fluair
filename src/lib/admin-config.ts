@@ -11,7 +11,10 @@ export type FieldType =
   | "json"
   | "select"
   | "fk"
-  | "datetime";
+  | "datetime"
+  | "kv"
+  | "uf"
+  | "map";
 
 export interface Field {
   name: string; // base name; when i18n, stored as name_pt / name_es
@@ -34,42 +37,56 @@ export interface TableConfig {
   searchCols: string[];
   fields: Field[];
   gallery?: boolean;
+  filters?: { col: string; label: string; kind: "fk" | "bool" | "uf"; fk?: { table: string; label: string } }[];
+  groupBy?: string;
+  groupLabels?: Record<string, string>;
+  reorder?: boolean;
+  slugFrom?: string; // i18n base field used to generate slug
 }
+
+export const UFS = ["AC","AL","AP","AM","BA","CE","DF","ES","GO","MA","MT","MS","MG","PA","PB","PR","PE","PI","RJ","RN","RS","RO","RR","SC","SP","SE","TO"];
+export const slugify = (s: string) => s.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase().trim().replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)/g, "");
 
 const ordem: Field = { name: "ordem", label: "Ordem", type: "number" };
 const ativo: Field = { name: "ativo", label: "Ativo", type: "bool" };
 
 export const TABLES: TableConfig[] = [
   {
-    table: "categorias", label: "Categorias", bucket: "produtos", orderBy: "ordem", orderAsc: true,
-    listCols: ["ordem", "nome_pt", "slug", "ativo"], searchCols: ["nome_pt", "slug"],
+    table: "categorias", label: "Categorias", bucket: "produtos", orderBy: "ordem", orderAsc: true, reorder: true, slugFrom: "nome",
+    listCols: ["nome_pt", "slug", "ordem", "ativo"], searchCols: ["nome_pt", "slug"],
     fields: [
-      { name: "slug", label: "Slug", type: "text", required: true },
       { name: "nome", label: "Nome", type: "text", i18n: true, required: true },
       { name: "descricao", label: "Descrição", type: "textarea", i18n: true },
+      { name: "slug", label: "Slug (gerado do nome, editável)", type: "text", required: true },
       { name: "imagem_url", label: "Imagem", type: "image" },
       ordem, ativo,
     ],
   },
   {
     table: "produtos", label: "Produtos", bucket: "produtos", orderBy: "ordem", orderAsc: true, gallery: true,
-    listCols: ["codigo", "nome_pt", "destaque", "ativo"], searchCols: ["codigo", "nome_pt"],
+    listCols: ["codigo", "nome_pt", "categoria_id", "destaque", "ativo"], searchCols: ["codigo", "nome_pt"],
+    filters: [
+      { col: "categoria_id", label: "Categoria", kind: "fk", fk: { table: "categorias", label: "nome_pt" } },
+      { col: "ativo", label: "Ativo", kind: "bool" },
+      { col: "destaque", label: "Destaque", kind: "bool" },
+    ],
     fields: [
       { name: "codigo", label: "Código", type: "text", required: true },
       { name: "nome", label: "Nome", type: "text", i18n: true, required: true },
       { name: "categoria_id", label: "Categoria", type: "fk", fk: { table: "categorias", label: "nome_pt" } },
       { name: "descricao", label: "Descrição", type: "richtext", i18n: true },
-      { name: "especificacoes", label: "Especificações (JSON)", type: "json" },
+      { name: "especificacoes", label: "Especificações", type: "kv" },
       { name: "ncm", label: "NCM", type: "text" },
       { name: "destaque", label: "Destaque", type: "bool" },
       ordem, ativo,
     ],
   },
   {
-    table: "banners", label: "Banners", bucket: "banners", orderBy: "ordem", orderAsc: true,
-    listCols: ["local", "titulo_pt", "ordem", "ativo"], searchCols: ["titulo_pt", "local"],
+    table: "banners", label: "Banners", bucket: "banners", orderBy: "ordem", orderAsc: true, reorder: true, groupBy: "local",
+    groupLabels: { home_hero: "Home · destaque (hero)", home_cta: "Home · chamada (CTA)" },
+    listCols: ["titulo_pt", "local", "ordem", "ativo"], searchCols: ["titulo_pt", "local"],
     fields: [
-      { name: "local", label: "Local", type: "text", required: true },
+      { name: "local", label: "Local", type: "select", options: ["home_hero", "home_cta"], required: true },
       { name: "titulo", label: "Título", type: "text", i18n: true },
       { name: "subtitulo", label: "Subtítulo", type: "textarea", i18n: true },
       { name: "imagem_url", label: "Imagem", type: "image" },
@@ -79,7 +96,7 @@ export const TABLES: TableConfig[] = [
     ],
   },
   {
-    table: "paginas", label: "Páginas", bucket: "banners", orderBy: "atualizado_em",
+    table: "paginas", label: "Páginas", bucket: "banners", orderBy: "atualizado_em", slugFrom: "titulo",
     listCols: ["titulo_pt", "slug", "publicado", "atualizado_em"], searchCols: ["titulo_pt", "slug"],
     fields: [
       { name: "slug", label: "Slug", type: "text", required: true },
@@ -102,8 +119,8 @@ export const TABLES: TableConfig[] = [
     ],
   },
   {
-    table: "noticias", label: "Notícias", bucket: "noticias", orderBy: "publicado_em",
-    listCols: ["titulo_pt", "categoria", "publicado", "publicado_em"], searchCols: ["titulo_pt", "slug"],
+    table: "noticias", label: "Notícias", bucket: "noticias", orderBy: "publicado_em", slugFrom: "titulo",
+    listCols: ["capa_url", "titulo_pt", "categoria", "publicado", "publicado_em"], searchCols: ["titulo_pt", "slug"],
     fields: [
       { name: "slug", label: "Slug", type: "text", required: true },
       { name: "titulo", label: "Título", type: "text", i18n: true, required: true },
@@ -117,8 +134,8 @@ export const TABLES: TableConfig[] = [
     ],
   },
   {
-    table: "downloads", label: "Downloads", bucket: "downloads", orderBy: "ordem", orderAsc: true,
-    listCols: ["titulo_pt", "categoria", "ordem", "ativo"], searchCols: ["titulo_pt", "categoria"],
+    table: "downloads", label: "Downloads", bucket: "downloads", orderBy: "ordem", orderAsc: true, groupBy: "categoria", reorder: true,
+    listCols: ["titulo_pt", "arquivo_url", "ordem", "ativo"], searchCols: ["titulo_pt", "categoria"],
     fields: [
       { name: "titulo", label: "Título", type: "text", i18n: true, required: true },
       { name: "descricao", label: "Descrição", type: "textarea", i18n: true },
@@ -129,11 +146,13 @@ export const TABLES: TableConfig[] = [
   },
   {
     table: "representantes", label: "Representantes", orderBy: "ordem", orderAsc: true,
+    reorder: true,
     listCols: ["nome", "empresa", "cidade", "estado", "ativo"], searchCols: ["nome", "empresa", "cidade", "estado"],
+    filters: [{ col: "estado", label: "Estado", kind: "uf" }],
     fields: [
       { name: "nome", label: "Nome", type: "text", required: true },
       { name: "empresa", label: "Empresa", type: "text" },
-      { name: "estado", label: "Estado (UF)", type: "text" },
+      { name: "estado", label: "Estado (UF)", type: "uf" },
       { name: "cidade", label: "Cidade", type: "text" },
       { name: "telefone", label: "Telefone", type: "text" },
       { name: "whatsapp", label: "WhatsApp", type: "text" },
@@ -144,21 +163,23 @@ export const TABLES: TableConfig[] = [
   {
     table: "rede_autorizada", label: "Rede autorizada", orderBy: "nome", orderAsc: true,
     listCols: ["nome", "cidade", "estado", "ativo"], searchCols: ["nome", "cidade", "estado"],
+    filters: [{ col: "estado", label: "Estado", kind: "uf" }],
     fields: [
       { name: "nome", label: "Nome", type: "text", required: true },
       { name: "cidade", label: "Cidade", type: "text" },
-      { name: "estado", label: "Estado (UF)", type: "text" },
+      { name: "estado", label: "Estado (UF)", type: "uf" },
       { name: "endereco", label: "Endereço", type: "text" },
       { name: "telefone", label: "Telefone", type: "text" },
       { name: "whatsapp", label: "WhatsApp", type: "text" },
       { name: "lat", label: "Latitude", type: "number" },
       { name: "lng", label: "Longitude", type: "number" },
+      { name: "_mapa", label: "Localização no mapa (arraste o pino)", type: "map" },
       ativo,
     ],
   },
   {
-    table: "faq", label: "FAQ", orderBy: "ordem", orderAsc: true,
-    listCols: ["pergunta_pt", "categoria", "ordem", "ativo"], searchCols: ["pergunta_pt", "categoria"],
+    table: "faq", label: "FAQ", orderBy: "ordem", orderAsc: true, groupBy: "categoria", reorder: true,
+    listCols: ["pergunta_pt", "ordem", "ativo"], searchCols: ["pergunta_pt", "categoria"],
     fields: [
       { name: "pergunta", label: "Pergunta", type: "text", i18n: true, required: true },
       { name: "resposta", label: "Resposta", type: "richtext", i18n: true },
