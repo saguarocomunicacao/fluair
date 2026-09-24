@@ -101,7 +101,8 @@ function AdminLayout() {
   };
 
   const sidebar = (mini: boolean) => (
-    <aside className={cn("flex h-full flex-col border-r border-sidebar-border bg-sidebar transition-[width] duration-200", mini ? "w-16" : "w-64")}>
+    <TooltipProvider delayDuration={100}>
+      <aside className={cn("flex h-full flex-col border-r border-sidebar-border bg-sidebar transition-[width] duration-200", mini ? "w-16" : "w-64")}>
       <div className={cn("flex h-16 items-center", mini ? "justify-center px-2" : "justify-between px-5")}>
         {mini ? <Logo symbol className="h-8" /> : <Logo className="h-7" />}
         <button className="lg:hidden" onClick={() => setMobileOpen(false)} aria-label="Fechar menu"><X className="h-5 w-5" /></button>
