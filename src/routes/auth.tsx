@@ -1,11 +1,12 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useState } from "react";
 import { toast } from "sonner";
-import { Eye, EyeOff } from "lucide-react";
+import { AlertCircle, Eye, EyeOff, Loader2, Lock, Mail } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Logo } from "@/components/admin/kit";
 
 export const Route = createFileRoute("/auth")({
   head: () => ({
@@ -26,46 +27,70 @@ function AuthPage() {
   const [password, setPassword] = useState("");
   const [busy, setBusy] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   const submit = async (e: React.FormEvent) => {
     e.preventDefault();
     setBusy(true);
+    setError(null);
     const { error } = await supabase.auth.signInWithPassword({ email, password });
     setBusy(false);
-    if (error) { toast.error("E-mail ou senha inválidos"); return; }
+    if (error) { setError("E-mail ou senha inválidos."); return; }
     navigate({ to: "/admin" });
   };
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-muted px-4">
-      <form onSubmit={submit} className="w-full max-w-sm space-y-4 rounded-lg border border-border bg-card p-8 shadow-sm">
-        <div>
-          <h1 className="text-2xl font-black tracking-tight text-primary">FLUAIR</h1>
-          <p className="text-sm text-muted-foreground">Painel administrativo</p>
+    <div className="grid min-h-screen bg-background lg:grid-cols-[1.05fr_1fr]">
+      <aside className="brand-pattern relative hidden flex-col justify-between overflow-hidden bg-primary p-12 text-primary-foreground lg:flex">
+        <Logo invert />
+        <div className="max-w-md">
+          <h2 className="text-4xl font-semibold leading-tight tracking-tight">Painel de conteúdo Fluair</h2>
+          <p className="mt-4 text-base text-primary-foreground/70">Produtos, catálogo, notícias e cotações em um só lugar.</p>
         </div>
-        <div className="space-y-1"><Label>E-mail</Label><Input type="email" required value={email} onChange={(e) => setEmail(e.target.value)} /></div>
-        <div className="space-y-1">
-          <Label>Senha</Label>
-          <div className="relative">
-            <Input
-              type={showPassword ? "text" : "password"}
-              required
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              className="pr-10"
-            />
-            <button
-              type="button"
-              onClick={() => setShowPassword((v) => !v)}
-              aria-label={showPassword ? "Ocultar senha" : "Mostrar senha"}
-              className="absolute inset-y-0 right-0 flex w-10 items-center justify-center text-muted-foreground hover:text-foreground transition-colors"
-            >
-              {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
-            </button>
+        <p className="text-sm text-primary-foreground/60">Não importa o caminho, vá com Fluair!</p>
+      </aside>
+
+      <main className="flex items-center justify-center px-4 py-12">
+        <form onSubmit={submit} className="w-full max-w-[400px] rounded-xl border border-border bg-card p-8 shadow-lift sm:p-10">
+          <Logo className="mb-8" />
+          <h1 className="text-2xl font-semibold tracking-tight">Entrar</h1>
+          <p className="mt-1 text-sm text-muted-foreground">Acesse com seu e-mail corporativo.</p>
+
+          {error && (
+            <div role="alert" className="mt-6 flex items-center gap-2 rounded-lg border border-destructive/20 bg-destructive/5 px-3 py-2.5 text-sm text-destructive">
+              <AlertCircle className="h-4 w-4 shrink-0" />{error}
+            </div>
+          )}
+
+          <div className="mt-6 space-y-5">
+            <div className="space-y-2">
+              <Label htmlFor="email">E-mail</Label>
+              <div className="relative">
+                <Mail className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+                <Input id="email" type="email" required autoComplete="email" placeholder="voce@fluair.com.br" value={email} onChange={(e) => setEmail(e.target.value)} aria-invalid={!!error} className="h-11 pl-10" />
+              </div>
+            </div>
+            <div className="space-y-2">
+              <div className="flex items-center justify-between">
+                <Label htmlFor="password">Senha</Label>
+                <button type="button" onClick={() => toast.info("Peça a um administrador para redefinir sua senha.")} className="text-xs font-medium text-brand-accent hover:underline">
+                  Esqueci minha senha
+                </button>
+              </div>
+              <div className="relative">
+                <Lock className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+                <Input id="password" type={showPassword ? "text" : "password"} required autoComplete="current-password" placeholder="••••••••" value={password} onChange={(e) => setPassword(e.target.value)} aria-invalid={!!error} className="h-11 px-10" />
+                <button type="button" onClick={() => setShowPassword((v) => !v)} aria-label={showPassword ? "Ocultar senha" : "Mostrar senha"} className="absolute inset-y-0 right-0 flex w-10 items-center justify-center rounded-r-md text-muted-foreground transition-colors hover:text-foreground focus-visible:text-brand-accent focus-visible:outline-none">
+                  {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                </button>
+              </div>
+            </div>
+            <Button type="submit" className="h-11 w-full text-sm font-semibold" disabled={busy}>
+              {busy ? <><Loader2 className="h-4 w-4 animate-spin" />Entrando…</> : "Entrar"}
+            </Button>
           </div>
-        </div>
-        <Button type="submit" className="w-full" disabled={busy}>{busy ? "Entrando…" : "Entrar"}</Button>
-      </form>
+        </form>
+      </main>
     </div>
   );
 }
