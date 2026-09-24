@@ -378,3 +378,24 @@
 .fl-site .ct-form h3{font-family:var(--f-disp);font-weight:400;text-transform:uppercase;color:var(--navy);font-size:32px;line-height:1;margin-bottom:20px}
 .fl-site .ct-ok{text-align:center;padding:40px 10px}
 @media(max-width:1000px){.fl-site .ct{grid-template-columns:1fr}}
+/* institucional */
+.fl-site .inst{max-width:760px;margin:0 auto;padding:64px 0 100px}
+.fl-site .prose{font-size:17.5px;line-height:1.8;color:#2a3548}
+.fl-site .prose>*:first-child{margin-top:0}
+.fl-site .prose p{margin:0 0 1.2em}
+.fl-site .prose>p:first-child{font-size:20px;line-height:1.7;color:var(--ink)}
+.fl-site .prose h2,.fl-site .prose h3{font-family:var(--f-disp);font-weight:400;text-transform:uppercase;color:var(--navy);line-height:1.05;margin:1.9em 0 .6em;letter-spacing:.01em}
+.fl-site .prose h2{font-size:clamp(28px,3.4vw,40px)}
+.fl-site .prose h3{font-size:clamp(24px,2.8vw,32px);display:flex;align-items:center;gap:14px}
+.fl-site .prose h3:before{content:"";width:28px;height:4px;background:#116ad1;flex:0 0 28px}
+.fl-site .prose strong{color:var(--navy)}
+.fl-site .prose a{color:#116ad1}
+.fl-site .prose ul,.fl-site .prose ol{margin:0 0 1.4em;padding-left:0;list-style:none}
+.fl-site .prose ol{counter-reset:n}
+.fl-site .prose li{position:relative;padding:10px 0 10px 34px;border-bottom:1px solid var(--line)}
+.fl-site .prose ul li:before{content:"";position:absolute;left:4px;top:21px;width:10px;height:10px;border-radius:3px;background:var(--navy)}
+.fl-site .prose ol li{counter-increment:n}
+.fl-site .prose ol li:before{content:counter(n);position:absolute;left:0;top:10px;font-family:var(--f-disp);color:#116ad1;font-size:20px}
+.fl-site .prose img{max-width:100%;height:auto;border-radius:18px;margin:1.4em 0;display:block}
+.fl-site .prose blockquote{border-left:4px solid #116ad1;margin:1.5em 0;padding:6px 0 6px 22px;color:var(--navy);font-size:20px}
+.fl-site .prose>p:last-child strong:only-child{font-family:var(--f-disp);font-weight:400;text-transform:uppercase;font-size:clamp(26px,3vw,36px);line-height:1.1;display:block;margin-top:1.4em}
