@@ -109,3 +109,13 @@ export const getProduto = createServerFn({ method: "GET" })
     }));
     return { produto: { ...p, imagens } as ProdutoFicha, relacionados };
   });
+
+export const getCategoria = createServerFn({ method: "GET" })
+  .inputValidator((d: { slug: string }) => ({ slug: String(d.slug ?? "").slice(0, 120) }))
+  .handler(async ({ data }) => {
+    const db = publicClient();
+    const { data: c } = await db.from("categorias").select("id,slug,nome_pt,nome_es,descricao_pt,descricao_es,imagem_url").eq("slug", data.slug).eq("ativo", true).maybeSingle();
+    if (!c) return { categoria: null, total: 0 };
+    const { count } = await db.from("produtos").select("id", { count: "exact", head: true }).eq("ativo", true).eq("categoria_id", c.id);
+    return { categoria: c, total: count ?? 0 };
+  });
