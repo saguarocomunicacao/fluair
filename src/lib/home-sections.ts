@@ -161,6 +161,8 @@ const isShared = (def: SectionDef | undefined, key: string, item = false) => {
 
 type Row = { secao: string; conteudo_pt: SectionData | null; conteudo_es: SectionData | null };
 
+type FieldKey = "eyebrow" | "titulo" | "subtitulo" | "cta_primario_label" | "cta_primario_url" | "cta_secundario_label" | "scroll" | "kick" | "texto" | "contador_texto" | "destaque" | "link_label" | "botao_label" | "fato1" | "fato3" | "selo1" | "selo2" | "cta_label" | "cta_url";
+
 /** Resolve uma seção para o idioma, com fallback: ES → PT do banco → padrão do código. */
 export function resolveSection(rows: Row[], id: string, lang: Lang) {
   const def = HOME_SECTIONS.find((s) => s.id === id);
@@ -190,5 +192,5 @@ export function resolveSection(rows: Row[], id: string, lang: Lang) {
       return r;
     });
   }
-  return { ...out, itens: items } as Record<string, string> & { itens: Item[] };
+  return { ...out, itens: items } as Record<FieldKey, string> & { itens: Item[] };
 }

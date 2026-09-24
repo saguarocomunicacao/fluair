@@ -66,7 +66,7 @@ function SectionEditor({ def, row }: { def: SectionDef; row: Row | undefined }) 
     const { error } = await supabase.from("secoes_home" as never)
       .upsert({ secao: def.id, ordem: HOME_SECTIONS.indexOf(def), conteudo_pt: pt, conteudo_es: es } as never, { onConflict: "secao" });
     setSaving(false);
-    if (error) return toast.error("Não foi possível salvar: " + error.message);
+    if (error) { toast.error("Não foi possível salvar: " + error.message); return; }
     toast.success(`Seção "${def.label}" salva`);
     qc.invalidateQueries({ queryKey: ["admin-secoes-home"] });
     qc.invalidateQueries({ queryKey: ["site-home"] });
