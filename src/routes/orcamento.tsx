@@ -73,7 +73,7 @@ const empty: Form = { nome: "", email: "", telefone: "", empresa: "", cnpj: "", 
 const Ph = () => <svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.3"><circle cx="12" cy="12" r="8.5" /><circle cx="12" cy="12" r="3" /><path d="M12 3.5v5M12 15.5v5M3.5 12h5M15.5 12h5" /></svg>;
 
 function Fld({ k, label, full, err, children }: { k: keyof Form; label: string; full?: boolean; err?: string | undefined; children: React.ReactNode }) {
-  return <div className={`fld ${full ? "full" : ""} ${err ? "err" : ""}`}><label>{label}{k !== "mensagem" && " *"}</label>{children}{err && <div className="em">{err}</div>}</div>;
+  return <div className={`fld ${full ? "oq-full" : ""} ${err ? "err" : ""}`}><label>{label}{k !== "mensagem" && " *"}</label>{children}{err && <div className="em">{err}</div>}</div>;
 }
 
 function Orcamento() {
@@ -134,7 +134,7 @@ function Orcamento() {
     return (
       <main>{Head}
         <div className="wrap ok">
-          <div className="ic"><svg width="38" height="38" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4"><path d="M5 12.5l4.5 4.5L19 7.5" /></svg></div>
+          <div className="oq-ic"><svg width="38" height="38" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4"><path d="M5 12.5l4.5 4.5L19 7.5" /></svg></div>
           <h2>{l.ok_t}</h2><p>{l.ok_p}</p>
           <div className="proto">{l.proto}: #{done}</div><br />
           <Link className="btn btn-navy" to="/">{l.back}</Link>
@@ -160,7 +160,7 @@ function Orcamento() {
 
   return (
     <main>{Head}
-      <div className="wrap orc">
+      <div className="wrap oq-orc">
         <div>
           <div className="orc-list">
             {items.map((i) => {
@@ -194,7 +194,7 @@ function Orcamento() {
         <form className="orc-side" onSubmit={submit} noValidate>
           <h3>{l.side}</h3>
           <div className="orc-sum"><span>{l.total}</span><b>{total}</b></div>
-          <div className="fgrid">
+          <div className="oq-fgrid">
             <Fld k="nome" err={errs.nome} label={l.nome} full><input value={f.nome} maxLength={120} autoComplete="name" onChange={(e) => set("nome", e.target.value)} /></Fld>
             <Fld k="email" err={errs.email} label={l.email} full><input type="email" value={f.email} maxLength={160} autoComplete="email" onChange={(e) => set("email", e.target.value)} /></Fld>
             <Fld k="telefone" err={errs.telefone} label={l.tel}><input value={f.telefone} inputMode="tel" autoComplete="tel" placeholder="(48) 99999-9999" onChange={(e) => set("telefone", maskTel(e.target.value))} /></Fld>
@@ -217,7 +217,7 @@ function Orcamento() {
           <div className="modal" role="dialog" aria-modal="true" onClick={(e) => e.stopPropagation()}>
             <h4>{confirm.kind === "all" ? l.clear_t : l.rm_t}</h4>
             <p>{confirm.kind === "all" ? l.clear_p : l.rm_p}</p>
-            <div className="row">
+            <div className="oq-row">
               <button className="btn btn-ghost btn-sm" onClick={() => setConfirm(null)}>{l.cancel}</button>
               <button className="btn btn-red btn-sm" onClick={() => { save(confirm.kind === "all" ? [] : items.filter((i) => i.id !== confirm.id)); setConfirm(null); }}>
                 {confirm.kind === "all" ? l.confirm_clear : l.confirm}
