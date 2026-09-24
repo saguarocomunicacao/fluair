@@ -232,7 +232,7 @@
 @media(max-width:640px){.fl-site .menu,.fl-site .lang{display:none}
 .fl-site .hamburger{display:grid}
 .fl-site .stats .wrap{grid-template-columns:1fr 1fr;gap:30px 20px}
-.fl-site .cats-grid,.fl-site .pgrid,.fl-site .support-grid,.fl-site .form-grid,.fl-site .fgrid{grid-template-columns:1fr}
+.fl-site .cats-grid,.fl-site .pgrid,.fl-site .support-grid,.fl-site .form-grid,.fl-site .fgrid,.fl-site .sist-cards{grid-template-columns:1fr}
 .fl-site .manifesto .row{grid-template-columns:70px 1fr;gap:18px}
 .fl-site .manifesto .ar{display:none}
 .fl-site .section{padding:72px 0}
