@@ -87,6 +87,7 @@ function SectionEditor({ def, row }: { def: SectionDef; row: Row | undefined }) 
               {f.long
                 ? <Textarea rows={3} value={(data[f.key] as string) ?? ""} onChange={(e) => set({ ...data, [f.key]: e.target.value })} />
                 : <Input value={(data[f.key] as string) ?? ""} onChange={(e) => set({ ...data, [f.key]: e.target.value })} />}
+              {f.hint && <p className="text-xs text-muted-foreground">{f.hint}</p>}
             </div>
           ))}
         </div>
@@ -128,6 +129,9 @@ function SectionEditor({ def, row }: { def: SectionDef; row: Row | undefined }) 
                         </select>
                       )}
                     </div>
+                  )}
+                  {def.items!.auto && lang === "pt" && !auto && (
+                    <p className="mb-3 text-xs text-muted-foreground">Marcar \u201cAutomático\u201d conta o valor do banco (produtos ou categorias). Desmarcado, digite um valor livre — ex.: \u201c+25\u201d, \u201cISO\u201d.</p>
                   )}
                   <div className="grid gap-3 md:grid-cols-2">
                     {def.items!.fields.filter((f) => (lang === "pt" || f.lang !== false) && !(f.key === "valor" && auto)).map((f) => (
