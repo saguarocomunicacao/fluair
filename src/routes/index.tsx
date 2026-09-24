@@ -46,7 +46,7 @@ const Arrow = () => <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" s
 function HomeContent() {
   const { data: chrome } = useSuspenseQuery(chromeQuery);
   const { data: home } = useSuspenseQuery(homeQuery);
-  const { lang, t, wa } = useSite();
+  const { lang, wa } = useSite();
   const cats = chrome.categorias;
   const catName = (id: string | null) => pick(cats.find((c) => c.id === id), "nome", lang);
 
@@ -204,7 +204,6 @@ function HomeContent() {
       </section>
     </main>
   );
-}
 }
 
 function PCard({ p, cat }: { p: ProdutoCard; cat: string }) {
