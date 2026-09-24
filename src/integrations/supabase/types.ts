@@ -565,6 +565,7 @@ export type Database = {
       }
       representantes: {
         Row: {
+          abrangencia: string | null
           ativo: boolean
           cidade: string | null
           email: string | null
@@ -577,6 +578,7 @@ export type Database = {
           whatsapp: string | null
         }
         Insert: {
+          abrangencia?: string | null
           ativo?: boolean
           cidade?: string | null
           email?: string | null
@@ -589,6 +591,7 @@ export type Database = {
           whatsapp?: string | null
         }
         Update: {
+          abrangencia?: string | null
           ativo?: boolean
           cidade?: string | null
           email?: string | null

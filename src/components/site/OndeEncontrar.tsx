@@ -99,6 +99,7 @@ export function Onde({ tipo }: { tipo: "rep" | "rede" }) {
                   <h3>{r.nome}</h3>
                   {r.empresa && <div className="emp">{r.empresa}</div>}
                   {(r.cidade || r.estado) && <div className="loc">{[r.cidade, r.estado].filter(Boolean).join("/")}</div>}
+                  {r.abrangencia && <div className="loc"><strong>{lang === "es" ? "Cobertura" : "Abrangência"}:</strong> {r.abrangencia}</div>}
                   <Links x={r} />
                 </div>
               ))}
