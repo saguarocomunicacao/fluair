@@ -171,8 +171,7 @@ function HomeContent() {
             <h2>{mf.titulo} <span className="y">{mf.destaque}</span></h2></div>
           <div>
             {mf.itens.map((it, i) => (
-              <div className="row reveal" key={i}><div className="no">{String(i + 1).padStart(2, "0")}</div><div><h3>{it["titulo"]}</h3><p>{it["texto"]}</p></div>
-                <div className="ar"><svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6"><path d="M5 12h14M13 6l6 6-6 6" /></svg></div></div>
+              <div className="row reveal" key={i}><div className="no">{String(i + 1).padStart(2, "0")}</div><div><h3>{it["titulo"]}</h3><p>{it["texto"]}</p></div></div>
             ))}
           </div>
         </div>
