@@ -184,3 +184,36 @@ export const getPagina = createServerFn({ method: "GET" })
       .eq("slug", data.slug).eq("publicado", true).maybeSingle();
     return { pagina: (p ?? null) as Pagina | null };
   });
+
+export type DownloadItem = { id: string; titulo_pt: string; titulo_es: string | null; descricao_pt: string | null; descricao_es: string | null; arquivo_url: string | null; categoria: string | null; ext: string; tamanho: number | null };
+export const getDownloads = createServerFn({ method: "GET" }).handler(async () => {
+  const { data } = await publicClient().from("downloads")
+    .select("id,titulo_pt,titulo_es,descricao_pt,descricao_es,arquivo_url,categoria,ordem")
+    .eq("ativo", true).order("categoria").order("ordem");
+  const rows = (data ?? []) as Omit<DownloadItem, "ext" | "tamanho">[];
+  const itens = await Promise.all(rows.map(async (r) => {
+    const path = (r.arquivo_url ?? "").split("?")[0];
+    const ext = (path.match(/\.([a-z0-9]{2,5})$/i)?.[1] ?? "").toLowerCase();
+    let tamanho: number | null = null;
+    if (r.arquivo_url) {
+      try {
+        const res = await fetch(r.arquivo_url, { method: "HEAD", signal: AbortSignal.timeout(3000) });
+        const n = Number(res.headers.get("content-length"));
+        if (res.ok && n > 0) tamanho = n;
+      } catch { /* sem tamanho */ }
+    }
+    return { ...r, ext, tamanho } as DownloadItem;
+  }));
+  return { itens };
+});
+
+export type Representante = { id: string; nome: string; empresa: string | null; estado: string | null; cidade: string | null; telefone: string | null; whatsapp: string | null; email: string | null };
+export type PontoRede = { id: string; nome: string; cidade: string | null; estado: string | null; endereco: string | null; telefone: string | null; whatsapp: string | null; lat: number | null; lng: number | null };
+export const getOndeEncontrar = createServerFn({ method: "GET" }).handler(async () => {
+  const c = publicClient();
+  const [r, n] = await Promise.all([
+    c.from("representantes").select("id,nome,empresa,estado,cidade,telefone,whatsapp,email").eq("ativo", true).order("estado").order("ordem"),
+    c.from("rede_autorizada").select("id,nome,cidade,estado,endereco,telefone,whatsapp,lat,lng").eq("ativo", true).order("estado").order("cidade"),
+  ]);
+  return { representantes: (r.data ?? []) as Representante[], rede: (n.data ?? []) as PontoRede[] };
+});
