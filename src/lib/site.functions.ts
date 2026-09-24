@@ -174,3 +174,13 @@ export const enviarContato = createServerFn({ method: "POST" })
     if (error) { console.error("contato", error); throw new Error("save"); }
     return { ok: true };
   });
+
+export type Pagina = { slug: string; titulo_pt: string; titulo_es: string | null; conteudo_pt: string | null; conteudo_es: string | null; seo_titulo_pt: string | null; seo_titulo_es: string | null; seo_descricao_pt: string | null; seo_descricao_es: string | null; atualizado_em: string };
+export const getPagina = createServerFn({ method: "GET" })
+  .inputValidator((d: { slug: string }) => ({ slug: String(d.slug ?? "").slice(0, 120) }))
+  .handler(async ({ data }) => {
+    const { data: p } = await publicClient().from("paginas")
+      .select("slug,titulo_pt,titulo_es,conteudo_pt,conteudo_es,seo_titulo_pt,seo_titulo_es,seo_descricao_pt,seo_descricao_es,atualizado_em")
+      .eq("slug", data.slug).eq("publicado", true).maybeSingle();
+    return { pagina: (p ?? null) as Pagina | null };
+  });
