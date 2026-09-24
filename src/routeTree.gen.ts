@@ -34,6 +34,7 @@ import { Route as AuthenticatedAdminHomeSecoesRouteImport } from './routes/_auth
 import { Route as AuthenticatedAdminImportarRouteImport } from './routes/_authenticated/admin.importar'
 import { Route as AuthenticatedAdminUsuariosRouteImport } from './routes/_authenticated/admin.usuarios'
 import { Route as AuthenticatedAdminConteudoTabelaRouteImport } from './routes/_authenticated/admin.conteudo.$tabela'
+import { Route as ApiPublicArquivosNomeRouteImport } from './routes/api/public/arquivos.$nome'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -165,6 +166,11 @@ const AuthenticatedAdminConteudoTabelaRoute =
     path: '/conteudo/$tabela',
     getParentRoute: () => AuthenticatedAdminRoute,
   } as any)
+const ApiPublicArquivosNomeRoute = ApiPublicArquivosNomeRouteImport.update({
+  id: '/api/public/arquivos/$nome',
+  path: '/api/public/arquivos/$nome',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -191,6 +197,7 @@ export interface FileRoutesByFullPath {
   '/admin/usuarios': typeof AuthenticatedAdminUsuariosRoute
   '/admin/': typeof AuthenticatedAdminIndexRoute
   '/admin/conteudo/$tabela': typeof AuthenticatedAdminConteudoTabelaRoute
+  '/api/public/arquivos/$nome': typeof ApiPublicArquivosNomeRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -216,6 +223,7 @@ export interface FileRoutesByTo {
   '/admin/usuarios': typeof AuthenticatedAdminUsuariosRoute
   '/admin': typeof AuthenticatedAdminIndexRoute
   '/admin/conteudo/$tabela': typeof AuthenticatedAdminConteudoTabelaRoute
+  '/api/public/arquivos/$nome': typeof ApiPublicArquivosNomeRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -244,6 +252,7 @@ export interface FileRoutesById {
   '/_authenticated/admin/usuarios': typeof AuthenticatedAdminUsuariosRoute
   '/_authenticated/admin/': typeof AuthenticatedAdminIndexRoute
   '/_authenticated/admin/conteudo/$tabela': typeof AuthenticatedAdminConteudoTabelaRoute
+  '/api/public/arquivos/$nome': typeof ApiPublicArquivosNomeRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -272,6 +281,7 @@ export interface FileRouteTypes {
     | '/admin/usuarios'
     | '/admin/'
     | '/admin/conteudo/$tabela'
+    | '/api/public/arquivos/$nome'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -297,6 +307,7 @@ export interface FileRouteTypes {
     | '/admin/usuarios'
     | '/admin'
     | '/admin/conteudo/$tabela'
+    | '/api/public/arquivos/$nome'
   id:
     | '__root__'
     | '/'
@@ -324,6 +335,7 @@ export interface FileRouteTypes {
     | '/_authenticated/admin/usuarios'
     | '/_authenticated/admin/'
     | '/_authenticated/admin/conteudo/$tabela'
+    | '/api/public/arquivos/$nome'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -345,6 +357,7 @@ export interface RootRouteChildren {
   ProdutosReferenciaRoute: typeof ProdutosReferenciaRoute
   NoticiasIndexRoute: typeof NoticiasIndexRoute
   ProdutosIndexRoute: typeof ProdutosIndexRoute
+  ApiPublicArquivosNomeRoute: typeof ApiPublicArquivosNomeRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -524,6 +537,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAdminConteudoTabelaRouteImport
       parentRoute: typeof AuthenticatedAdminRoute
     }
+    '/api/public/arquivos/$nome': {
+      id: '/api/public/arquivos/$nome'
+      path: '/api/public/arquivos/$nome'
+      fullPath: '/api/public/arquivos/$nome'
+      preLoaderRoute: typeof ApiPublicArquivosNomeRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
@@ -578,6 +598,7 @@ const rootRouteChildren: RootRouteChildren = {
   ProdutosReferenciaRoute: ProdutosReferenciaRoute,
   NoticiasIndexRoute: NoticiasIndexRoute,
   ProdutosIndexRoute: ProdutosIndexRoute,
+  ApiPublicArquivosNomeRoute: ApiPublicArquivosNomeRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
