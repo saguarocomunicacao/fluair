@@ -1,3 +1,4 @@
+import { sitePending } from "@/components/site/SitePending";
 import { createFileRoute } from "@tanstack/react-router";
 import { queryOptions, useSuspenseQuery } from "@tanstack/react-query";
 import { useEffect, useState } from "react";
@@ -12,6 +13,7 @@ export const chromeQuery = queryOptions({ queryKey: ["site-chrome"], queryFn: ()
 const homeQuery = queryOptions({ queryKey: ["site-home"], queryFn: () => getHome(), staleTime: 60_000 });
 
 export const Route = createFileRoute("/")({
+  pendingComponent: sitePending("home"),
   head: () => ({
     meta: [
       { title: "Fluair — Válvulas e freios ABS para implementos rodoviários" },

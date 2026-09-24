@@ -1,3 +1,4 @@
+import { sitePending } from "@/components/site/SitePending";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { queryOptions, useSuspenseQuery } from "@tanstack/react-query";
 import siteCss from "@/components/site/site.css?url";
@@ -11,6 +12,7 @@ const postQuery = (slug: string) => queryOptions({ queryKey: ["site-noticia", sl
 const strip = (h: string | null | undefined) => (h ?? "").replace(/<[^>]+>/g, " ").replace(/&nbsp;/g, " ").replace(/\s+/g, " ").trim();
 
 export const Route = createFileRoute("/noticias/$slug")({
+  pendingComponent: sitePending("post"),
   loader: async ({ context, params }) => {
     const [, post] = await Promise.all([context.queryClient.ensureQueryData(chromeQuery), context.queryClient.ensureQueryData(postQuery(params.slug))]);
     return post;

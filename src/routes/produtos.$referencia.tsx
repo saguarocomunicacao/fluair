@@ -1,3 +1,4 @@
+import { sitePending } from "@/components/site/SitePending";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { queryOptions, useSuspenseQuery } from "@tanstack/react-query";
 import { useState } from "react";
@@ -14,6 +15,7 @@ const produtoQuery = (ref: string) =>
 const strip = (h: string | null | undefined) => (h ?? "").replace(/<[^>]+>/g, " ").replace(/\s+/g, " ").trim();
 
 export const Route = createFileRoute("/produtos/$referencia")({
+  pendingComponent: sitePending("ficha"),
   loader: async ({ context, params }) => {
     const [, d] = await Promise.all([
       context.queryClient.ensureQueryData(chromeQuery),

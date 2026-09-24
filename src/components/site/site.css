@@ -473,3 +473,16 @@
 .fl-site .post-cover img{width:100%;border-radius:22px;display:block}
 .fl-site .rel{padding:0 0 100px}
 .fl-site .rel h2{font-family:var(--f-disp);font-weight:400;text-transform:uppercase;color:var(--navy);font-size:clamp(28px,3vw,38px)}
+
+/* Carregamento */
+.fl-site .route-fade{animation:flFade .28s ease-out both}
+@keyframes flFade{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+.fl-site .sk{display:block;background:linear-gradient(90deg,#e6ecf4 25%,#f2f5fa 45%,#e6ecf4 65%);background-size:300% 100%;animation:flSk 1.3s ease-in-out infinite}
+.fl-site .page-head .sk{background:linear-gradient(90deg,rgba(255,255,255,.14) 25%,rgba(255,255,255,.28) 45%,rgba(255,255,255,.14) 65%);background-size:300% 100%}
+@keyframes flSk{from{background-position:100% 0}to{background-position:0 0}}
+.fl-site .sk-sec{padding:40px 0 100px}
+.fl-site .sk-ficha{display:grid;grid-template-columns:1fr 1fr;gap:48px}
+@media (max-width:900px){.fl-site .sk-ficha{grid-template-columns:1fr}}
+.fl-site .spin{width:15px;height:15px;border-radius:50%;border:2px solid currentColor;border-right-color:transparent;display:inline-block;animation:flSpin .7s linear infinite;flex:0 0 auto}
+@keyframes flSpin{to{transform:rotate(360deg)}}
+.fl-site .btn:disabled{opacity:.75;cursor:progress;transform:none}

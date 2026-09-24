@@ -1,3 +1,4 @@
+import { sitePending } from "@/components/site/SitePending";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { queryOptions, useSuspenseQuery } from "@tanstack/react-query";
 import { useState, type ReactNode } from "react";
@@ -9,6 +10,7 @@ import { enviarContato, getSiteChrome } from "@/lib/site.functions";
 const chromeQuery = queryOptions({ queryKey: ["site-chrome"], queryFn: () => getSiteChrome(), staleTime: 60_000 });
 
 export const Route = createFileRoute("/contato")({
+  pendingComponent: sitePending("page"),
   loader: ({ context }) => context.queryClient.ensureQueryData(chromeQuery),
   head: () => ({
     meta: [

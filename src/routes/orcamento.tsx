@@ -1,3 +1,4 @@
+import { sitePending } from "@/components/site/SitePending";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { queryOptions, useSuspenseQuery } from "@tanstack/react-query";
 import { useEffect, useState } from "react";
@@ -10,6 +11,7 @@ const chromeQuery = queryOptions({ queryKey: ["site-chrome"], queryFn: () => get
 const UFS = ["AC","AL","AP","AM","BA","CE","DF","ES","GO","MA","MT","MS","MG","PA","PB","PR","PE","PI","RJ","RN","RS","RO","RR","SC","SP","SE","TO"];
 
 export const Route = createFileRoute("/orcamento")({
+  pendingComponent: sitePending("page"),
   loader: ({ context }) => context.queryClient.ensureQueryData(chromeQuery),
   head: () => ({
     meta: [

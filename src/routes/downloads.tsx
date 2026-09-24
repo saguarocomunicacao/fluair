@@ -1,3 +1,4 @@
+import { sitePending } from "@/components/site/SitePending";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { queryOptions, useSuspenseQuery } from "@tanstack/react-query";
 import { useMemo, useState } from "react";
@@ -10,6 +11,7 @@ const chromeQuery = queryOptions({ queryKey: ["site-chrome"], queryFn: () => get
 const dlQuery = queryOptions({ queryKey: ["site-downloads"], queryFn: () => getDownloads(), staleTime: 60_000 });
 
 export const Route = createFileRoute("/downloads")({
+  pendingComponent: sitePending("list"),
   loader: ({ context }) => Promise.all([context.queryClient.ensureQueryData(chromeQuery), context.queryClient.ensureQueryData(dlQuery)]),
   head: () => ({
     meta: [
