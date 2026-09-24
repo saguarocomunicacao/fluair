@@ -105,7 +105,7 @@ export const getProduto = createServerFn({ method: "GET" })
       relacionados = (rel ?? []).map((r) => ({ ...r, imagem: first[r.id] ?? null }));
     }
     const imagens = ((imgs ?? []) as Record<string, unknown>[]).map((i) => ({
-      url: String(i.url), alt_pt: (i.alt_pt as string) ?? (i.alt as string) ?? null, alt_es: (i.alt_es as string) ?? null,
+      url: String(i.url), alt_pt: (i.alt_pt as string) ?? null, alt_es: (i.alt_es as string) ?? null,
     }));
     return { produto: { ...p, imagens } as ProdutoFicha, relacionados };
   });
