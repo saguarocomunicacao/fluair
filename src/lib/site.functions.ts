@@ -217,3 +217,46 @@ export const getOndeEncontrar = createServerFn({ method: "GET" }).handler(async 
   ]);
   return { representantes: (r.data ?? []) as Representante[], rede: (n.data ?? []) as PontoRede[] };
 });
+
+export type FaqItem = { id: string; pergunta_pt: string; pergunta_es: string | null; resposta_pt: string | null; resposta_es: string | null; categoria: string | null };
+export const getFaq = createServerFn({ method: "GET" }).handler(async () => {
+  const { data } = await publicClient().from("faq")
+    .select("id,pergunta_pt,pergunta_es,resposta_pt,resposta_es,categoria,ordem")
+    .eq("ativo", true).order("categoria").order("ordem");
+  return { itens: (data ?? []) as FaqItem[] };
+});
+
+export type NoticiaCard = { id: string; slug: string; titulo_pt: string; titulo_es: string | null; resumo_pt: string | null; resumo_es: string | null; capa_url: string | null; categoria: string | null; publicado_em: string | null };
+export type Noticia = NoticiaCard & { conteudo_pt: string | null; conteudo_es: string | null; autor: string | null };
+const NCOLS = "id,slug,titulo_pt,titulo_es,resumo_pt,resumo_es,capa_url,categoria,publicado_em";
+export const getNoticias = createServerFn({ method: "GET" })
+  .inputValidator((d: { q?: string; cat?: string; page?: number }) => ({
+    q: String(d.q ?? "").slice(0, 100).replace(/[%,()]/g, " ").trim(), cat: String(d.cat ?? "").slice(0, 80),
+    page: Math.max(1, Math.min(999, Number(d.page) || 1)),
+  }))
+  .handler(async ({ data }) => {
+    const db = publicClient();
+    let q = db.from("noticias").select(NCOLS, { count: "exact" }).eq("publicado", true);
+    if (data.q) q = q.or(`titulo_pt.ilike.%${data.q}%,titulo_es.ilike.%${data.q}%`);
+    if (data.cat) q = q.eq("categoria", data.cat);
+    const from = (data.page - 1) * 12;
+    const [res, cats] = await Promise.all([
+      q.order("publicado_em", { ascending: false, nullsFirst: false }).range(from, from + 11),
+      db.from("noticias").select("categoria").eq("publicado", true),
+    ]);
+    const categorias = [...new Set((cats.data ?? []).map((r) => r.categoria).filter(Boolean) as string[])].sort();
+    return { noticias: (res.data ?? []) as NoticiaCard[], total: res.count ?? 0, categorias };
+  });
+
+export const getNoticia = createServerFn({ method: "GET" })
+  .inputValidator((d: { slug: string }) => ({ slug: String(d.slug ?? "").slice(0, 160) }))
+  .handler(async ({ data }) => {
+    const db = publicClient();
+    const { data: n } = await db.from("noticias").select(`${NCOLS},conteudo_pt,conteudo_es,autor`)
+      .eq("slug", data.slug).eq("publicado", true).maybeSingle();
+    if (!n) return { noticia: null, relacionadas: [] as NoticiaCard[] };
+    let rq = db.from("noticias").select(NCOLS).eq("publicado", true).neq("id", n.id);
+    if (n.categoria) rq = rq.eq("categoria", n.categoria);
+    const { data: rel } = await rq.order("publicado_em", { ascending: false, nullsFirst: false }).limit(3);
+    return { noticia: n as Noticia, relacionadas: (rel ?? []) as NoticiaCard[] };
+  });
