@@ -12,6 +12,7 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/route'
 import { Route as AuthRouteImport } from './routes/auth'
+import { Route as ContatoRouteImport } from './routes/contato'
 import { Route as DefinirSenhaRouteImport } from './routes/definir-senha'
 import { Route as OrcamentoRouteImport } from './routes/orcamento'
 import { Route as AuthenticatedAdminRouteImport } from './routes/_authenticated/admin'
@@ -36,6 +37,11 @@ const AuthenticatedRouteRoute = AuthenticatedRouteRouteImport.update({
 const AuthRoute = AuthRouteImport.update({
   id: '/auth',
   path: '/auth',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ContatoRoute = ContatoRouteImport.update({
+  id: '/contato',
+  path: '/contato',
   getParentRoute: () => rootRouteImport,
 } as any)
 const DefinirSenhaRoute = DefinirSenhaRouteImport.update({
@@ -101,6 +107,7 @@ const AuthenticatedAdminConteudoTabelaRoute =
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
+  '/contato': typeof ContatoRoute
   '/definir-senha': typeof DefinirSenhaRoute
   '/orcamento': typeof OrcamentoRoute
   '/admin': typeof AuthenticatedAdminRouteWithChildren
@@ -116,6 +123,7 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
+  '/contato': typeof ContatoRoute
   '/definir-senha': typeof DefinirSenhaRoute
   '/orcamento': typeof OrcamentoRoute
   '/categorias/$slug': typeof CategoriasSlugRoute
@@ -132,6 +140,7 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/_authenticated': typeof AuthenticatedRouteRouteWithChildren
   '/auth': typeof AuthRoute
+  '/contato': typeof ContatoRoute
   '/definir-senha': typeof DefinirSenhaRoute
   '/orcamento': typeof OrcamentoRoute
   '/_authenticated/admin': typeof AuthenticatedAdminRouteWithChildren
@@ -149,6 +158,7 @@ export interface FileRouteTypes {
   fullPaths:
     | '/'
     | '/auth'
+    | '/contato'
     | '/definir-senha'
     | '/orcamento'
     | '/admin'
@@ -164,6 +174,7 @@ export interface FileRouteTypes {
   to:
     | '/'
     | '/auth'
+    | '/contato'
     | '/definir-senha'
     | '/orcamento'
     | '/categorias/$slug'
@@ -179,6 +190,7 @@ export interface FileRouteTypes {
     | '/'
     | '/_authenticated'
     | '/auth'
+    | '/contato'
     | '/definir-senha'
     | '/orcamento'
     | '/_authenticated/admin'
@@ -196,6 +208,7 @@ export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AuthenticatedRouteRoute: typeof AuthenticatedRouteRouteWithChildren
   AuthRoute: typeof AuthRoute
+  ContatoRoute: typeof ContatoRoute
   DefinirSenhaRoute: typeof DefinirSenhaRoute
   OrcamentoRoute: typeof OrcamentoRoute
   CategoriasSlugRoute: typeof CategoriasSlugRoute
@@ -224,6 +237,13 @@ declare module '@tanstack/react-router' {
       path: '/auth'
       fullPath: '/auth'
       preLoaderRoute: typeof AuthRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/contato': {
+      id: '/contato'
+      path: '/contato'
+      fullPath: '/contato'
+      preLoaderRoute: typeof ContatoRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/definir-senha': {
@@ -340,6 +360,7 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AuthenticatedRouteRoute: AuthenticatedRouteRouteWithChildren,
   AuthRoute: AuthRoute,
+  ContatoRoute: ContatoRoute,
   DefinirSenhaRoute: DefinirSenhaRoute,
   OrcamentoRoute: OrcamentoRoute,
   CategoriasSlugRoute: CategoriasSlugRoute,
