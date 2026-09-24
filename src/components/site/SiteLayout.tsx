@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import logoCor from "@/assets/fluair-logo-cor.png.asset.json";
+import logoBranco from "@/assets/fluair-logo-branco.png.asset.json";
 import { SiteCtx, dict, pick, readCart, type CartItem, type Lang } from "./i18n";
 import type { Categoria, Menu } from "@/lib/site.functions";
 
@@ -85,7 +86,7 @@ export function SiteLayout({ chrome, transparentTop = false, children }: { chrom
       <div className="fl-site" ref={root}>
         <header className={`${solid ? "solid" : ""} ${mob ? "mobopen" : ""}`}>
           <div className="wrap nav">
-            <a href="/" className="brand"><span className="logo-chip"><img src={logoCor.url} alt="Fluair" /></span></a>
+            <a href="/" className="brand"><span className="logo-chip"><img className="lg-branco" src={logoBranco.url} alt="Fluair" /><img className="lg-cor" src={logoCor.url} alt="" aria-hidden="true" /></span></a>
             <nav className="menu">
               {header.map((m) => <a key={m.id} href={m.url} onClick={() => setMob(false)}>{pick(m, "label", lang)}</a>)}
             </nav>
@@ -110,7 +111,7 @@ export function SiteLayout({ chrome, transparentTop = false, children }: { chrom
           <div className="wrap">
             <div className="fgrid">
               <div>
-                <div className="fchip"><img src={logoCor.url} alt="Fluair" /></div>
+                <div className="fchip"><img src={logoBranco.url} alt="Fluair" /></div>
                 <p style={{ maxWidth: "34ch", fontSize: 14 }}>{t.foot_tag} {cfg("tagline")}</p>
                 <div className="social">
                   {insta && <a href={`https://instagram.com/${insta}`} target="_blank" rel="noreferrer" aria-label="Instagram"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8"><rect x="3" y="3" width="18" height="18" rx="5" /><circle cx="12" cy="12" r="4" /><circle cx="17.5" cy="6.5" r="1" fill="currentColor" /></svg></a>}
