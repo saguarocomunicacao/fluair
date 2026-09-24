@@ -1,6 +1,6 @@
 import { createFileRoute, Link, Outlet, useLocation, useNavigate } from "@tanstack/react-router";
-import { useQueryClient } from "@tanstack/react-query";
-import { useEffect, useMemo, useState, type ComponentType } from "react";
+import { useIsFetching, useQueryClient } from "@tanstack/react-query";
+import { useEffect, useMemo, useRef, useState, type ComponentType } from "react";
 import {
   BookOpen, ChevronsUpDown, Download, FileSpreadsheet, FileText, FolderTree, HelpCircle, Home, Image, LayoutDashboard,
   LogOut, MapPin, Menu, MessageSquareQuote, Newspaper, Package, PanelLeftClose, PanelLeftOpen, Search, Settings, Users, UserSquare2, X,
@@ -9,6 +9,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { TABLES, canContent, canSales } from "@/lib/admin-config";
 import { Logo } from "@/components/admin/kit";
+import { NavigationLoader } from "@/components/admin/NavigationLoader";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { Input } from "@/components/ui/input";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
@@ -39,6 +40,26 @@ function AdminLayout() {
   const [mobileOpen, setMobileOpen] = useState(false);
   const [collapsed, setCollapsed] = useState(false);
   const [q, setQ] = useState("");
+  const [transitioning, setTransitioning] = useState(false);
+  const transitionTarget = useRef<string | null>(null);
+  const isFetching = useIsFetching();
+
+  useEffect(() => {
+    if (!transitioning || !transitionTarget.current) return;
+    const arrived = location.pathname === transitionTarget.current;
+    if (!arrived || isFetching > 0) return;
+    const timer = window.setTimeout(() => {
+      setTransitioning(false);
+      transitionTarget.current = null;
+    }, 350);
+    return () => window.clearTimeout(timer);
+  }, [isFetching, location.pathname, transitioning]);
+
+  const beginTransition = (href: string) => {
+    if (href === location.pathname) return;
+    transitionTarget.current = href;
+    setTransitioning(true);
+  };
 
   useEffect(() => {
     try {
@@ -86,7 +107,7 @@ function AdminLayout() {
     const link = (
       <Link to={i.href} activeOptions={{ exact: !!i.exact }}
         className={cn(linkCls, mini && "justify-center px-0")}
-        activeProps={activeCls} onClick={() => setMobileOpen(false)}>
+        activeProps={activeCls} onClick={() => { beginTransition(i.href); setMobileOpen(false); }}>
         <i.icon className="h-4 w-4 shrink-0" />
         {!mini && <span className="truncate">{i.label}</span>}
       </Link>
@@ -148,6 +169,7 @@ function AdminLayout() {
 
   return (
     <div className="min-h-screen bg-background">
+      {transitioning && <NavigationLoader />}
       <div className="fixed inset-y-0 left-0 z-30 hidden lg:block">{sidebar(collapsed)}</div>
       {mobileOpen && (
         <div className="fixed inset-0 z-40 lg:hidden">
@@ -179,7 +201,7 @@ function AdminLayout() {
             {results.length > 0 && (
               <div className="absolute right-0 top-11 w-full overflow-hidden rounded-lg border border-border bg-popover p-1 shadow-lift">
                 {results.map((r) => (
-                  <button key={r.href} onClick={() => { navigate({ to: r.href }); setQ(""); }} className="flex w-full items-center gap-2 rounded-md px-2 py-2 text-left text-sm hover:bg-muted">
+                    <button key={r.href} onClick={() => { beginTransition(r.href); navigate({ to: r.href }); setQ(""); }} className="flex w-full items-center gap-2 rounded-md px-2 py-2 text-left text-sm hover:bg-muted">
                     <r.icon className="h-4 w-4 text-muted-foreground" />{r.label}<span className="ml-auto text-xs text-muted-foreground">{r.section}</span>
                   </button>
                 ))}
