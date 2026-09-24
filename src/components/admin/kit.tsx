@@ -3,20 +3,13 @@ import { Link } from "@tanstack/react-router";
 import { ChevronRight, Inbox, Plus } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
+import logoCor from "@/assets/fluair-logo-cor.png.asset.json";
+import logoBranco from "@/assets/fluair-logo-branco.png.asset.json";
+import simbolo from "@/assets/fluair-simbolo.png.asset.json";
 
-export function Logo({ invert, className }: { invert?: boolean; className?: string }) {
-  return (
-    <div className={cn("flex items-center gap-2.5", className)}>
-      <div className={cn("grid h-9 w-9 place-items-center rounded-xl", invert ? "bg-primary-foreground/10 ring-1 ring-primary-foreground/20" : "bg-primary")}>
-        <svg viewBox="0 0 24 24" className="h-5 w-5 text-primary-foreground" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round">
-          <path d="M4 8h11a3 3 0 1 0-3-3" />
-          <path d="M4 12h15a3 3 0 1 1-3 3" />
-          <path d="M4 16h7" />
-        </svg>
-      </div>
-      <span className={cn("text-lg font-bold tracking-tight", invert ? "text-primary-foreground" : "text-primary")}>fluair</span>
-    </div>
-  );
+export function Logo({ invert, symbol, className }: { invert?: boolean; symbol?: boolean; className?: string }) {
+  if (symbol) return <img src={simbolo.url} alt="Fluair" className={cn("h-8 w-auto self-start object-contain", className)} />;
+  return <img src={invert ? logoBranco.url : logoCor.url} alt="Fluair" className={cn("h-8 w-auto self-start object-contain", className)} />;
 }
 
 type Tone = "success" | "neutral" | "info" | "warning";

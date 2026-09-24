@@ -42,7 +42,7 @@ function AuthPage() {
   return (
     <div className="grid min-h-screen bg-background lg:grid-cols-[1.05fr_1fr]">
       <aside className="brand-pattern relative hidden flex-col justify-between overflow-hidden bg-primary p-12 text-primary-foreground lg:flex">
-        <Logo invert />
+        <Logo invert className="h-10" />
         <div className="max-w-md">
           <h2 className="text-4xl font-semibold leading-tight tracking-tight">Painel de conteúdo Fluair</h2>
           <p className="mt-4 text-base text-primary-foreground/70">Produtos, catálogo, notícias e cotações em um só lugar.</p>
@@ -52,7 +52,7 @@ function AuthPage() {
 
       <main className="flex items-center justify-center px-4 py-12">
         <form onSubmit={submit} className="w-full max-w-[400px] rounded-xl border border-border bg-card p-8 shadow-lift sm:p-10">
-          <Logo className="mb-8" />
+          <Logo className="mb-8 h-12" />
           <h1 className="text-2xl font-semibold tracking-tight">Entrar</h1>
           <p className="mt-1 text-sm text-muted-foreground">Acesse com seu e-mail corporativo.</p>
 
