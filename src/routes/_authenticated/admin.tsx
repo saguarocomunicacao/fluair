@@ -81,19 +81,19 @@ function AdminLayout() {
   const name = email.split("@")[0]?.replace(/[._-]/g, " ") ?? "";
   const initials = name.split(" ").filter(Boolean).slice(0, 2).map((w) => w[0]?.toUpperCase()).join("") || "?";
 
-  const renderLink = (i: NavItem) => (
+  const renderLink = (mini: boolean) => (i: NavItem) => (
     <Link key={i.href} to={i.href} activeOptions={{ exact: !!i.exact }} title={i.label}
-      className={cn(linkCls, collapsed && "justify-center px-0")}
+      className={cn(linkCls, mini && "justify-center px-0")}
       activeProps={activeCls} onClick={() => setMobileOpen(false)}>
       <i.icon className="h-4 w-4 shrink-0" />
-      {!collapsed && <span className="truncate">{i.label}</span>}
+      {!mini && <span className="truncate">{i.label}</span>}
     </Link>
   );
 
-  const sidebar = (
-    <aside className={cn("flex h-full flex-col border-r border-sidebar-border bg-sidebar transition-[width] duration-200", collapsed ? "w-16" : "w-64")}>
-      <div className={cn("flex h-16 items-center", collapsed ? "justify-center px-2" : "justify-between px-5")}>
-        {collapsed ? <Logo symbol className="h-8" /> : <Logo className="h-7" />}
+  const sidebar = (mini: boolean) => (
+    <aside className={cn("flex h-full flex-col border-r border-sidebar-border bg-sidebar transition-[width] duration-200", mini ? "w-16" : "w-64")}>
+      <div className={cn("flex h-16 items-center", mini ? "justify-center px-2" : "justify-between px-5")}>
+        {mini ? <Logo symbol className="h-8" /> : <Logo className="h-7" />}
         <button className="lg:hidden" onClick={() => setMobileOpen(false)} aria-label="Fechar menu"><X className="h-5 w-5" /></button>
       </div>
       <nav className="flex-1 space-y-6 overflow-y-auto px-2 py-4">
