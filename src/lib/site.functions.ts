@@ -159,3 +159,18 @@ export const enviarCotacao = createServerFn({ method: "POST" })
     if (b.error) { console.error("itens", b.error); throw new Error("save"); }
     return { protocolo: id.slice(0, 8).toUpperCase() };
   });
+
+export const enviarContato = createServerFn({ method: "POST" })
+  .inputValidator((d: { nome: string; email: string; telefone: string; empresa: string; assunto: string; mensagem: string; lgpd: boolean }) => {
+    const r = { nome: s(d.nome, 120), email: s(d.email, 160).toLowerCase(), telefone: s(d.telefone, 30), empresa: s(d.empresa, 160), assunto: s(d.assunto, 160), mensagem: s(d.mensagem, 3000) };
+    if (!d.lgpd || r.nome.length < 2 || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(r.email) || r.telefone.replace(/\D/g, "").length < 10 || r.assunto.length < 2 || r.mensagem.length < 5) throw new Error("invalid");
+    return r;
+  })
+  .handler(async ({ data }) => {
+    const { error } = await publicClient().from("cotacoes").insert({
+      nome: data.nome, email: data.email, telefone: data.telefone, empresa: data.empresa || null, status: "novo",
+      mensagem: `[CONTATO] Assunto: ${data.assunto}\n\n${data.mensagem}`,
+    });
+    if (error) { console.error("contato", error); throw new Error("save"); }
+    return { ok: true };
+  });
