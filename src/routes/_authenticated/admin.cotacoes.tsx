@@ -5,6 +5,9 @@ import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Mail, MessageCircle } from "lucide-react";
+import { useAuth } from "@/hooks/useAuth";
+import { canSales } from "@/lib/admin-config";
 import { COTACAO_STATUS, EmptyState, PageHeader, Panel, StatusBadge } from "@/components/admin/kit";
 
 export const Route = createFileRoute("/_authenticated/admin/cotacoes")({
@@ -17,6 +20,7 @@ const LABEL: Record<Status, string> = { novo: "Novo", em_atendimento: "Em atendi
 
 function Cotacoes() {
   const qc = useQueryClient();
+  const { roles } = useAuth();
   const [filtro, setFiltro] = useState<Status | "todos">("todos");
   const [busca, setBusca] = useState("");
   const [sel, setSel] = useState<string | null>(null);
@@ -32,6 +36,8 @@ function Cotacoes() {
   const list = data.filter((c) => (filtro === "todos" || c.status === filtro) && [c.nome, c.email, c.empresa, c.cnpj].join(" ").toLowerCase().includes(busca.toLowerCase()));
   const atual = data.find((c) => c.id === sel);
 
+  const wa = (t: string | null) => { const d = (t ?? "").replace(/\D/g, ""); return d ? `https://wa.me/${d.startsWith("55") ? d : "55" + d}` : null; };
+  if (!canSales(roles)) return <p className="text-muted-foreground">Você não tem acesso a esta área.</p>;
   const mudar = async (id: string, status: Status) => {
     const { error } = await supabase.from("cotacoes").update({ status }).eq("id", id);
     if (error) { toast.error(error.message); return; }
@@ -80,6 +86,11 @@ function Cotacoes() {
               <tbody>{atual.cotacao_itens.map((i) => <tr key={i.id} className="border-t border-border"><td className="py-1">{i.codigo}</td><td>{i.nome}</td><td className="text-right">{i.quantidade}</td></tr>)}</tbody>
             </table>
             <div className="flex flex-wrap gap-2">
+              <Button asChild size="sm"><a href={`mailto:${atual.email}?subject=${encodeURIComponent("Cotação Fluair")}`}><Mail className="h-4 w-4" />Responder por e-mail</a></Button>
+              {wa(atual.telefone) && <Button asChild size="sm" variant="outline"><a href={wa(atual.telefone)!} target="_blank" rel="noreferrer"><MessageCircle className="h-4 w-4" />WhatsApp</a></Button>}
+            </div>
+            <div className="flex flex-wrap items-center gap-2 border-t border-border pt-4">
+              <span className="text-xs font-medium text-muted-foreground">Mudar status:</span>
               {STATUS.map((s) => (
                 <Button key={s} size="sm" variant={atual.status === s ? "default" : "outline"} onClick={() => mudar(atual.id, s)}>{LABEL[s]}</Button>
               ))}
