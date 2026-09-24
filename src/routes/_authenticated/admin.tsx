@@ -85,6 +85,7 @@ function AdminLayout() {
     if (canContent(roles)) s.push({
       title: "Conteúdo",
       items: [
+        { label: "Home (seções)", icon: Home, to: "/admin/home-secoes", href: "/admin/home-secoes" },
         ...TABLES.map((t) => ({ label: t.label, icon: TABLE_ICONS[t.table] ?? BookOpen, to: "/admin/conteudo/$tabela", params: { tabela: t.table }, href: `/admin/conteudo/${t.table}` })),
         { label: "Importar produtos", icon: FileSpreadsheet, to: "/admin/importar", href: "/admin/importar" },
       ],
