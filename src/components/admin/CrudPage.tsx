@@ -101,6 +101,19 @@ export function CrudPage({ config }: { config: TableConfig }) {
   });
   const fkName = (id: unknown) => { const r = fkRows.find((x) => x["id"] === id); return r ? String(r[fkCol!.fk!.label]) : "—"; };
 
+  // Miniaturas da galeria (ex.: produtos): primeira imagem de cada registro
+  const { data: thumbs = {} } = useQuery({
+    queryKey: ["crud-thumbs", config.table],
+    enabled: !!config.gallery,
+    queryFn: async () => {
+      const { data } = await db.from("produto_imagens").select("produto_id, url").order("ordem", { ascending: true, nullsFirst: false });
+      const m: Record<string, string> = {};
+      for (const r of (data ?? []) as Row[]) { const k = String(r["produto_id"]); if (!m[k]) m[k] = String(r["url"]); }
+      return m;
+    },
+  });
+  const [lightbox, setLightbox] = useState<string | null>(null);
+
   const filtered = useMemo(() => {
     const s = q.trim().toLowerCase();
     let out = rows.filter((r) => Object.entries(flt).every(([c, v]) => !v || (v === "true" ? r[c] === true : v === "false" ? r[c] === false : String(r[c] ?? "") === v)));
