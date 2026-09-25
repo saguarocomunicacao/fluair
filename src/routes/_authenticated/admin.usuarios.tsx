@@ -28,7 +28,7 @@ function Usuarios() {
     const { data = [], isLoading } = useQuery({ queryKey: ["usuarios"], queryFn: () => list(), enabled: isAdmin });
   const { data: grupos = [] } = useQuery({ queryKey: ["grupos"], enabled: isAdmin, queryFn: async () => (await supabase.from("grupos").select("id, nome").order("nome")).data ?? [] });
   const [f, setF] = useState({ nome: "", email: "", password: "", grupoId: "" });
-  const [modo, setModo] = useState<"convite" | "senha">("convite");
+  const [showPwd, setShowPwd] = useState(false);
   const [busy, setBusy] = useState(false);
   const [q, setQ] = useState("");
   const refresh = () => qc.invalidateQueries({ queryKey: ["usuarios"] });
