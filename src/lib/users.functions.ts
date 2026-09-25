@@ -2,24 +2,22 @@ import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 
-const roleEnum = z.enum(["admin", "editor_conteudo", "comercial"]);
-
 async function assertAdmin(supabase: any, userId: string) {
-  const { data, error } = await supabase
-    .from("user_roles")
-    .select("role")
-    .eq("user_id", userId)
-    .eq("role", "admin")
-    .maybeSingle();
-  if (error || !data) throw new Error("Acesso negado");
+  const { data, error } = await supabase.from("profiles").select("grupos(is_admin)").eq("id", userId).maybeSingle();
+  if (error || !data?.grupos?.is_admin) throw new Error("Acesso negado");
+}
+
+async function setGrupo(userId: string, grupoId: string) {
+  const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+  const { error } = await supabaseAdmin.from("profiles").update({ grupo_id: grupoId }).eq("id", userId);
+  if (error) throw new Error(error.message);
 }
 
 export const listUsers = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
   .handler(async ({ context }) => {
     await assertAdmin(context.supabase, context.userId);
-    const { data: profiles } = await context.supabase.from("profiles").select("id, nome, email").order("criado_em");
-    const { data: roles } = await context.supabase.from("user_roles").select("user_id, role");
+    const { data: profiles } = await context.supabase.from("profiles").select("id, nome, email, grupo_id").order("criado_em");
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     const { data: au } = await supabaseAdmin.auth.admin.listUsers({ perPage: 1000 });
     const info = new Map((au?.users ?? []).map((u) => [u.id, u]));
@@ -27,7 +25,6 @@ export const listUsers = createServerFn({ method: "GET" })
       const u = info.get(p.id) as { banned_until?: string | null; last_sign_in_at?: string | null; email_confirmed_at?: string | null } | undefined;
       return {
         ...p,
-        roles: (roles ?? []).filter((r) => r.user_id === p.id).map((r) => r.role),
         ativo: !u?.banned_until || new Date(u.banned_until) < new Date(),
         ultimoAcesso: u?.last_sign_in_at ?? null,
         pendente: !u?.last_sign_in_at,
@@ -37,7 +34,7 @@ export const listUsers = createServerFn({ method: "GET" })
 
 export const createUser = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((d) => z.object({ email: z.string().email(), password: z.string().min(8), nome: z.string().min(1), role: roleEnum }).parse(d))
+  .inputValidator((d) => z.object({ email: z.string().email(), password: z.string().min(8), nome: z.string().min(1), grupoId: z.string().uuid() }).parse(d))
   .handler(async ({ data, context }) => {
     await assertAdmin(context.supabase, context.userId);
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
@@ -45,30 +42,28 @@ export const createUser = createServerFn({ method: "POST" })
       email: data.email, password: data.password, email_confirm: true, user_metadata: { nome: data.nome },
     });
     if (error) throw new Error(error.message);
-    await supabaseAdmin.from("user_roles").insert({ user_id: created.user.id, role: data.role });
+    await setGrupo(created.user.id, data.grupoId);
     return { ok: true };
   });
 
-export const setUserRole = createServerFn({ method: "POST" })
+export const setUserGroup = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((d) => z.object({ userId: z.string().uuid(), role: roleEnum, enabled: z.boolean() }).parse(d))
+  .inputValidator((d) => z.object({ userId: z.string().uuid(), grupoId: z.string().uuid() }).parse(d))
   .handler(async ({ data, context }) => {
     await assertAdmin(context.supabase, context.userId);
-    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
-    if (data.enabled) await supabaseAdmin.from("user_roles").upsert({ user_id: data.userId, role: data.role }, { onConflict: "user_id,role" });
-    else await supabaseAdmin.from("user_roles").delete().eq("user_id", data.userId).eq("role", data.role);
+    await setGrupo(data.userId, data.grupoId);
     return { ok: true };
   });
 
 export const inviteUser = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((d) => z.object({ email: z.string().email(), nome: z.string().min(1), role: roleEnum, redirectTo: z.string().url() }).parse(d))
+  .inputValidator((d) => z.object({ email: z.string().email(), nome: z.string().min(1), grupoId: z.string().uuid(), redirectTo: z.string().url() }).parse(d))
   .handler(async ({ data, context }) => {
     await assertAdmin(context.supabase, context.userId);
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     const { data: inv, error } = await supabaseAdmin.auth.admin.inviteUserByEmail(data.email, { data: { nome: data.nome }, redirectTo: data.redirectTo });
     if (error) throw new Error(error.message);
-    await supabaseAdmin.from("user_roles").insert({ user_id: inv.user.id, role: data.role });
+    await setGrupo(inv.user.id, data.grupoId);
     return { ok: true };
   });
 

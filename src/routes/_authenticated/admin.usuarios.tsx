@@ -4,8 +4,9 @@ import { useServerFn } from "@tanstack/react-start";
 import { useMemo, useState } from "react";
 import { toast } from "sonner";
 import { Loader2, Mail, Search, UserPlus } from "lucide-react";
-import { listUsers, createUser, inviteUser, setUserRole, setUserActive } from "@/lib/users.functions";
+import { listUsers, createUser, inviteUser, setUserGroup, setUserActive } from "@/lib/users.functions";
 import { useAuth } from "@/hooks/useAuth";
+import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -17,21 +18,18 @@ export const Route = createFileRoute("/_authenticated/admin/usuarios")({
   component: Usuarios,
 });
 
-const ROLES = ["admin", "editor_conteudo", "comercial"] as const;
-type R = (typeof ROLES)[number];
-const ROLE_LABEL: Record<R, string> = { admin: "Administrador", editor_conteudo: "Editor de conteúdo", comercial: "Comercial" };
 
 function Usuarios() {
-  const { roles, user } = useAuth();
+  const { isAdmin, user } = useAuth();
   const qc = useQueryClient();
   const list = useServerFn(listUsers);
   const create = useServerFn(createUser);
   const invite = useServerFn(inviteUser);
-  const setRole = useServerFn(setUserRole);
+  const setGroup = useServerFn(setUserGroup);
   const setActive = useServerFn(setUserActive);
-  const isAdmin = roles.includes("admin");
-  const { data = [], isLoading } = useQuery({ queryKey: ["usuarios"], queryFn: () => list(), enabled: isAdmin });
-  const [f, setF] = useState({ nome: "", email: "", password: "", role: "editor_conteudo" as R });
+    const { data = [], isLoading } = useQuery({ queryKey: ["usuarios"], queryFn: () => list(), enabled: isAdmin });
+  const { data: grupos = [] } = useQuery({ queryKey: ["grupos"], enabled: isAdmin, queryFn: async () => (await supabase.from("grupos").select("id, nome").order("nome")).data ?? [] });
+  const [f, setF] = useState({ nome: "", email: "", password: "", grupoId: "" });
   const [modo, setModo] = useState<"convite" | "senha">("convite");
   const [busy, setBusy] = useState(false);
   const [q, setQ] = useState("");
@@ -42,10 +40,11 @@ function Usuarios() {
 
   const add = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (!f.grupoId) { toast.error("Escolha um grupo"); return; }
     setBusy(true);
     try {
       if (modo === "convite") {
-        await invite({ data: { nome: f.nome, email: f.email, role: f.role, redirectTo: `${window.location.origin}/definir-senha` } });
+        await invite({ data: { nome: f.nome, email: f.email, grupoId: f.grupoId, redirectTo: `${window.location.origin}/definir-senha` } });
         toast.success("Convite enviado por e-mail");
       } else {
         await create({ data: f });
@@ -70,13 +69,14 @@ function Usuarios() {
               <div className="space-y-2"><Label>E-mail</Label><Input type="email" required value={f.email} onChange={(e) => setF({ ...f, email: e.target.value })} /></div>
               <TabsContent value="senha" className="mt-0 space-y-2"><Label>Senha (mín. 8)</Label><Input type="password" required={modo === "senha"} minLength={8} value={f.password} onChange={(e) => setF({ ...f, password: e.target.value })} /></TabsContent>
               <div className="space-y-2">
-                <Label>Papel</Label>
-                <select className="h-9 w-full rounded-md border border-input bg-background px-2 text-sm" value={f.role} onChange={(e) => setF({ ...f, role: e.target.value as R })}>
-                  {ROLES.map((r) => <option key={r} value={r}>{ROLE_LABEL[r]}</option>)}
+                <Label>Grupo</Label>
+                <select required className="h-9 w-full rounded-md border border-input bg-background px-2 text-sm" value={f.grupoId} onChange={(e) => setF({ ...f, grupoId: e.target.value })}>
+                  <option value="">Selecione…</option>
+                  {grupos.map((g) => <option key={g.id} value={g.id}>{g.nome}</option>)}
                 </select>
               </div>
               <Button type="submit" className="w-full" disabled={busy}>{busy ? <Loader2 className="h-4 w-4 animate-spin" /> : modo === "convite" ? <Mail className="h-4 w-4" /> : <UserPlus className="h-4 w-4" />}{modo === "convite" ? "Enviar convite" : "Criar usuário"}</Button>
-              <p className="text-xs text-muted-foreground">Editor de conteúdo não vê Cotações nem Usuários. Comercial vê só Cotações.</p>
+              <p className="text-xs text-muted-foreground">O que cada grupo pode fazer é definido em Sistema → Grupos.</p>
             </form>
           </Tabs>
         </Panel>
@@ -96,18 +96,12 @@ function Usuarios() {
                     </div>
                     <div className="text-xs text-muted-foreground">{u.email} · último acesso: {u.ultimoAcesso ? new Date(u.ultimoAcesso).toLocaleString("pt-BR") : "nunca"}</div>
                   </div>
-                  <div className="flex flex-wrap gap-2">
-                    {ROLES.map((r) => {
-                      const on = u.roles.includes(r);
-                      return (
-                        <button key={r} type="button" onClick={async () => {
-                          try { await setRole({ data: { userId: u.id, role: r, enabled: !on } }); toast.success("Papel atualizado"); refresh(); } catch (err) { toast.error((err as Error).message); }
-                        }} className={`rounded-full border px-3 py-1 text-xs font-medium transition-colors ${on ? "border-primary bg-primary text-primary-foreground" : "border-border text-muted-foreground hover:bg-muted"}`}>
-                          {ROLE_LABEL[r]}
-                        </button>
-                      );
-                    })}
-                  </div>
+                  <select aria-label="Grupo" className="h-9 rounded-md border border-input bg-background px-2 text-sm" value={u.grupo_id ?? ""} onChange={async (e) => {
+                    try { await setGroup({ data: { userId: u.id, grupoId: e.target.value } }); toast.success("Grupo atualizado"); refresh(); } catch (err) { toast.error((err as Error).message); }
+                  }}>
+                    {!u.grupo_id && <option value="">Sem grupo</option>}
+                    {grupos.map((g) => <option key={g.id} value={g.id}>{g.nome}</option>)}
+                  </select>
                   <label className="flex items-center gap-2 text-xs text-muted-foreground">
                     Ativo
                     <Switch checked={u.ativo} disabled={u.id === user?.id} onCheckedChange={async (c) => {
