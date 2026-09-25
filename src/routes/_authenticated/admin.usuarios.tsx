@@ -41,17 +41,33 @@ function Usuarios() {
     if (!f.grupoId) { toast.error("Escolha um grupo"); return; }
     setBusy(true);
     try {
-      if (modo === "convite") {
-        await invite({ data: { nome: f.nome, email: f.email, grupoId: f.grupoId, redirectTo: `${window.location.origin}/definir-senha` } });
-        toast.success("Convite enviado por e-mail");
-      } else {
-        await create({ data: f });
-        toast.success("Usuário criado");
-      }
+      await create({ data: f });
+      toast.success("Usuário criado");
       setF({ ...f, nome: "", email: "", password: "" });
+      setShowPwd(false);
       refresh();
     } catch (err) { toast.error((err as Error).message); }
     setBusy(false);
+  };
+
+  const gerarSenha = () => {
+    const lower = "abcdefghjkmnpqrstuvwxyz", upper = "ABCDEFGHJKMNPQRSTUVWXYZ", digits = "23456789", symbols = "!@#$%&*?";
+    const all = lower + upper + digits + symbols;
+    const pick = (s: string) => s[crypto.getRandomValues(new Uint32Array(1))[0] % s.length];
+    const chars = [pick(lower), pick(upper), pick(digits), pick(symbols)];
+    while (chars.length < 14) chars.push(pick(all));
+    for (let i = chars.length - 1; i > 0; i--) {
+      const j = crypto.getRandomValues(new Uint32Array(1))[0] % (i + 1);
+      [chars[i], chars[j]] = [chars[j], chars[i]];
+    }
+    setF({ ...f, password: chars.join("") });
+    setShowPwd(true);
+  };
+
+  const copiarSenha = async () => {
+    if (!f.password) return;
+    try { await navigator.clipboard.writeText(f.password); toast.success("Senha copiada"); }
+    catch { toast.error("Não foi possível copiar"); }
   };
 
   return (
