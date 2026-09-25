@@ -266,6 +266,68 @@ export type Database = {
         }
         Relationships: []
       }
+      grupo_permissoes: {
+        Row: {
+          grupo_id: string
+          modulo: string
+          pode_criar: boolean
+          pode_editar: boolean
+          pode_excluir: boolean
+          pode_ver: boolean
+        }
+        Insert: {
+          grupo_id: string
+          modulo: string
+          pode_criar?: boolean
+          pode_editar?: boolean
+          pode_excluir?: boolean
+          pode_ver?: boolean
+        }
+        Update: {
+          grupo_id?: string
+          modulo?: string
+          pode_criar?: boolean
+          pode_editar?: boolean
+          pode_excluir?: boolean
+          pode_ver?: boolean
+        }
+        Relationships: [
+          {
+            foreignKeyName: "grupo_permissoes_grupo_id_fkey"
+            columns: ["grupo_id"]
+            isOneToOne: false
+            referencedRelation: "grupos"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      grupos: {
+        Row: {
+          criado_em: string
+          descricao: string | null
+          id: string
+          is_admin: boolean
+          nome: string
+          protegido: boolean
+        }
+        Insert: {
+          criado_em?: string
+          descricao?: string | null
+          id?: string
+          is_admin?: boolean
+          nome: string
+          protegido?: boolean
+        }
+        Update: {
+          criado_em?: string
+          descricao?: string | null
+          id?: string
+          is_admin?: boolean
+          nome?: string
+          protegido?: boolean
+        }
+        Relationships: []
+      }
       menus: {
         Row: {
           ativo: boolean
@@ -507,22 +569,33 @@ export type Database = {
         Row: {
           criado_em: string
           email: string | null
+          grupo_id: string | null
           id: string
           nome: string | null
         }
         Insert: {
           criado_em?: string
           email?: string | null
+          grupo_id?: string | null
           id: string
           nome?: string | null
         }
         Update: {
           criado_em?: string
           email?: string | null
+          grupo_id?: string | null
           id?: string
           nome?: string | null
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "profiles_grupo_id_fkey"
+            columns: ["grupo_id"]
+            isOneToOne: false
+            referencedRelation: "grupos"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       rede_autorizada: {
         Row: {
