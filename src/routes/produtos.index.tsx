@@ -1,4 +1,5 @@
-import { BusyButton, sitePending } from "@/components/site/SitePending";
+import { sitePending } from "@/components/site/SitePending";
+import { OrcStep } from "@/components/site/OrcStep";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { queryOptions, useSuspenseQuery } from "@tanstack/react-query";
 import { zodValidator, fallback } from "@tanstack/zod-adapter";
@@ -136,7 +137,7 @@ function Catalogo() {
 }
 
 function Card({ p, cat }: { p: ProdutoCard; cat: string }) {
-  const { lang, t, addOrc } = useSite();
+  const { lang, t } = useSite();
   const [broken, setBroken] = useState(false);
   const name = pick(p, "nome", lang);
   const ref = p.referencia || p.codigo;
@@ -153,7 +154,7 @@ function Card({ p, cat }: { p: ProdutoCard; cat: string }) {
         <a className="stretch" href={`/produtos/${encodeURIComponent(ref)}`}><h3>{name}</h3></a>
         <span className="spec">Cód. {p.codigo}</span>
         <div className="foot">
-          <BusyButton className="btn btn-navy btn-sm" onClick={() => addOrc({ id: p.id, codigo: p.codigo, referencia: p.referencia, nome: name, quantidade: 1 })}>{t.add_orc_long}</BusyButton>
+          <OrcStep variant="sm" grow label={t.add_orc_long} item={{ id: p.id, codigo: p.codigo, referencia: p.referencia, nome: name }} />
         </div>
       </div>
     </div>
