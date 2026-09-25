@@ -76,23 +76,38 @@ function Usuarios() {
       <div className="grid gap-5 xl:grid-cols-[380px_1fr]">
         <Panel className="self-start p-5">
           <h3 className="mb-4 flex items-center gap-2 text-sm font-semibold"><UserPlus className="h-4 w-4" />Adicionar usuário</h3>
-          <Tabs value={modo} onValueChange={(v) => setModo(v as typeof modo)}>
-            <TabsList className="mb-4 w-full"><TabsTrigger value="convite" className="flex-1">Convidar por e-mail</TabsTrigger><TabsTrigger value="senha" className="flex-1">Criar com senha</TabsTrigger></TabsList>
-            <form onSubmit={add} className="space-y-4">
-              <div className="space-y-2"><Label>Nome</Label><Input required value={f.nome} onChange={(e) => setF({ ...f, nome: e.target.value })} /></div>
-              <div className="space-y-2"><Label>E-mail</Label><Input type="email" required value={f.email} onChange={(e) => setF({ ...f, email: e.target.value })} /></div>
-              <TabsContent value="senha" className="mt-0 space-y-2"><Label>Senha (mín. 8)</Label><Input type="password" required={modo === "senha"} minLength={8} value={f.password} onChange={(e) => setF({ ...f, password: e.target.value })} /></TabsContent>
-              <div className="space-y-2">
-                <Label>Grupo</Label>
-                <select required className="h-9 w-full rounded-md border border-input bg-background px-2 text-sm" value={f.grupoId} onChange={(e) => setF({ ...f, grupoId: e.target.value })}>
-                  <option value="">Selecione…</option>
-                  {grupos.map((g) => <option key={g.id} value={g.id}>{g.nome}</option>)}
-                </select>
+          <form onSubmit={add} className="space-y-4">
+            <div className="space-y-2"><Label>Nome</Label><Input required value={f.nome} onChange={(e) => setF({ ...f, nome: e.target.value })} /></div>
+            <div className="space-y-2"><Label>E-mail</Label><Input type="email" required value={f.email} onChange={(e) => setF({ ...f, email: e.target.value })} /></div>
+            <div className="space-y-2">
+              <div className="flex items-center justify-between">
+                <Label>Senha (mín. 8)</Label>
+                <Button type="button" variant="outline" size="sm" className="h-7 gap-1.5 text-xs" onClick={gerarSenha}><RefreshCw className="h-3.5 w-3.5" />Gerar senha</Button>
               </div>
-              <Button type="submit" className="w-full" disabled={busy}>{busy ? <Loader2 className="h-4 w-4 animate-spin" /> : modo === "convite" ? <Mail className="h-4 w-4" /> : <UserPlus className="h-4 w-4" />}{modo === "convite" ? "Enviar convite" : "Criar usuário"}</Button>
-              <p className="text-xs text-muted-foreground">O que cada grupo pode fazer é definido em Sistema → Grupos.</p>
-            </form>
-          </Tabs>
+              <div className="relative">
+                <Input type={showPwd ? "text" : "password"} required minLength={8} value={f.password} onChange={(e) => setF({ ...f, password: e.target.value })} className="pr-16" />
+                <div className="absolute inset-y-0 right-1 flex items-center gap-0.5">
+                  {f.password && (
+                    <button type="button" aria-label="Copiar senha" title="Copiar senha" onClick={copiarSenha} className="rounded p-1.5 text-muted-foreground hover:bg-accent hover:text-foreground">
+                      <Copy className="h-4 w-4" />
+                    </button>
+                  )}
+                  <button type="button" aria-label={showPwd ? "Ocultar senha" : "Mostrar senha"} title={showPwd ? "Ocultar senha" : "Mostrar senha"} onClick={() => setShowPwd((v) => !v)} className="rounded p-1.5 text-muted-foreground hover:bg-accent hover:text-foreground">
+                    {showPwd ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                  </button>
+                </div>
+              </div>
+            </div>
+            <div className="space-y-2">
+              <Label>Grupo</Label>
+              <select required className="h-9 w-full rounded-md border border-input bg-background px-2 text-sm" value={f.grupoId} onChange={(e) => setF({ ...f, grupoId: e.target.value })}>
+                <option value="">Selecione…</option>
+                {grupos.map((g) => <option key={g.id} value={g.id}>{g.nome}</option>)}
+              </select>
+            </div>
+            <Button type="submit" className="w-full" disabled={busy}>{busy ? <Loader2 className="h-4 w-4 animate-spin" /> : <UserPlus className="h-4 w-4" />}Criar usuário</Button>
+            <p className="text-xs text-muted-foreground">O que cada grupo pode fazer é definido em Sistema → Grupos.</p>
+          </form>
         </Panel>
         <Panel className="overflow-hidden">
           <div className="flex items-center justify-between border-b border-border px-5 py-3">
