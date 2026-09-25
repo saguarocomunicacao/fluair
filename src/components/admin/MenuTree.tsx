@@ -11,7 +11,8 @@ type Row = Record<string, unknown> & { id: string; parent_id: string | null; loc
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 const db = supabase as any;
 
-export function MenuTree({ rows, onEdit, onDelete, onNew, onChanged }: {
+export function MenuTree({ rows, onEdit, onDelete, onNew, onChanged, perms = { criar: true, editar: true, excluir: true } }: {
+  perms?: { criar: boolean; editar: boolean; excluir: boolean };
   rows: Row[]; onEdit: (r: Row) => void; onDelete: (r: Row) => void; onNew: (init: Record<string, unknown>) => void; onChanged: () => void;
 }) {
   const [local, setLocal] = useState("header");
@@ -68,9 +69,9 @@ export function MenuTree({ rows, onEdit, onDelete, onNew, onChanged }: {
           <span className="truncate text-xs text-muted-foreground">{String(r["url"] ?? "")}</span>
           <span className="ml-auto flex shrink-0 items-center gap-1.5">
             <StatusBadge tone={r["ativo"] ? "success" : "neutral"}>{r["ativo"] ? "Ativo" : "Inativo"}</StatusBadge>
-            <Button size="icon" variant="ghost" className="h-8 w-8" aria-label="Adicionar submenu" title="Adicionar submenu" onClick={() => onNew({ local, parent_id: r.id, ordem: kids.length })}><Plus className="h-4 w-4" /></Button>
-            <Button size="icon" variant="ghost" className="h-8 w-8" aria-label="Editar" title="Editar" onClick={() => onEdit(r)}><Pencil className="h-4 w-4" /></Button>
-            <Button size="icon" variant="ghost" className="h-8 w-8 text-destructive hover:text-destructive" aria-label="Excluir" title="Excluir" onClick={() => onDelete(r)}><Trash2 className="h-4 w-4" /></Button>
+            {perms.criar && <Button size="icon" variant="ghost" className="h-8 w-8" aria-label="Adicionar submenu" title="Adicionar submenu" onClick={() => onNew({ local, parent_id: r.id, ordem: kids.length })}><Plus className="h-4 w-4" /></Button>}
+            {perms.editar && <Button size="icon" variant="ghost" className="h-8 w-8" aria-label="Editar" title="Editar" onClick={() => onEdit(r)}><Pencil className="h-4 w-4" /></Button>}
+            {perms.excluir && <Button size="icon" variant="ghost" className="h-8 w-8 text-destructive hover:text-destructive" aria-label="Excluir" title="Excluir" onClick={() => onDelete(r)}><Trash2 className="h-4 w-4" /></Button>}
           </span>
         </div>
         {kids.length > 0 && <ul className="mt-2 space-y-2">{kids.map((k) => <Node key={k.id} r={k} depth={depth + 1} />)}</ul>}
@@ -88,7 +89,7 @@ export function MenuTree({ rows, onEdit, onDelete, onNew, onChanged }: {
         <p className="text-xs text-muted-foreground">Arraste para a metade de cima de um item para colocar antes; para a metade de baixo para virar submenu.</p>
       </div>
       {roots.length === 0 ? (
-        <EmptyState text="Nenhum item neste menu ainda." onAdd={() => onNew({ local, ordem: 0 })} />
+        <EmptyState text="Nenhum item neste menu ainda." onAdd={perms.criar ? () => onNew({ local, ordem: 0 }) : undefined} />
       ) : (
         <>
           <ul className="space-y-2">{roots.map((r) => <Node key={r.id} r={r} depth={0} />)}</ul>

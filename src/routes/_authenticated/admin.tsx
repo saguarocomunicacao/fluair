@@ -32,7 +32,7 @@ const linkCls = "group relative flex items-center gap-3 rounded-lg px-3 py-2 tex
 const activeCls = { className: "bg-sidebar-accent !text-sidebar-accent-foreground before:absolute before:left-0 before:top-1.5 before:bottom-1.5 before:w-[3px] before:rounded-r-full before:bg-brand-accent" };
 
 function AdminLayout() {
-  const { user, isAdmin, grupo, perms, can, loading } = useAuth();
+  const { user, isAdmin, grupo, can, loading } = useAuth();
   const qc = useQueryClient();
   const navigate = useNavigate();
   const location = useLocation();
@@ -87,14 +87,6 @@ function AdminLayout() {
         ...(can("importar") ? [{ label: "Importar produtos", icon: FileSpreadsheet, to: "/admin/importar", href: "/admin/importar" }] : []),
       ];
     if (content.length) s.push({ title: "Conteúdo", items: content });
-    if (false) s.push({
-      title: "Conteúdo",
-      items: [
-        { label: "Home (seções)", icon: Home, to: "/admin/home-secoes", href: "/admin/home-secoes" },
-        ...TABLES.map((t) => ({ label: t.label, icon: TABLE_ICONS[t.table] ?? BookOpen, to: "/admin/conteudo/$tabela", params: { tabela: t.table }, href: `/admin/conteudo/${t.table}` })),
-        { label: "Importar produtos", icon: FileSpreadsheet, to: "/admin/importar", href: "/admin/importar" },
-      ],
-    });
     const sys: NavItem[] = [];
     if (can("usuarios")) sys.push({ label: "Usuários", icon: Users, to: "/admin/usuarios", href: "/admin/usuarios" });
     if (isAdmin) sys.push({ label: "Grupos", icon: ShieldCheck, to: "/admin/grupos", href: "/admin/grupos" });
