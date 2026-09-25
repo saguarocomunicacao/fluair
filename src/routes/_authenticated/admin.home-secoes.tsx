@@ -41,6 +41,7 @@ function Page() {
 }
 
 function SectionEditor({ def, row }: { def: SectionDef; row: Row | undefined }) {
+  const { can } = useAuth();
   const qc = useQueryClient();
   const init = (lang: "pt" | "es") => {
     const v = (row?.[`conteudo_${lang}`] ?? {}) as SectionData;
