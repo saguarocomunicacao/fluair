@@ -5,6 +5,7 @@ import { useState } from "react";
 import siteCss from "@/components/site/site.css?url";
 import { SiteLayout } from "@/components/site/SiteLayout";
 import { ProductCard } from "@/components/site/ProductCard";
+import { OrcStep } from "@/components/site/OrcStep";
 import { pick, useSite } from "@/components/site/i18n";
 import { getProduto, getSiteChrome } from "@/lib/site.functions";
 
@@ -56,7 +57,7 @@ function Ficha() {
   const { referencia } = Route.useParams();
   const { data: chrome } = useSuspenseQuery(chromeQuery);
   const { data } = useSuspenseQuery(produtoQuery(referencia));
-  const { lang, addOrc, wa } = useSite();
+  const { lang, addOrc, wa, cart } = useSite();
   const l = L[lang];
   const [sel, setSel] = useState(0);
   const [qty, setQty] = useState(1);
@@ -140,12 +141,18 @@ function Ficha() {
 
           <div className="f-sec">
             <div className="buy">
-              <div className="qty" aria-label={l.qty}>
-                <button onClick={() => setQty((q) => Math.max(1, q - 1))} aria-label="-">−</button>
-                <input value={qty} inputMode="numeric" aria-label={l.qty} onChange={(e) => setQty(Math.min(999, Math.max(1, Number(e.target.value.replace(/\D/g, "")) || 1)))} />
-                <button onClick={() => setQty((q) => Math.min(999, q + 1))} aria-label="+">+</button>
-              </div>
-              <BusyButton className="btn btn-navy btn-big" onClick={() => addOrc({ id: p.id, codigo: p.codigo, referencia: p.referencia, nome: name, quantidade: qty })}>{l.add}</BusyButton>
+              {cart.some((c) => c.id === p.id) ? (
+                <OrcStep variant="big" grow label={l.add} item={{ id: p.id, codigo: p.codigo, referencia: p.referencia, nome: name }} />
+              ) : (
+                <>
+                  <div className="qty" aria-label={l.qty}>
+                    <button onClick={() => setQty((q) => Math.max(1, q - 1))} aria-label="-">−</button>
+                    <input value={qty} inputMode="numeric" aria-label={l.qty} onChange={(e) => setQty(Math.min(999, Math.max(1, Number(e.target.value.replace(/\D/g, "")) || 1)))} />
+                    <button onClick={() => setQty((q) => Math.min(999, q + 1))} aria-label="+">+</button>
+                  </div>
+                  <BusyButton className="btn btn-navy btn-big" onClick={() => addOrc({ id: p.id, codigo: p.codigo, referencia: p.referencia, nome: name, quantidade: qty })}>{l.add}</BusyButton>
+                </>
+              )}
             </div>
             <div className="sec-btns">
               <a className="btn btn-ghost btn-sm" href={waHref} target="_blank" rel="noreferrer">{l.wa}</a>

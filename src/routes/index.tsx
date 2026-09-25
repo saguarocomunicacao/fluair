@@ -1,4 +1,5 @@
-import { BusyButton, sitePending } from "@/components/site/SitePending";
+import { sitePending } from "@/components/site/SitePending";
+import { OrcStep } from "@/components/site/OrcStep";
 import { createFileRoute } from "@tanstack/react-router";
 import { queryOptions, useSuspenseQuery } from "@tanstack/react-query";
 import { useEffect, useState } from "react";
@@ -207,7 +208,7 @@ function HomeContent() {
 }
 
 function PCard({ p, cat }: { p: ProdutoCard; cat: string }) {
-  const { lang, t, addOrc } = useSite();
+  const { lang, t } = useSite();
   const [broken, setBroken] = useState(false);
   const name = pick(p, "nome", lang);
   const href = `/produtos/${encodeURIComponent(p.referencia || p.codigo)}`;
@@ -224,7 +225,7 @@ function PCard({ p, cat }: { p: ProdutoCard; cat: string }) {
         <span className="spec">Cód. {p.codigo}</span>
         <div className="foot">
           <a className="btn btn-ghost btn-sm" href={href}>{t.ver_ficha}</a>
-          <BusyButton className="btn btn-navy btn-sm" onClick={() => addOrc({ id: p.id, codigo: p.codigo, referencia: p.referencia, nome: name, quantidade: 1 })}>{t.add_orc}</BusyButton>
+          <OrcStep variant="sm" label={t.add_orc} item={{ id: p.id, codigo: p.codigo, referencia: p.referencia, nome: name }} />
         </div>
       </div>
     </div>

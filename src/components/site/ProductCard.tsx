@@ -1,11 +1,11 @@
-import { BusyButton } from "@/components/site/SitePending";
+import { OrcStep } from "@/components/site/OrcStep";
 import { useState } from "react";
 import { Link } from "@tanstack/react-router";
 import { pick, useSite } from "@/components/site/i18n";
 import type { ProdutoCard as P } from "@/lib/site.functions";
 
 export function ProductCard({ p, cat }: { p: P; cat: string }) {
-  const { lang, t, addOrc } = useSite();
+  const { lang, t } = useSite();
   const [broken, setBroken] = useState(false);
   const name = pick(p, "nome", lang);
   const ref = p.referencia || p.codigo;
@@ -22,7 +22,7 @@ export function ProductCard({ p, cat }: { p: P; cat: string }) {
         <Link className="stretch" to="/produtos/$referencia" params={{ referencia: ref }}><h3>{name}</h3></Link>
         <span className="spec">Cód. {p.codigo}</span>
         <div className="foot">
-          <BusyButton className="btn btn-navy btn-sm" onClick={() => addOrc({ id: p.id, codigo: p.codigo, referencia: p.referencia, nome: name, quantidade: 1 })}>{t.add_orc_long}</BusyButton>
+          <OrcStep variant="sm" grow label={t.add_orc_long} item={{ id: p.id, codigo: p.codigo, referencia: p.referencia, nome: name }} />
         </div>
       </div>
     </div>

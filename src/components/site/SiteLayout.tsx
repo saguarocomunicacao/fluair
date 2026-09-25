@@ -13,6 +13,7 @@ export function SiteLayout({ chrome, transparentTop = false, children }: { chrom
   const [solid, setSolid] = useState(!transparentTop);
   const [mob, setMob] = useState(false);
   const [orc, setOrc] = useState(0);
+  const [cart, setCartState] = useState<CartItem[]>([]);
   const [toast, setToast] = useState<string | null>(null);
   const toastT = useRef<ReturnType<typeof setTimeout>>(undefined);
   const root = useRef<HTMLDivElement>(null);
@@ -20,7 +21,9 @@ export function SiteLayout({ chrome, transparentTop = false, children }: { chrom
   useEffect(() => {
     const l = localStorage.getItem("fluair.lang");
     if (l === "es" || l === "pt") setLangState(l);
-    setOrc(readCart().reduce((a, i) => a + i.quantidade, 0));
+    const c = readCart();
+    setCartState(c);
+    setOrc(c.reduce((a, i) => a + i.quantidade, 0));
   }, []);
   const setLang = (l: Lang) => { setLangState(l); localStorage.setItem("fluair.lang", l); };
   useEffect(() => { document.documentElement.lang = lang === "es" ? "es" : "pt-BR"; }, [lang]);
@@ -63,23 +66,25 @@ export function SiteLayout({ chrome, transparentTop = false, children }: { chrom
     return () => { removeEventListener("scroll", sc); removeEventListener("resize", onScroll); io.disconnect(); cio.disconnect(); timers.forEach(clearInterval); };
   }, [transparentTop]);
 
+  const applyCart = (items: CartItem[]) => {
+    localStorage.setItem("fluair.orc.items", JSON.stringify(items));
+    setCartState(items);
+    setOrc(items.reduce((a, i) => a + i.quantidade, 0));
+  };
+
   const addOrc = (item: CartItem | string) => {
     const it: CartItem = typeof item === "string" ? { id: item, codigo: "", referencia: null, nome: item, quantidade: 1 } : item;
     const cart = readCart();
     const ex = cart.find((c) => c.id === it.id);
     const q = Math.max(1, it.quantidade || 1); if (ex) ex.quantidade += q; else cart.push({ ...it, quantidade: q });
-    localStorage.setItem("fluair.orc.items", JSON.stringify(cart));
-    setOrc(cart.reduce((a, i) => a + i.quantidade, 0));
+    applyCart(cart);
     setToast(`${it.nome}${it.referencia ? " " + it.referencia : ""} — ${dict[lang].added}`);
     clearTimeout(toastT.current);
     toastT.current = setTimeout(() => setToast(null), 2600);
   };
 
-  const setCart = (items: CartItem[]) => {
-    localStorage.setItem("fluair.orc.items", JSON.stringify(items));
-    setOrc(items.reduce((a, i) => a + i.quantidade, 0));
-  };
-  const ctx = useMemo(() => ({ lang, setLang, t: dict[lang], addOrc, setCart, wa }), [lang, wa]); // eslint-disable-line react-hooks/exhaustive-deps
+  const setCart = (items: CartItem[]) => applyCart(items);
+  const ctx = useMemo(() => ({ lang, setLang, t: dict[lang], cart, addOrc, setCart, wa }), [lang, wa, cart]); // eslint-disable-line react-hooks/exhaustive-deps
   const t = dict[lang];
   const header = chrome.menus.filter((m) => m.local === "header" && !m.parent_id);
   const footer = chrome.menus.filter((m) => m.local === "footer" && !m.parent_id);
