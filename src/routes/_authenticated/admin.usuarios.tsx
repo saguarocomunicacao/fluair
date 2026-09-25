@@ -53,11 +53,12 @@ function Usuarios() {
   const gerarSenha = () => {
     const lower = "abcdefghjkmnpqrstuvwxyz", upper = "ABCDEFGHJKMNPQRSTUVWXYZ", digits = "23456789", symbols = "!@#$%&*?";
     const all = lower + upper + digits + symbols;
-    const pick = (s: string) => s[crypto.getRandomValues(new Uint32Array(1))[0] % s.length];
+    const rnd = () => crypto.getRandomValues(new Uint32Array(1))[0]!;
+    const pick = (s: string) => s[rnd() % s.length]!;
     const chars = [pick(lower), pick(upper), pick(digits), pick(symbols)];
     while (chars.length < 14) chars.push(pick(all));
     for (let i = chars.length - 1; i > 0; i--) {
-      const j = crypto.getRandomValues(new Uint32Array(1))[0] % (i + 1);
+      const j = rnd() % (i + 1);
       [chars[i], chars[j]] = [chars[j], chars[i]];
     }
     setF({ ...f, password: chars.join("") });
