@@ -3,7 +3,6 @@ import { useQuery } from "@tanstack/react-query";
 import { ArrowRight, FolderTree, Image, MessageSquareQuote, Newspaper, Package, Plus } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
-import { canContent, canSales } from "@/lib/admin-config";
 import { COTACAO_STATUS, PageHeader, Panel, StatusBadge } from "@/components/admin/kit";
 
 export const Route = createFileRoute("/_authenticated/admin/")({
@@ -11,7 +10,7 @@ export const Route = createFileRoute("/_authenticated/admin/")({
 });
 
 function Dashboard() {
-  const { roles } = useAuth();
+  const { can } = useAuth();
   const { data } = useQuery({
     queryKey: ["dash"],
     queryFn: async () => {
@@ -22,7 +21,7 @@ function Dashboard() {
   });
   const { data: recentes = [] } = useQuery({
     queryKey: ["dash-recentes"],
-    enabled: canSales(roles),
+    enabled: can("cotacoes"),
     queryFn: async () => (await supabase.from("cotacoes").select("id, nome, empresa, status, criado_em").order("criado_em", { ascending: false }).limit(5)).data ?? [],
   });
 
@@ -55,7 +54,7 @@ function Dashboard() {
       </div>
 
       <div className="mt-6 grid gap-6 lg:grid-cols-[1.6fr_1fr]">
-        {canSales(roles) && (
+        {can("cotacoes") && (
           <Panel>
             <div className="flex items-center justify-between border-b border-border px-5 py-4">
               <h2 className="font-semibold">Cotações recentes</h2>
@@ -79,11 +78,11 @@ function Dashboard() {
             )}
           </Panel>
         )}
-        {canContent(roles) && (
+        {shortcuts.some((s) => can(s.tabela as never, "criar")) && (
           <Panel className="self-start">
             <div className="border-b border-border px-5 py-4"><h2 className="font-semibold">Atalhos rápidos</h2></div>
             <div className="space-y-2 p-3">
-              {shortcuts.map((s) => (
+              {shortcuts.filter((s) => can(s.tabela as never, "criar")).map((s) => (
                 <Link key={s.tabela} to="/admin/conteudo/$tabela" params={{ tabela: s.tabela }} className="group flex items-center gap-3 rounded-lg border border-border px-4 py-3 text-sm font-medium transition-colors hover:border-brand-accent/40 hover:bg-brand-accent-soft">
                   <s.icon className="h-4 w-4 text-brand-accent" />{s.label}
                   <Plus className="ml-auto h-4 w-4 text-muted-foreground group-hover:text-brand-accent" />

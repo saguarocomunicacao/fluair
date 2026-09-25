@@ -1,3 +1,4 @@
+import { useAuth } from "@/hooks/useAuth";
 import { useEffect, useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
@@ -18,6 +19,7 @@ const I18N = [{ k: "endereco", l: "Endereço" }, { k: "horario", l: "Horário de
 type Vals = Record<string, { pt: string; es: string }>;
 
 export function ConfigForm() {
+  const { can } = useAuth();
   const qc = useQueryClient();
   const { data } = useQuery({
     queryKey: ["crud", "configuracoes"],
@@ -77,7 +79,7 @@ export function ConfigForm() {
       </div>
       <div className="mt-5 flex justify-end gap-2">
         <Button variant="outline" onClick={() => qc.invalidateQueries({ queryKey: ["crud", "configuracoes"] }).then(() => toast("Alterações descartadas"))}>Cancelar</Button>
-        <Button onClick={save} disabled={saving} className="min-w-32">{saving ? <><Loader2 className="h-4 w-4 animate-spin" />Salvando…</> : "Salvar tudo"}</Button>
+        <Button onClick={save} disabled={saving || !can("configuracoes", "editar")} className="min-w-32">{saving ? <><Loader2 className="h-4 w-4 animate-spin" />Salvando…</> : "Salvar tudo"}</Button>
       </div>
     </div>
   );

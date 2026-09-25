@@ -8,7 +8,6 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { PageHeader, Panel } from "@/components/admin/kit";
 import { useAuth } from "@/hooks/useAuth";
-import { canContent } from "@/lib/admin-config";
 
 export const Route = createFileRoute("/_authenticated/admin/importar")({
   component: Importar,
@@ -23,7 +22,7 @@ function Importar() {
   const [map, setMap] = useState<Map>({ codigo: "", nome: "", categoria: "", especificacoes: [] });
   const [busy, setBusy] = useState(false);
   const [rep, setRep] = useState<{ novos: string[]; atualizados: string[]; ignorados: string[]; semCat: string[] } | null>(null);
-  const { roles } = useAuth();
+  const { can } = useAuth();
 
   const onFile = (f: File) => {
     Papa.parse<Record<string, string>>(f, {
@@ -86,7 +85,7 @@ function Importar() {
     </select>
   );
 
-  if (!canContent(roles)) return <p className="text-muted-foreground">Você não tem acesso a esta área.</p>;
+  if (!can("importar")) return <p className="text-muted-foreground">Você não tem acesso a esta área.</p>;
   return (
     <div className="h-full space-y-5 overflow-y-auto">
       <PageHeader title="Importar produtos" crumbs={["Conteúdo", "Importar CSV"]} description="Envie um CSV com cabeçalho. Produtos com o mesmo código são atualizados; a categoria é associada pelo nome ou slug." />

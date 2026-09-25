@@ -3,11 +3,11 @@ import { useIsFetching, useQueryClient } from "@tanstack/react-query";
 import { useEffect, useMemo, useRef, useState, type ComponentType } from "react";
 import {
   BookOpen, ChevronsUpDown, Download, FileSpreadsheet, FileText, FolderTree, HelpCircle, Home, Image, LayoutDashboard,
-  LogOut, MapPin, Menu, MessageSquareQuote, Newspaper, GraduationCap, Package, PanelLeftClose, PanelLeftOpen, Search, Settings, Users, UserSquare2, X,
+  LogOut, MapPin, ShieldCheck, Menu, MessageSquareQuote, Newspaper, GraduationCap, Package, PanelLeftClose, PanelLeftOpen, Search, Settings, Users, UserSquare2, X,
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
-import { TABLES, canContent, canSales } from "@/lib/admin-config";
+import { TABLES, type Modulo } from "@/lib/admin-config";
 import { Logo } from "@/components/admin/kit";
 import { NavigationLoader } from "@/components/admin/NavigationLoader";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
@@ -25,7 +25,6 @@ const TABLE_ICONS: Record<string, Icon> = {
   categorias: FolderTree, produtos: Package, banners: Image, paginas: FileText, menus: Menu, noticias: Newspaper, treinamentos: GraduationCap,
   downloads: Download, representantes: UserSquare2, rede_autorizada: MapPin, faq: HelpCircle, configuracoes: Settings,
 };
-const ROLE_LABEL: Record<string, string> = { admin: "Administrador", editor_conteudo: "Editor de conteúdo", comercial: "Comercial" };
 
 type NavItem = { label: string; icon: Icon; to: string; params?: Record<string, string>; exact?: boolean; href: string };
 
@@ -33,7 +32,7 @@ const linkCls = "group relative flex items-center gap-3 rounded-lg px-3 py-2 tex
 const activeCls = { className: "bg-sidebar-accent !text-sidebar-accent-foreground before:absolute before:left-0 before:top-1.5 before:bottom-1.5 before:w-[3px] before:rounded-r-full before:bg-brand-accent" };
 
 function AdminLayout() {
-  const { user, roles, loading } = useAuth();
+  const { user, isAdmin, grupo, can, loading } = useAuth();
   const qc = useQueryClient();
   const navigate = useNavigate();
   const location = useLocation();
@@ -81,18 +80,19 @@ function AdminLayout() {
 
   const sections = useMemo(() => {
     const s: { title: string; items: NavItem[] }[] = [];
-    if (canSales(roles)) s.push({ title: "Comercial", items: [{ label: "Cotações", icon: MessageSquareQuote, to: "/admin/cotacoes", href: "/admin/cotacoes" }] });
-    if (canContent(roles)) s.push({
-      title: "Conteúdo",
-      items: [
-        { label: "Home (seções)", icon: Home, to: "/admin/home-secoes", href: "/admin/home-secoes" },
-        ...TABLES.map((t) => ({ label: t.label, icon: TABLE_ICONS[t.table] ?? BookOpen, to: "/admin/conteudo/$tabela", params: { tabela: t.table }, href: `/admin/conteudo/${t.table}` })),
-        { label: "Importar produtos", icon: FileSpreadsheet, to: "/admin/importar", href: "/admin/importar" },
-      ],
-    });
-    if (roles.includes("admin")) s.push({ title: "Sistema", items: [{ label: "Usuários", icon: Users, to: "/admin/usuarios", href: "/admin/usuarios" }] });
+    if (can("cotacoes")) s.push({ title: "Comercial", items: [{ label: "Cotações", icon: MessageSquareQuote, to: "/admin/cotacoes", href: "/admin/cotacoes" }] });
+    const content: NavItem[] = [
+        ...(can("home_secoes") ? [{ label: "Home (seções)", icon: Home, to: "/admin/home-secoes", href: "/admin/home-secoes" }] : []),
+        ...TABLES.filter((t) => can(t.table as Modulo)).map((t) => ({ label: t.label, icon: TABLE_ICONS[t.table] ?? BookOpen, to: "/admin/conteudo/$tabela", params: { tabela: t.table }, href: `/admin/conteudo/${t.table}` })),
+        ...(can("importar") ? [{ label: "Importar produtos", icon: FileSpreadsheet, to: "/admin/importar", href: "/admin/importar" }] : []),
+      ];
+    if (content.length) s.push({ title: "Conteúdo", items: content });
+    const sys: NavItem[] = [];
+    if (can("usuarios")) sys.push({ label: "Usuários", icon: Users, to: "/admin/usuarios", href: "/admin/usuarios" });
+    if (isAdmin) sys.push({ label: "Grupos", icon: ShieldCheck, to: "/admin/grupos", href: "/admin/grupos" });
+    if (sys.length) s.push({ title: "Sistema", items: sys });
     return s;
-  }, [roles]);
+  }, [can, isAdmin]);
 
   const all = sections.flatMap((s) => s.items.map((i) => ({ ...i, section: s.title })));
   const current = all.find((i) => location.pathname.startsWith(i.href));
@@ -157,7 +157,7 @@ function AdminLayout() {
           <DropdownMenuContent align="end" side="top" className="w-56">
             <DropdownMenuLabel className="font-normal">
               <div className="text-xs text-muted-foreground">Papel</div>
-              <div className="text-sm font-medium">{roles.map((r) => ROLE_LABEL[r] ?? r).join(", ") || "Sem papel"}</div>
+              <div className="text-sm font-medium">{grupo ?? "Sem grupo"}</div>
             </DropdownMenuLabel>
             <DropdownMenuSeparator />
             <DropdownMenuItem onClick={signOut} className="text-destructive focus:text-destructive"><LogOut className="h-4 w-4" />Sair</DropdownMenuItem>
@@ -211,7 +211,7 @@ function AdminLayout() {
           </div>
         </header>
         <main className="min-h-0 w-full flex-1 overflow-hidden px-4 py-8 sm:px-8">
-          {roles.length === 0 ? <p className="text-muted-foreground">Sua conta ainda não tem um papel atribuído. Peça a um administrador.</p> : <Outlet />}
+          {!grupo ? <p className="text-muted-foreground">Sua conta ainda não está em nenhum grupo. Peça a um administrador.</p> : <Outlet />}
         </main>
       </div>
     </div>

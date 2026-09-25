@@ -1,3 +1,5 @@
+import { useAuth } from "@/hooks/useAuth";
+import type { Modulo } from "@/lib/admin-config";
 import { Fragment, useMemo, useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
@@ -76,6 +78,8 @@ function fmt(v: unknown) {
 }
 
 export function CrudPage({ config }: { config: TableConfig }) {
+  const { can } = useAuth();
+  const podeCriar = can(config.table as Modulo, "criar"), podeEditar = can(config.table as Modulo, "editar"), podeExcluir = can(config.table as Modulo, "excluir");
   const pk = config.pk ?? "id";
   const qc = useQueryClient();
   const [q, setQ] = useState("");
@@ -127,7 +131,7 @@ export function CrudPage({ config }: { config: TableConfig }) {
     }
     return out;
   }, [rows, q, flt, config.searchCols, config.groupBy]);
-  const canDrag = !!config.reorder && !q && Object.values(flt).every((v) => !v);
+  const canDrag = podeEditar && !!config.reorder && !q && Object.values(flt).every((v) => !v);
   const [dragId, setDragId] = useState<string | null>(null);
   const [overId, setOverId] = useState<string | null>(null);
   const reorder = async (from: string, to: string) => {
@@ -238,7 +242,7 @@ export function CrudPage({ config }: { config: TableConfig }) {
               <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
               <Input placeholder="Buscar…" value={q} onChange={(e) => { setQ(e.target.value); setPage(0); }} className="h-10 w-64 bg-card pl-9" />
             </div>
-            <Button onClick={() => openNew()} className="h-10"><Plus className="h-4 w-4" />Novo</Button>
+            {podeCriar && <Button onClick={() => openNew()} className="h-10"><Plus className="h-4 w-4" />Novo</Button>}
           </>
         }
       />
@@ -271,12 +275,13 @@ export function CrudPage({ config }: { config: TableConfig }) {
             onDelete={(r) => setToDelete(r)}
             onNew={(init) => openNew(init)}
             onChanged={() => qc.invalidateQueries({ queryKey: ["crud", "menus"] })}
+            perms={{ criar: podeCriar, editar: podeEditar, excluir: podeExcluir }}
           />
         </Panel>
       ) : (
       <Panel className="flex min-h-0 flex-1 flex-col overflow-hidden">
         {!isLoading && filtered.length === 0 ? (
-          <EmptyState text={q ? "Nada encontrado para essa busca." : `Nenhum item em ${config.label} ainda.`} onAdd={q ? undefined : () => openNew()} />
+          <EmptyState text={q ? "Nada encontrado para essa busca." : `Nenhum item em ${config.label} ainda.`} onAdd={q || !podeCriar ? undefined : () => openNew()} />
         ) : (
           <div className="min-h-0 flex-1 overflow-auto">
             <Table>
@@ -335,12 +340,12 @@ export function CrudPage({ config }: { config: TableConfig }) {
                     ); })}
                     <TableCell className="w-px whitespace-nowrap">
                       <div className="flex items-center justify-end gap-1">
-                        <Button size="icon" variant="ghost" className="h-8 w-8" aria-label="Editar" title="Editar" onClick={() => { setIsNew(false); setEditing(r); }}>
+                        {podeEditar && <Button size="icon" variant="ghost" className="h-8 w-8" aria-label="Editar" title="Editar" onClick={() => { setIsNew(false); setEditing(r); }}>
                           <Pencil className="h-4 w-4" />
-                        </Button>
-                        <Button size="icon" variant="ghost" className="h-8 w-8 text-destructive hover:text-destructive" aria-label="Excluir" title="Excluir" onClick={() => setToDelete(r)}>
+                        </Button>}
+                        {podeExcluir && <Button size="icon" variant="ghost" className="h-8 w-8 text-destructive hover:text-destructive" aria-label="Excluir" title="Excluir" onClick={() => setToDelete(r)}>
                           <Trash2 className="h-4 w-4" />
-                        </Button>
+                        </Button>}
                       </div>
                     </TableCell>
                   </TableRow>
