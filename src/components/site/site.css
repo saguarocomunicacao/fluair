@@ -362,6 +362,8 @@
 .fl-site .modal p{color:var(--steel);font-size:14px;margin-bottom:20px}
 .fl-site .modal .oq-row{display:flex;gap:10px;justify-content:flex-end}
 .fl-site .btn-red{background:#c0262d;color:#fff}
+.fl-site .btn-red-ghost{background:transparent;color:#c0262d;border-color:#c0262d}
+.fl-site .btn-red-ghost:hover{border-color:#a02026;background:rgba(192,38,45,.06)}
 @media(max-width:1000px){.fl-site .oq-orc{grid-template-columns:1fr}.fl-site .orc-side{position:static}}
 @media(max-width:560px){.fl-site .orc-row{grid-template-columns:64px 1fr;padding:16px}.fl-site .orc-row .th{width:64px;height:64px}.fl-site .orc-row .qty{grid-column:2}.fl-site .orc-row .rm{grid-column:2;justify-self:start;margin-top:-4px}.fl-site .oq-fgrid{grid-template-columns:1fr}}
 /* contato */

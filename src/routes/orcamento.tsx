@@ -189,7 +189,7 @@ function Orcamento() {
           </div>
           <div className="orc-actions">
             <Link className="btn btn-ghost btn-sm" to="/produtos" search={catalogo}>{l.cont}</Link>
-            <button type="button" className="btn btn-ghost btn-sm" onClick={() => setConfirm({ kind: "all" })}>{l.clear}</button>
+            <button type="button" className="btn btn-red-ghost btn-sm" onClick={() => setConfirm({ kind: "all" })}>{l.clear}</button>
           </div>
         </div>
 
