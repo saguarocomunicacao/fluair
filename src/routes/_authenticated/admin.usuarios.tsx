@@ -59,7 +59,7 @@ function Usuarios() {
     while (chars.length < 14) chars.push(pick(all));
     for (let i = chars.length - 1; i > 0; i--) {
       const j = rnd() % (i + 1);
-      [chars[i], chars[j]] = [chars[j], chars[i]];
+      [chars[i], chars[j]] = [chars[j]!, chars[i]!];
     }
     setF({ ...f, password: chars.join("") });
     setShowPwd(true);
