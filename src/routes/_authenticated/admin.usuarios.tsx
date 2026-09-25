@@ -23,7 +23,6 @@ function Usuarios() {
   const qc = useQueryClient();
   const list = useServerFn(listUsers);
   const create = useServerFn(createUser);
-  const invite = useServerFn(inviteUser);
   const setGroup = useServerFn(setUserGroup);
   const setActive = useServerFn(setUserActive);
     const { data = [], isLoading } = useQuery({ queryKey: ["usuarios"], queryFn: () => list(), enabled: isAdmin });
