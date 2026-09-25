@@ -6,7 +6,6 @@ import { ArrowDown, ArrowUp, ExternalLink, Loader2, Plus, Save, Trash2 } from "l
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
-import { canContent } from "@/lib/admin-config";
 import { HOME_DEFAULTS, HOME_SECTIONS, type Item, type SectionData, type SectionDef } from "@/lib/home-sections";
 import { PageHeader, Panel } from "@/components/admin/kit";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -21,7 +20,7 @@ export const Route = createFileRoute("/_authenticated/admin/home-secoes")({ comp
 type Row = { secao: string; conteudo_pt: SectionData; conteudo_es: SectionData };
 
 function Page() {
-  const { roles } = useAuth();
+  const { can } = useAuth();
   const q = useQuery({
     queryKey: ["admin-secoes-home"],
     queryFn: async () => {
@@ -30,7 +29,7 @@ function Page() {
       return (data ?? []) as unknown as Row[];
     },
   });
-  if (!canContent(roles)) return <p className="text-muted-foreground">Você não tem acesso a esta área.</p>;
+  if (!can("home_secoes")) return <p className="text-muted-foreground">Você não tem acesso a esta área.</p>;
   return (
     <div className="-mx-1 h-full space-y-6 overflow-y-auto px-1 pb-8">
       <PageHeader title="Home (seções)" crumbs={["Conteúdo", "Home (seções)"]}
@@ -164,7 +163,7 @@ function SectionEditor({ def, row }: { def: SectionDef; row: Row | undefined }) 
               <Link to="/admin/conteudo/$tabela" params={{ tabela: "banners" }}><ExternalLink className="mr-1 h-4 w-4" />Gerenciar banners</Link>
             </Button>
           )}</div>
-        <Button onClick={save} disabled={saving}>{saving ? <Loader2 className="mr-1 h-4 w-4 animate-spin" /> : <Save className="mr-1 h-4 w-4" />}Salvar seção</Button>
+        <Button onClick={save} disabled={saving || !can("home_secoes", "editar")}>{saving ? <Loader2 className="mr-1 h-4 w-4 animate-spin" /> : <Save className="mr-1 h-4 w-4" />}Salvar seção</Button>
       </div>
       <Tabs defaultValue="pt">
         <TabsList><TabsTrigger value="pt">Português</TabsTrigger><TabsTrigger value="es">Español</TabsTrigger></TabsList>

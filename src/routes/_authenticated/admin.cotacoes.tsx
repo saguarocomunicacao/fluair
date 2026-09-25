@@ -7,7 +7,6 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Mail, MessageCircle } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
-import { canSales } from "@/lib/admin-config";
 import { COTACAO_STATUS, EmptyState, PageHeader, Panel, StatusBadge } from "@/components/admin/kit";
 
 export const Route = createFileRoute("/_authenticated/admin/cotacoes")({
@@ -20,7 +19,7 @@ const LABEL: Record<Status, string> = { novo: "Novo", em_atendimento: "Em atendi
 
 function Cotacoes() {
   const qc = useQueryClient();
-  const { roles } = useAuth();
+  const { can } = useAuth();
   const [filtro, setFiltro] = useState<Status | "todos">("todos");
   const [busca, setBusca] = useState("");
   const [sel, setSel] = useState<string | null>(null);
@@ -37,7 +36,7 @@ function Cotacoes() {
   const atual = data.find((c) => c.id === sel);
 
   const wa = (t: string | null) => { const d = (t ?? "").replace(/\D/g, ""); return d ? `https://wa.me/${d.startsWith("55") ? d : "55" + d}` : null; };
-  if (!canSales(roles)) return <p className="text-muted-foreground">Você não tem acesso a esta área.</p>;
+  if (!can("cotacoes")) return <p className="text-muted-foreground">Você não tem acesso a esta área.</p>;
   const mudar = async (id: string, status: Status) => {
     const { error } = await supabase.from("cotacoes").update({ status }).eq("id", id);
     if (error) { toast.error(error.message); return; }
@@ -92,7 +91,7 @@ function Cotacoes() {
             <div className="flex flex-wrap items-center gap-2 border-t border-border pt-4">
               <span className="text-xs font-medium text-muted-foreground">Mudar status:</span>
               {STATUS.map((s) => (
-                <Button key={s} size="sm" variant={atual.status === s ? "default" : "outline"} onClick={() => mudar(atual.id, s)}>{LABEL[s]}</Button>
+                <Button key={s} size="sm" variant={atual.status === s ? "default" : "outline"} disabled={!can("cotacoes", "editar")} onClick={() => mudar(atual.id, s)}>{LABEL[s]}</Button>
               ))}
             </div>
           </Panel>
