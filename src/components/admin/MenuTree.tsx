@@ -46,7 +46,7 @@ export function MenuTree({ rows, onEdit, onDelete, onNew, onChanged, perms = { c
     return (
       <li>
         <div
-          draggable
+          draggable={perms.editar}
           onDragStart={(e) => { setDrag(r.id); e.dataTransfer.effectAllowed = "move"; }}
           onDragEnd={() => { setDrag(null); setOver(null); }}
           onDragOver={(e) => {

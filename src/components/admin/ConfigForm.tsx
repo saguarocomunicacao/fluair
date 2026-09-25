@@ -1,3 +1,4 @@
+import { useAuth } from "@/hooks/useAuth";
 import { useEffect, useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
@@ -18,6 +19,7 @@ const I18N = [{ k: "endereco", l: "Endereço" }, { k: "horario", l: "Horário de
 type Vals = Record<string, { pt: string; es: string }>;
 
 export function ConfigForm() {
+  const { can } = useAuth();
   const qc = useQueryClient();
   const { data } = useQuery({
     queryKey: ["crud", "configuracoes"],
