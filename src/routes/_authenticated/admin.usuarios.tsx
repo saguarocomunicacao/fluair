@@ -3,15 +3,14 @@ import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { useMemo, useState } from "react";
 import { toast } from "sonner";
-import { Loader2, Mail, Search, UserPlus } from "lucide-react";
-import { listUsers, createUser, inviteUser, setUserGroup, setUserActive } from "@/lib/users.functions";
+import { Copy, Eye, EyeOff, Loader2, RefreshCw, Search, UserPlus } from "lucide-react";
+import { listUsers, createUser, setUserGroup, setUserActive } from "@/lib/users.functions";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { EmptyState, PageHeader, Panel, StatusBadge } from "@/components/admin/kit";
 
 export const Route = createFileRoute("/_authenticated/admin/usuarios")({
@@ -24,13 +23,12 @@ function Usuarios() {
   const qc = useQueryClient();
   const list = useServerFn(listUsers);
   const create = useServerFn(createUser);
-  const invite = useServerFn(inviteUser);
   const setGroup = useServerFn(setUserGroup);
   const setActive = useServerFn(setUserActive);
     const { data = [], isLoading } = useQuery({ queryKey: ["usuarios"], queryFn: () => list(), enabled: isAdmin });
   const { data: grupos = [] } = useQuery({ queryKey: ["grupos"], enabled: isAdmin, queryFn: async () => (await supabase.from("grupos").select("id, nome").order("nome")).data ?? [] });
   const [f, setF] = useState({ nome: "", email: "", password: "", grupoId: "" });
-  const [modo, setModo] = useState<"convite" | "senha">("convite");
+  const [showPwd, setShowPwd] = useState(false);
   const [busy, setBusy] = useState(false);
   const [q, setQ] = useState("");
   const refresh = () => qc.invalidateQueries({ queryKey: ["usuarios"] });
@@ -43,17 +41,34 @@ function Usuarios() {
     if (!f.grupoId) { toast.error("Escolha um grupo"); return; }
     setBusy(true);
     try {
-      if (modo === "convite") {
-        await invite({ data: { nome: f.nome, email: f.email, grupoId: f.grupoId, redirectTo: `${window.location.origin}/definir-senha` } });
-        toast.success("Convite enviado por e-mail");
-      } else {
-        await create({ data: f });
-        toast.success("Usuário criado");
-      }
+      await create({ data: f });
+      toast.success("Usuário criado");
       setF({ ...f, nome: "", email: "", password: "" });
+      setShowPwd(false);
       refresh();
     } catch (err) { toast.error((err as Error).message); }
     setBusy(false);
+  };
+
+  const gerarSenha = () => {
+    const lower = "abcdefghjkmnpqrstuvwxyz", upper = "ABCDEFGHJKMNPQRSTUVWXYZ", digits = "23456789", symbols = "!@#$%&*?";
+    const all = lower + upper + digits + symbols;
+    const rnd = () => crypto.getRandomValues(new Uint32Array(1))[0]!;
+    const pick = (s: string) => s[rnd() % s.length]!;
+    const chars = [pick(lower), pick(upper), pick(digits), pick(symbols)];
+    while (chars.length < 14) chars.push(pick(all));
+    for (let i = chars.length - 1; i > 0; i--) {
+      const j = rnd() % (i + 1);
+      [chars[i], chars[j]] = [chars[j]!, chars[i]!];
+    }
+    setF({ ...f, password: chars.join("") });
+    setShowPwd(true);
+  };
+
+  const copiarSenha = async () => {
+    if (!f.password) return;
+    try { await navigator.clipboard.writeText(f.password); toast.success("Senha copiada"); }
+    catch { toast.error("Não foi possível copiar"); }
   };
 
   return (
@@ -62,23 +77,38 @@ function Usuarios() {
       <div className="grid gap-5 xl:grid-cols-[380px_1fr]">
         <Panel className="self-start p-5">
           <h3 className="mb-4 flex items-center gap-2 text-sm font-semibold"><UserPlus className="h-4 w-4" />Adicionar usuário</h3>
-          <Tabs value={modo} onValueChange={(v) => setModo(v as typeof modo)}>
-            <TabsList className="mb-4 w-full"><TabsTrigger value="convite" className="flex-1">Convidar por e-mail</TabsTrigger><TabsTrigger value="senha" className="flex-1">Criar com senha</TabsTrigger></TabsList>
-            <form onSubmit={add} className="space-y-4">
-              <div className="space-y-2"><Label>Nome</Label><Input required value={f.nome} onChange={(e) => setF({ ...f, nome: e.target.value })} /></div>
-              <div className="space-y-2"><Label>E-mail</Label><Input type="email" required value={f.email} onChange={(e) => setF({ ...f, email: e.target.value })} /></div>
-              <TabsContent value="senha" className="mt-0 space-y-2"><Label>Senha (mín. 8)</Label><Input type="password" required={modo === "senha"} minLength={8} value={f.password} onChange={(e) => setF({ ...f, password: e.target.value })} /></TabsContent>
-              <div className="space-y-2">
-                <Label>Grupo</Label>
-                <select required className="h-9 w-full rounded-md border border-input bg-background px-2 text-sm" value={f.grupoId} onChange={(e) => setF({ ...f, grupoId: e.target.value })}>
-                  <option value="">Selecione…</option>
-                  {grupos.map((g) => <option key={g.id} value={g.id}>{g.nome}</option>)}
-                </select>
+          <form onSubmit={add} className="space-y-4">
+            <div className="space-y-2"><Label>Nome</Label><Input required value={f.nome} onChange={(e) => setF({ ...f, nome: e.target.value })} /></div>
+            <div className="space-y-2"><Label>E-mail</Label><Input type="email" required value={f.email} onChange={(e) => setF({ ...f, email: e.target.value })} /></div>
+            <div className="space-y-2">
+              <div className="flex items-center justify-between">
+                <Label>Senha (mín. 8)</Label>
+                <Button type="button" variant="outline" size="sm" className="h-7 gap-1.5 text-xs" onClick={gerarSenha}><RefreshCw className="h-3.5 w-3.5" />Gerar senha</Button>
               </div>
-              <Button type="submit" className="w-full" disabled={busy}>{busy ? <Loader2 className="h-4 w-4 animate-spin" /> : modo === "convite" ? <Mail className="h-4 w-4" /> : <UserPlus className="h-4 w-4" />}{modo === "convite" ? "Enviar convite" : "Criar usuário"}</Button>
-              <p className="text-xs text-muted-foreground">O que cada grupo pode fazer é definido em Sistema → Grupos.</p>
-            </form>
-          </Tabs>
+              <div className="relative">
+                <Input type={showPwd ? "text" : "password"} required minLength={8} value={f.password} onChange={(e) => setF({ ...f, password: e.target.value })} className="pr-16" />
+                <div className="absolute inset-y-0 right-1 flex items-center gap-0.5">
+                  {f.password && (
+                    <button type="button" aria-label="Copiar senha" title="Copiar senha" onClick={copiarSenha} className="rounded p-1.5 text-muted-foreground hover:bg-accent hover:text-foreground">
+                      <Copy className="h-4 w-4" />
+                    </button>
+                  )}
+                  <button type="button" aria-label={showPwd ? "Ocultar senha" : "Mostrar senha"} title={showPwd ? "Ocultar senha" : "Mostrar senha"} onClick={() => setShowPwd((v) => !v)} className="rounded p-1.5 text-muted-foreground hover:bg-accent hover:text-foreground">
+                    {showPwd ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                  </button>
+                </div>
+              </div>
+            </div>
+            <div className="space-y-2">
+              <Label>Grupo</Label>
+              <select required className="h-9 w-full rounded-md border border-input bg-background px-2 text-sm" value={f.grupoId} onChange={(e) => setF({ ...f, grupoId: e.target.value })}>
+                <option value="">Selecione…</option>
+                {grupos.map((g) => <option key={g.id} value={g.id}>{g.nome}</option>)}
+              </select>
+            </div>
+            <Button type="submit" className="w-full" disabled={busy}>{busy ? <Loader2 className="h-4 w-4 animate-spin" /> : <UserPlus className="h-4 w-4" />}Criar usuário</Button>
+            <p className="text-xs text-muted-foreground">O que cada grupo pode fazer é definido em Sistema → Grupos.</p>
+          </form>
         </Panel>
         <Panel className="overflow-hidden">
           <div className="flex items-center justify-between border-b border-border px-5 py-3">
