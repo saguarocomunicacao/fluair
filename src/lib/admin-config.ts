@@ -217,5 +217,24 @@ export const TABLES: TableConfig[] = [
 
 export const getTable = (t: string) => TABLES.find((c) => c.table === t);
 
-export const canContent = (roles: Role[]) => roles.includes("admin") || roles.includes("editor_conteudo");
-export const canSales = (roles: Role[]) => roles.includes("admin") || roles.includes("comercial");
+export type Acao = "ver" | "criar" | "editar" | "excluir";
+export type Perm = Record<Acao, boolean>;
+export const MODULOS = [
+  { id: "cotacoes", label: "Cotações", secao: "Comercial" },
+  { id: "categorias", label: "Categorias", secao: "Conteúdo" },
+  { id: "produtos", label: "Produtos", secao: "Conteúdo" },
+  { id: "banners", label: "Banners", secao: "Conteúdo" },
+  { id: "home_secoes", label: "Home (seções)", secao: "Conteúdo" },
+  { id: "paginas", label: "Páginas", secao: "Conteúdo" },
+  { id: "menus", label: "Menus", secao: "Conteúdo" },
+  { id: "noticias", label: "Notícias", secao: "Conteúdo" },
+  { id: "treinamentos", label: "Treinamentos", secao: "Conteúdo" },
+  { id: "downloads", label: "Downloads", secao: "Conteúdo" },
+  { id: "representantes", label: "Representantes", secao: "Conteúdo" },
+  { id: "rede_autorizada", label: "Rede autorizada", secao: "Conteúdo" },
+  { id: "faq", label: "FAQ", secao: "Conteúdo" },
+  { id: "configuracoes", label: "Configurações", secao: "Conteúdo" },
+  { id: "importar", label: "Importar produtos", secao: "Conteúdo" },
+  { id: "usuarios", label: "Usuários", secao: "Sistema" },
+] as const;
+export type Modulo = (typeof MODULOS)[number]["id"];
