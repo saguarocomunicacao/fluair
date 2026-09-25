@@ -364,7 +364,7 @@
 .fl-site .btn-red{background:#c0262d;color:#fff}
 .fl-site .btn-red-ghost{background:transparent;color:#c0262d;border-color:#c0262d}
 .fl-site .btn-red-ghost:hover{border-color:#a02026;background:rgba(192,38,45,.06)}
-.fl-site .orc-step{display:inline-flex;align-items:stretch;height:42px;background:#fff;border:2px solid var(--navy);border-radius:999px;overflow:hidden;transition:.2s}
+.fl-site .orc-step{display:inline-flex;align-items:stretch;height:42px;background:#fff;border:2px solid var(--navy);border-radius:999px;overflow:hidden;transition:.2s;position:relative;z-index:2}
 .fl-site .orc-step.grow{flex:1;min-width:220px}
 .fl-site .orc-step button{width:42px;border:0;background:none;font-family:var(--f);font-size:18px;font-weight:700;color:var(--navy);cursor:pointer;line-height:1;padding:0}
 .fl-site .orc-step button:hover{background:var(--paper)}
